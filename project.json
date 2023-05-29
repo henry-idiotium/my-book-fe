@@ -1,25 +1,30 @@
 {
-  "name": "my-book",
+  "name": "my-book-fe",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "./src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/vite:dev-server",
+      "options": { "buildTarget": "my-book-fe:build" },
       "defaultConfiguration": "development",
-      "options": {
-        "port": 3000,
-        "buildTarget": "my-book:build"
-      },
       "configurations": {
         "development": {
-          "buildTarget": "my-book:build:development",
+          "buildTarget": "my-book-fe:build:development",
           "hmr": true
         },
         "production": {
-          "buildTarget": "my-book:build:production",
+          "buildTarget": "my-book-fe:build:production",
           "hmr": false
         }
+      }
+    },
+    "serve:static": {
+      "executor": "@nx/web:file-server",
+      "options": { "buildTarget": "my-book-fe:build" },
+      "configurations": {
+        "development": { "buildTarget": "my-book-fe:build:development" },
+        "production": { "buildTarget": "my-book-fe:build:production" }
       }
     },
     "build": {
@@ -27,7 +32,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/my-book"
+        "outputPath": "dist/my-book-fe"
       },
       "configurations": {
         "development": {
@@ -42,23 +47,26 @@
       "executor": "@nx/vite:preview-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "my-book:build"
+        "buildTarget": "my-book-fe:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "my-book:build:development"
+          "buildTarget": "my-book-fe:build:development"
         },
         "production": {
-          "buildTarget": "my-book:build:production"
+          "buildTarget": "my-book-fe:build:production"
         }
       }
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/my-book"],
+      "outputs": ["coverage/my-book-fe"],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "coverage/my-book"
+        "reportsDirectory": "coverage/my-book-fe"
+      },
+      "configurations": {
+        "watch": { "watch": true }
       }
     },
     "lint": {
@@ -68,13 +76,7 @@
         "lintFilePatterns": ["./src/**/*.{ts,tsx,js,jsx}"]
       }
     },
-    "serve-static": {
-      "executor": "@nx/web:file-server",
-      "options": {
-        "buildTarget": "my-book:build"
-      }
-    },
-    "storybook": {
+    "sb": {
       "executor": "@nx/storybook:storybook",
       "options": {
         "port": 4400,
@@ -86,31 +88,40 @@
         }
       }
     },
-    "build-storybook": {
+    "sb:build": {
       "executor": "@nx/storybook:build",
       "outputs": ["{options.outputDir}"],
       "options": {
-        "outputDir": "dist/storybook/my-book",
+        "outputDir": "dist/storybook/my-book-fe",
         "configDir": "./.storybook"
       },
       "configurations": {
-        "ci": {
-          "quiet": true
-        }
+        "ci": { "quiet": true }
       }
     },
-    "static-storybook": {
+    "sb:static": {
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "my-book:build-storybook",
-        "staticFilePath": "dist/storybook/my-book"
+        "buildTarget": "my-book-fe:build-storybook",
+        "staticFilePath": "dist/storybook/my-book-fe"
       },
       "configurations": {
-        "ci": {
-          "buildTarget": "my-book:build-storybook:ci"
-        }
+        "ci": { "buildTarget": "my-book-fe:build-storybook:ci" }
       }
+    },
+    "stories": {
+      "command": "nx g stories"
+    },
+    "gen:cmp": {
+      "command": "nx g c --directory=app/components {args.name}"
+    },
+    "gen:slice": {
+      "command": "nx g slice --directory=stores/{args.name} {args.name}"
+    },
+    "gen:page": {
+      "command": "nx g c --directory=app/pages {args.name}"
     }
   },
   "tags": []
 }
+

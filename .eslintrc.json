@@ -11,18 +11,15 @@
     "prettier"
   ],
   "ignorePatterns": ["!**/*"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "parser": "@typescript-eslint/parser",
+    "project": "./tsconfig.*",
+    "sourceType": "module"
+  },
   "overrides": [
-    { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "parser": "@typescript-eslint/parser",
-      "parserOptions": {
-        "ecmaVersion": "latest",
-        "parser": "@typescript-eslint/parser",
-        "project": "./tsconfig.*",
-        "sourceType": "module"
-      }
-    }
+    { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
   ],
   "plugins": ["@nx", "react", "@typescript-eslint", "import"],
   "rules": {
