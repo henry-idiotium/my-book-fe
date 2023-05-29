@@ -1,0 +1,63 @@
+{
+  "root": true,
+  "extends": [
+    "plugin:@nx/react",
+    "plugin:import/typescript",
+    "plugin:import/recommended",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier"
+  ],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaVersion": "latest",
+        "parser": "@typescript-eslint/parser",
+        "project": "./tsconfig.*",
+        "sourceType": "module"
+      }
+    }
+  ],
+  "plugins": ["@nx", "react", "@typescript-eslint", "import"],
+  "rules": {
+    "react/jsx-no-undef": "off",
+    "react/jsx-sort-props": "warn",
+    "react/no-children-prop": "off",
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "import/default": "off",
+    "import/no-named-as-default": "off",
+    "import/no-unresolved": "off",
+    "import/newline-after-import": "warn",
+    "import/order": [
+      "warn",
+      { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
+    ],
+    "padding-line-between-statements": [
+      "warn",
+      { "blankLine": "always", "next": "*", "prev": ["const", "let", "var"] },
+      { "blankLine": "always", "next": "*", "prev": "if" },
+      { "blankLine": "always", "next": "if", "prev": "*" },
+      { "blankLine": "always", "next": "return", "prev": "*" },
+      { "blankLine": "any", "next": "return", "prev": ["const", "let", "var"] },
+      {
+        "blankLine": "any",
+        "next": ["const", "let", "var", "return", "if", "for"],
+        "prev": ["const", "let", "var"]
+      }
+    ]
+  },
+  "settings": {
+    "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
+    "import/resolver": { "typescript": {} }
+  }
+}

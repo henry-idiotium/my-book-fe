@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "extends": ["plugin:cypress/recommended"],
+  "ignorePatterns": ["!**/*"],
+  "parserOptions": { "project": "./tsconfig.json" },
+  "overrides": [
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nx/javascript"],
+      "rules": {}
+    },
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {}
+    }
+  ],
+  "plugins": ["@nx"]
+}

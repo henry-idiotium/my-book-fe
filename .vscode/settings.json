@@ -1,0 +1,33 @@
+{
+  "files.exclude": {
+    "**/.git": false,
+    "**/.svn": false,
+    "**/.hg": false,
+    "**/CVS": false,
+    "**/.DS_Store": false,
+    "**/Thumbs.db": false,
+    "**/.*": false,
+    "**/bin": false,
+    "**/index.html": false,
+    "**/node_modules": false,
+    "**/obj": false,
+    "**/public": false,
+    "**/{pnpm,postcss.config.,tsconfig.,package.,package-,vite.config.,yarn}*": false
+  },
+  "explorerExclude.backup": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/.*": true,
+    "**/bin": true,
+    "**/index.html": true,
+    "**/node_modules": true,
+    "**/obj": true,
+    "**/public": true,
+    "**/{pnpm,postcss.config.,tsconfig.,package.,package-,vite.config.,yarn}*": true
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib"
+}
