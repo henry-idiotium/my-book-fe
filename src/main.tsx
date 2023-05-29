@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 
-import routes from '@/routes';
+import { routes } from '@/pages/routes';
 import { store } from '@/stores';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
