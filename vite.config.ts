@@ -7,8 +7,16 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 dns.setDefaultResultOrder('verbatim'); // show url as localhost:{port}
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react(), viteTsConfigPaths({ root: './' })],
+
+  css: {
+    modules: {
+      localsConvention: 'camelCaseOnly',
+      generateScopedName:
+        command === 'serve' ? '[name]_[local]' : '[hash:base64:8]',
+    },
+  },
 
   cacheDir: './node_modules/.vite/my-book-fe',
 
@@ -20,5 +28,4 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
-});
-
+}));
