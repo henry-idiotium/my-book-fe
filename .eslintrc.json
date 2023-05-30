@@ -4,24 +4,13 @@
     "plugin:@nx/react",
     "plugin:import/typescript",
     "plugin:import/recommended",
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "prettier"
+    "plugin:tailwindcss/recommended"
   ],
   "ignorePatterns": ["!**/*"],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "parser": "@typescript-eslint/parser",
-    "project": "./tsconfig.*",
-    "sourceType": "module"
-  },
   "overrides": [
     { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
   ],
-  "plugins": ["@nx", "react", "@typescript-eslint", "import"],
+  "plugins": ["@nx", "react", "import"],
   "rules": {
     "react/jsx-no-undef": "off",
     "react/jsx-sort-props": "warn",
@@ -51,7 +40,8 @@
         "next": ["const", "let", "var", "return", "if", "for"],
         "prev": ["const", "let", "var"]
       }
-    ]
+    ],
+    "tailwindcss/no-custom-classname": "off"
   },
   "settings": {
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
