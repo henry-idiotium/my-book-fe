@@ -110,17 +110,25 @@
       }
     },
     "stories": {
-      "command": "nx g stories"
-    },
-    "gen:cmp": {
-      "command": "nx g c --directory=app/components {args.name}"
+      "command": "nx g stories --ignorePaths='src/app/utils/**/*'"
     },
     "gen:slice": {
       "command": "nx g slice --directory=stores/{args.name} {args.name}"
     },
+    "gen:ui": {
+      "command": "nx g c --directory=app/{args.dir} {args.name}"
+    },
+    "gen:cmp": {
+      "command": "nx gen:ui --dir=components"
+    },
     "gen:page": {
-      "command": "nx g c --directory=app/pages {args.name}"
+      "command": "nx gen:ui --dir=pages"
+    },
+    "gen:cmp:sub": {
+      "command": "nx gen:ui --dir=components/{args.parent} --name={args.name}"
+    },
+    "gen:page:sub": {
+      "command": "nx gen:ui --dir=pages/{args.parent} --name={args.name}"
     }
-  },
-  "tags": []
+  }
 }
