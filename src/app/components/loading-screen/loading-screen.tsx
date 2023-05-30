@@ -1,5 +1,5 @@
+import loadingMessages from './loading-messages';
 import styles from './loading-screen.module.css';
-import loadingMessages from './messages';
 
 /* eslint-disable-next-line */
 export interface LoadingScreenProps {}
@@ -8,13 +8,7 @@ export function LoadingScreen(props: LoadingScreenProps) {
   const message = getLoadingMessage();
 
   return (
-    <div
-      about="foooo"
-      aria-checked
-      aria-describedby="fooooo"
-      className={styles['container']}
-      id="fooo"
-    >
+    <div className={styles['container']}>
       <h1>{message}</h1>
     </div>
   );
