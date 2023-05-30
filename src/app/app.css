@@ -1,7 +1,0 @@
-.app-content-main {
-  padding: 0 2em;
-  width: 100%;
-  height: 100%;
-
-  @apply w-full h-full px-[2em];
-}
