@@ -13,7 +13,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/app/*"]
+      "@/*": ["src/*"]
     },
     "jsx": "react-jsx",
     "allowJs": false,

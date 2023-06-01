@@ -1,6 +1,6 @@
 const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const { join } = require('path');
-const plugins = require('./src/app/utils/tailwind-plugins');
+const plugins = require('./src/utils/tailwind-plugins');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 const spacingTheme = getTheme('spacing');

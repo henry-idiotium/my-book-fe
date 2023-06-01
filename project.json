@@ -110,13 +110,13 @@
       }
     },
     "stories": {
-      "command": "nx g stories --ignorePaths='src/app/utils/**/*'"
+      "command": "nx g stories --ignorePaths='src/utils/**/*'"
     },
     "gen:slice": {
-      "command": "nx g slice --directory=stores/{args.name} {args.name}"
+      "command": "nx g slice --directory=../stores/{args.name} {args.name}"
     },
     "gen:ui": {
-      "command": "nx g c --name={args.name} --directory=app/{args.dir} --fileName={args.fn}"
+      "command": "nx g c --name={args.name} --directory={args.dir} --fileName={args.fn}"
     },
     "gen:cmp": {
       "command": "nx gen:ui --dir=components --fn={args.name} --name={args.name}"

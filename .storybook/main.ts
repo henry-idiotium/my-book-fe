@@ -4,7 +4,7 @@ import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
 
 const config: StorybookConfig = {
-  stories: ['../src/app/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-styling',
@@ -23,7 +23,7 @@ const config: StorybookConfig = {
     },
   },
   viteFinal: async (config) => {
-    const baseDir = '../src/app';
+    const baseDir = '../src';
     return mergeConfig(config, {
       // resolve main tsconfig `paths` options
       resolve: {
