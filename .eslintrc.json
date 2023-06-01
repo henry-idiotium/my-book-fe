@@ -14,9 +14,9 @@
   "rules": {
     "react-hooks/exhaustive-deps": "off",
     "react/jsx-no-undef": "off",
-    "react/jsx-sort-props": "warn",
     "react/no-children-prop": "off",
     "react/react-in-jsx-scope": "off",
+    "react-hooks/exhaustive-deps": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
@@ -25,6 +25,7 @@
     "import/no-named-as-default": "off",
     "import/no-unresolved": "off",
     "import/newline-after-import": "warn",
+    "tailwindcss/no-custom-classname": "off",
     "import/order": [
       "warn",
       { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
@@ -42,7 +43,17 @@
         "prev": ["const", "let", "var"]
       }
     ],
-    "tailwindcss/no-custom-classname": "off"
+    "react/jsx-sort-props": [
+      "warn",
+      {
+        "reservedFirst": true,
+        "shorthandFirst": true,
+        "callbacksLast": true,
+        "multiline": "last",
+        "ignoreCase": true,
+        "noSortAlphabetically": true
+      }
+    ]
   },
   "settings": {
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },

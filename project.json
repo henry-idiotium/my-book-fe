@@ -116,19 +116,16 @@
       "command": "nx g slice --directory=stores/{args.name} {args.name}"
     },
     "gen:ui": {
-      "command": "nx g c --directory=app/{args.dir} {args.name}"
+      "command": "nx g c --name={args.name} --directory=app/{args.dir} --fileName={args.fn}"
     },
     "gen:cmp": {
-      "command": "nx gen:ui --dir=components"
+      "command": "nx gen:ui --dir=components --fn={args.name} --name={args.name}"
     },
     "gen:page": {
-      "command": "nx gen:ui --dir=pages"
+      "command": "nx gen:ui --dir=pages --fn={args.name}.page --name={args.name}"
     },
-    "gen:cmp:sub": {
-      "command": "nx gen:ui --dir=components/{args.parent} --name={args.name}"
-    },
-    "gen:page:sub": {
-      "command": "nx gen:ui --dir=pages/{args.parent} --name={args.name}"
+    "gen:layout": {
+      "command": "nx gen:ui --dir=layouts --fn={args.name}.layout --name={args.name}"
     }
   }
 }
