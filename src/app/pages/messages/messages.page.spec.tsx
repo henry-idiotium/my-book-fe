@@ -1,11 +1,10 @@
 import { render } from '@testing-library/react';
 
-import Product from './product';
+import Messages from './messages.page';
 
-describe('Product', () => {
+describe('Messages', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<Product />);
-
+    const { baseElement } = render(<Messages />);
     expect(baseElement).toBeTruthy();
   });
 });

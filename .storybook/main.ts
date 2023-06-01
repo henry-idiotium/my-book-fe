@@ -1,8 +1,16 @@
+import path from 'path';
+
 import type { StorybookConfig } from '@storybook/react-vite';
+import { mergeConfig } from 'vite';
 
 const config: StorybookConfig = {
   stories: ['../src/app/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
-  addons: ['@storybook/addon-essentials', '@storybook/addon-styling'],
+  addons: [
+    '@storybook/addon-essentials',
+    '@storybook/addon-styling',
+    '@storybook/addon-toolbars',
+    'storybook-addon-react-router-v6',
+  ],
   core: {
     disableTelemetry: true,
   },
@@ -13,6 +21,15 @@ const config: StorybookConfig = {
         viteConfigPath: 'vite.config.ts',
       },
     },
+  },
+  viteFinal: async (config) => {
+    const baseDir = '../src/app';
+    return mergeConfig(config, {
+      // resolve main tsconfig `paths` options
+      resolve: {
+        alias: [{ find: '@', replacement: path.resolve(__dirname, baseDir) }],
+      },
+    });
   },
 };
 

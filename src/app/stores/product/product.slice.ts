@@ -7,6 +7,8 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 
+import { RootState } from '..';
+
 import { getProductById, getProducts } from '@/api';
 import { ProductEntity, SliceStatus } from '@/types';
 
@@ -37,7 +39,7 @@ export const productSlice = createSlice({
   name: PRODUCT_FEATURE_KEY,
   initialState,
   reducers: {
-    // add: productAdapter.addOne,
+    add: productAdapter.addOne,
     // remove: productAdapter.removeOne,
     // update: productAdapter.updateOne,
   },
@@ -65,7 +67,7 @@ export const productActions = productSlice.actions;
 // selectors
 const { selectAll, selectEntities, selectById } = productAdapter.getSelectors();
 
-export const selectProductState = (rootState: GenericObject) =>
+export const selectProductState = (rootState: RootState) =>
   rootState[PRODUCT_FEATURE_KEY] as ProductState;
 
 export const selectAllProduct = createSelector(selectProductState, selectAll);

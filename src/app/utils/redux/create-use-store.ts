@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 
+// DEPRECATED: not really useful
 export function createUseStore<TState>(key: string) {
   return function useStore<TSelected = TState>(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
