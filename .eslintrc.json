@@ -12,6 +12,7 @@
   ],
   "plugins": ["@nx", "react", "import"],
   "rules": {
+    "react-hooks/exhaustive-deps": "off",
     "react/jsx-no-undef": "off",
     "react/jsx-sort-props": "warn",
     "react/no-children-prop": "off",

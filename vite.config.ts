@@ -20,8 +20,10 @@ export default defineConfig(({ command }) => ({
 
   cacheDir: './node_modules/.vite/my-book-fe',
 
-  server: { port: 3200 },
-  preview: { port: 3300 },
+  server: { port: Number(process.env.PORT) },
+  define: {
+    'process.env': process.env,
+  },
   test: {
     globals: true,
     cache: { dir: './node_modules/.vitest' },

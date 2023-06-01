@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 
 import { lazyLoad } from '@/utils';
+import Login from './login/login';
 
 export const routes = createBrowserRouter([
   {
@@ -10,6 +11,10 @@ export const routes = createBrowserRouter([
       {
         path: 'messages',
         element: lazyLoad(() => import('./messages/messages')),
+      },
+      {
+        path: 'login',
+        element: <Login />,
       },
     ],
   },
