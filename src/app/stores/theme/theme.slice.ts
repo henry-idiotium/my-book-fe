@@ -1,21 +1,34 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { z } from 'zod';
+
+import { RootState } from '..';
+
+import { getZodDefault } from '@/utils';
 
 export const THEME_FEATURE_KEY = 'theme';
 
-interface ThemeEntity {
-  darkMode: boolean;
-}
-
-const initialState: ThemeEntity = {
-  darkMode: false,
+export const THEME_CONFIG = {
+  BASE: ['default', 'dim', 'dark'],
+  ACCENT: ['blue', 'gold', 'pink', 'blue', 'orange', 'green'],
 };
 
+const themeStateZod = z.object({
+  base: z.string().default(THEME_CONFIG.BASE[0]),
+  accent: z.string().default(THEME_CONFIG.ACCENT[0]),
+});
+
+export type ThemeState = z.infer<typeof themeStateZod>;
+const initialState = getZodDefault(themeStateZod);
+
+type PayloadSet = { type: keyof ThemeState; value: string };
 export const themeSlice = createSlice({
   name: THEME_FEATURE_KEY,
   initialState,
   reducers: {
-    toggle: (state) => {
-      state.darkMode = !state.darkMode;
+    set: (state, action: PayloadAction<PayloadSet>) => {
+      const { type, value } = action.payload;
+
+      state[type] = value;
     },
   },
 });
@@ -23,5 +36,5 @@ export const themeSlice = createSlice({
 export const themeReducer = themeSlice.reducer;
 export const themeActions = themeSlice.actions;
 
-export const selectThemeEntity = (rootState: GenericObject) =>
-  rootState[THEME_FEATURE_KEY] as ThemeEntity;
+export const selectTheme = (rootState: RootState) =>
+  rootState[THEME_FEATURE_KEY] as ThemeState;

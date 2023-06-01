@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { useAppSelector } from '@/stores';
+import { useSelector } from '@/hooks';
 import {
   useLoginMutation,
   useLogoutMutation,
@@ -15,7 +15,7 @@ import { LoginForm, loginFormZod } from '@/types';
 export interface LoginProps {}
 
 export function Login(props: LoginProps) {
-  const { user, token } = useAppSelector(selectAuth);
+  const { user, token } = useSelector(selectAuth);
   const {
     register,
     handleSubmit,

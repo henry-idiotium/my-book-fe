@@ -1,2 +1,2 @@
-export { LoadingScreen } from './loading-screen/loading-screen';
-export { ProductItem } from './product-item/product-item';
+export * from './loading-screen/loading-screen';
+export * from './product-item/product-item';

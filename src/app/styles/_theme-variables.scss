@@ -1,0 +1,100 @@
+// helpers
+@mixin set-vars($name, $color) {
+  --c-#{$name}: #{$color};
+}
+
+:root {
+  $css-vars: (
+    'neutral': #393c3f,
+    'info': #3abff8,
+    'success': #36d097,
+    'warning': #fbbd23,
+    'error': #f87272,
+  );
+  @each $key, $color in $css-vars {
+    @include set-vars($key, $color);
+  }
+}
+
+//#region theme config
+@mixin getVarsThemeConfig(
+  $config-key,
+  $group-name,
+  $color-scheme,
+  $suffix: focus,
+  $lighten: true,
+  $perc: 5%
+) {
+  $secondary-scheme: ();
+
+  @if $suffix != '' {
+    @each $scheme-key, $sub-scheme in $color-scheme {
+      $color: $sub-scheme;
+
+      // get actual color if any
+      @if type-of($sub-scheme) == 'map' {
+        $color: map-get($sub-scheme, 'default');
+        // remap back to normal scheme
+        // prettier-ignore
+        $color-scheme: map-merge($color-scheme, ($scheme-key: $color));
+      }
+
+      // apply "makeup"
+      // prettier-ignore
+      @if $lighten == true { $color: lighten($color, $perc); }
+      // prettier-ignore
+      @else { $color: darken($color, $perc); }
+
+      // add secondary
+      // prettier-ignore
+      $secondary-scheme: map-merge($secondary-scheme, ($scheme-key: $color));
+    }
+  }
+
+  // render
+  @each $config-value, $color in $color-scheme {
+    &[data-theme-#{$config-key}='#{$config-value}'] {
+      @include set-vars($group-name, $color);
+
+      @if $suffix!= '' {
+        $color: map-get($secondary-scheme, $config-value);
+        @include set-vars($group-name + '-' + $suffix, $color);
+      }
+    }
+  }
+}
+
+:root {
+  $scheme-base: (
+    'default': #0f0f0f,
+    'dim': #1a1e2c,
+    'dark': (
+      'default': white,
+      'secondary': darken(white, 5%),
+    ),
+  );
+  @include getVarsThemeConfig(base, base, $scheme-base);
+
+  // accent
+  $scheme-accent: (
+    'blue': #1d9bf0,
+    'gold': #ffd400,
+    'pink': #f91880,
+    'purple': #7856ff,
+    'orange': #ff7a00,
+    'green': #00ba7c,
+  );
+  @include getVarsThemeConfig(accent, accent, $scheme-accent);
+
+  // text color, correspond to `base` config
+  $scheme-color: (
+    'default': (
+      'default': #0f1419,
+      'secondary': lighten(#0f1419, 5%),
+    ),
+    'dim': #f7f9f9,
+    'dark': #e7e9ea,
+  );
+  @include getVarsThemeConfig(base, color, $scheme-color, accent, false);
+}
+//#endregion
