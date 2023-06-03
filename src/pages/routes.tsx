@@ -1,6 +1,7 @@
 import { RouteObject, createBrowserRouter } from 'react-router-dom';
 
 import Login from './login/login.page';
+import MessagesTest from './messages-test/messages.page';
 
 import { lazyLoad } from '@/utils';
 
@@ -22,6 +23,10 @@ export const routes = createBrowserRouter([
       {
         path: 'login',
         element: <Login />,
+      },
+      {
+        path: 'test',
+        element: <MessagesTest />,
       },
     ],
   },

@@ -3,10 +3,7 @@ import { useContext } from 'react';
 import SocketContext from './chat-box.context';
 import styles from './chat-box.module.css';
 
-/* eslint-disable-next-line */
-export interface ChatBoxProps {}
-
-export function ChatBox(props: ChatBoxProps) {
+export function ChatBoxMain() {
   const { userCount } = useContext(SocketContext).SocketState;
 
   return (
@@ -16,4 +13,4 @@ export function ChatBox(props: ChatBoxProps) {
   );
 }
 
-export default ChatBox;
+export default ChatBoxMain;

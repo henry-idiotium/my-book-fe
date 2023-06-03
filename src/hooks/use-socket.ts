@@ -5,7 +5,9 @@ export const useSocket = (
   url: string,
   options?: Partial<ManagerOptions & SocketOptions> | undefined
 ): Socket => {
-  const { current: socket } = useRef(io(url, options));
+  const { current: socket } = useRef(
+    io(url, { ...options, autoConnect: false })
+  );
 
   useEffect(() => {
     return () => {

@@ -3,6 +3,7 @@ import { Socket } from 'socket.io-client';
 
 export interface SocketContextState {
   userCount: number;
+  socket: Socket | undefined;
 }
 
 export const SocketActions = {
@@ -24,25 +25,24 @@ export interface ISocketContextProps {
 
 export const initialSocketState: SocketContextState = {
   userCount: 0,
+  socket: undefined,
 };
 
 export const SocketReducer = (
   state: SocketContextState,
   action: SocketContextActionPayload
 ): SocketContextState => {
-  console.log(
-    'Message received - Action: ' + action.type + ' - Payload: ',
-    action.payload
-  );
+  console.log('Action: ' + action.type + ' - Payload: ', action.payload);
 
   switch (action.type) {
     case SocketActions.USER_CONNECTED: {
-      const payload = action.payload as { userCount: number };
-      return { ...state, userCount: payload.userCount };
+      const payload = action.payload as { userCount: number; socket: Socket };
+      return { ...state, userCount: payload.userCount, socket: payload.socket };
     }
+
     case SocketActions.USER_DISCONNECTED: {
-      const payload = action.payload as { userCount: number };
-      return { ...state, userCount: payload.userCount };
+      const payload = action.payload as number;
+      return { ...state, userCount: payload };
     }
     default: {
       return state;

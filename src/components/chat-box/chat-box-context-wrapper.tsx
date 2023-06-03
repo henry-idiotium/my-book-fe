@@ -12,7 +12,7 @@ import { useSocket } from '@/hooks';
 const SocketContextComponent = (props: PropsWithChildren) => {
   const { children } = props;
 
-  const socket = useSocket(import.meta.env.VITE_SERVER_URL);
+  const socket = useSocket(`${import.meta.env.VITE_SERVER_URL}/chatbox`);
 
   const [SocketState, SocketDispatch] = useReducer(
     SocketReducer,
@@ -21,13 +21,19 @@ const SocketContextComponent = (props: PropsWithChildren) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    socket.on(SocketActions.USER_CONNECTED, (payload: unknown) => {
-      SocketDispatch({ type: SocketActions.USER_CONNECTED, payload });
-      setLoading(false);
-    });
+    socket.connect();
+    socket.on('connect', () => {
+      socket.on(SocketActions.USER_CONNECTED, (payload: unknown) => {
+        SocketDispatch({
+          type: SocketActions.USER_CONNECTED,
+          payload: { userCount: payload, socket },
+        });
+        setLoading(false);
+      });
 
-    socket.on(SocketActions.USER_DISCONNECTED, (payload) => {
-      SocketDispatch({ type: SocketActions.USER_DISCONNECTED, payload });
+      socket.on(SocketActions.USER_DISCONNECTED, (payload) => {
+        SocketDispatch({ type: SocketActions.USER_DISCONNECTED, payload });
+      });
     });
   }, []);
 
