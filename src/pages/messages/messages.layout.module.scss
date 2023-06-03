@@ -1,0 +1,66 @@
+.container {
+  .wrapper {
+    @apply wh-full grid min-h-screen;
+    @apply lg:grid-cols-[minmax(386px,389px)_576px];
+    @apply <lg:max-w-[386px];
+
+    .main-content {
+      @apply <lg:hidden;
+
+      > * {
+        @apply border-color-base border-r;
+      }
+
+      .chatboxes-pane {
+        @apply wh-full;
+
+        .chatbox {
+          @apply wh-auto;
+
+          &-header {
+            @apply w-full h-[53px] flex items-center p-4 justify-between mx-1;
+
+            > h2 {
+              @apply text-[20px] font-semibold;
+            }
+
+            &-option {
+              @apply flex;
+
+              &-item {
+                @apply p-2;
+
+                &-icon {
+                  @apply wh-5;
+                }
+              }
+            }
+          }
+
+          &-search {
+            @apply w-full p-3;
+
+            &-input {
+              @apply rounded-full;
+            }
+          }
+          &-content {
+            @apply wh-auto;
+          }
+        }
+      }
+
+      .messaging-pane {
+        @apply wh-full;
+      }
+    }
+
+    .warning-not-implemented-yet {
+      @apply lg:hidden;
+
+      > span {
+        @apply font-bold text-red-500;
+      }
+    }
+  }
+}

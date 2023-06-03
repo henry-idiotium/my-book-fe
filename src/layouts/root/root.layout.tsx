@@ -50,12 +50,6 @@ export function Root() {
         <div className={styles.mainContent}>
           <Outlet />
         </div>
-
-        <aside className={styles.mainSideContent}>
-          <div className={styles.mainSideContentWrapper}>
-            <div className="wh-full">side content</div>
-          </div>
-        </aside>
       </main>
     </div>
   );

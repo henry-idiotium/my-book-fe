@@ -22,15 +22,17 @@ export function NavBar(props: NavBarProps) {
       <div className={styles.wrapper}>
         <div className={styles.nav}>
           <div className={styles.logo}>
-            <Link to="/home" className={styles.logoImg}>
-              <Avatar src={LogoSVG} alt="app logo" />
+            <Link to="/">
+              <div className={styles.logoImg}>
+                <Avatar src={LogoSVG} alt="app logo" />
+              </div>
             </Link>
           </div>
 
           <div className={styles.navMain}>
             {scheme.map(({ to, name, icon, activeIcon }, index) => (
               <NavItem
-                key={index}
+                key={index + 1}
                 icon={icon}
                 activeIcon={activeIcon}
                 name={name}
@@ -40,7 +42,7 @@ export function NavBar(props: NavBarProps) {
           </div>
 
           {/* more button */}
-          <button className="mt-3 text-color" type="button">
+          <button className="mt-3 w-fit text-color" type="button">
             <div className="rounded-full py-2 hover:bg-base-focus">
               <div className="flex w-fit items-center gap-4 px-3 text-xl">
                 <div className="py-1">
@@ -54,7 +56,7 @@ export function NavBar(props: NavBarProps) {
           {/* tweet button */}
           <button
             type="button"
-            className="my-4 h-[52px] w-[52px] rounded-full bg-accent text-white hover:bg-accent-focus 2xl:w-full"
+            className="my-4 h-[52px] w-[52px] rounded-full bg-accent text-white hover:bg-accent-focus 2xl:w-[235px]"
           >
             <div className="relative z-0 flex items-center justify-center py-1 wh-full 2xl:hidden">
               <BiPlus className="absolute left-3 top-3 z-[2] stroke-2 wh-3" />

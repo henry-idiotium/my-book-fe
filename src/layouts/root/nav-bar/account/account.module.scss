@@ -38,11 +38,7 @@
       }
 
       .more-icon {
-        @apply w-full h-10 px-2  flex justify-end items-center <xl:hidden;
-
-        // &-content {
-        //   @apply mx-2;
-        // }
+        @apply w-full h-10 flex justify-end items-center <xl:hidden text-color;
       }
     }
   }

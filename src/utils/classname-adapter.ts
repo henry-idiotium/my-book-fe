@@ -2,11 +2,17 @@ type ElementScheme = GenericObject<boolean>;
 type Props = (ElementScheme | string | undefined)[];
 
 export function classes(...props: Props) {
-  return props.filter(Boolean).reduce<string>((className, value) => {
-    const name = typeof value === 'object' ? extractClassScheme(value) : value;
+  return props
+    .map((className) => {
+      const name =
+        typeof className === 'object'
+          ? extractClassScheme(className)
+          : className;
 
-    return `${className} ${name}`;
-  }, '');
+      return name;
+    })
+    .filter((cn) => cn && cn !== '')
+    .join(' ');
 }
 
 function extractClassScheme(obj: ElementScheme) {

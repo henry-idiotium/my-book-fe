@@ -1,18 +1,18 @@
 .container {
-  @apply h-full shrink-0 relative px-2 py-0;
+  @apply h-full <xl:w-[88px] <sm:w-[72] shrink-0 relative px-2 py-0 mr-0 ml-auto;
 
   .wrapper {
-    @apply h-full flex flex-col relative justify-between overflow-y-auto;
+    @apply h-full flex flex-col relative justify-between overflow-hidden;
 
     .nav {
       @apply flex flex-col <xl:items-center;
 
       &-main {
-        @apply flex flex-col gap-3;
+        @apply flex flex-col gap-[10px] <xl:items-center;
       }
 
       .logo {
-        @apply wh-[50px] mt-1;
+        @apply wh-[50px] py-2 my-1 rounded-full hover:bg-base-focus;
 
         &-img {
           @apply wh-full flex justify-center items-center;

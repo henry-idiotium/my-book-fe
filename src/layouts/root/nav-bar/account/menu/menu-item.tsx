@@ -10,7 +10,7 @@ export function MenuItem({ icon: Icon, content, onClick }: MenuItemProps) {
   return (
     <button
       type="button"
-      className="w-full py-2 text-color hover:bg-base-focus"
+      className="w-full rounded-lg py-2 text-color hover:bg-base-focus"
       onClick={onClick}
     >
       <div className="flex w-fit items-center gap-4 px-3 text-xl">

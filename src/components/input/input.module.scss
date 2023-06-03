@@ -1,0 +1,19 @@
+.container {
+  @apply w-auto;
+
+  .wrapper {
+    @apply relative;
+
+    .label {
+      @apply sr-only;
+    }
+
+    .input {
+      @apply h-10 w-full rounded-full border-color-base pe-10 shadow-sm sm:text-sm bg-base text-color border-solid focus:border-accent;
+
+      &::placeholder {
+        @apply text-color-accent brightness-50;
+      }
+    }
+  }
+}

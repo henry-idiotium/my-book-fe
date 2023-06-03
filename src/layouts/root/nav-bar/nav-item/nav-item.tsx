@@ -4,23 +4,28 @@ import { NavLink } from 'react-router-dom';
 import { DynamicComponent } from '@/components';
 import { classes } from '@/utils';
 
+type NavItemIcon = (props: GenericObject) => JSX.Element;
 export interface NavItemProps {
-  icon: IconType;
-  activeIcon?: IconType;
-  name: string;
+  icon: NavItemIcon;
+  activeIcon?: NavItemIcon;
+  name?: string;
   to?: string;
   hideContent?: boolean;
 }
 
-export function NavItem(props: NavItemProps) {
-  const { icon: Icon, activeIcon: ActiveIcon = Icon } = props;
-
-  const linkPath = props.to ?? props.name.replace('-', ' ');
+export function NavItem({
+  icon: Icon,
+  activeIcon: ActiveIcon = Icon,
+  to,
+  name,
+  hideContent,
+}: NavItemProps) {
+  const linkPath = to ?? (name ? name.replace('-', ' ') : '');
 
   return (
     <NavLink to={linkPath} className="text-color">
       {({ isActive }) => (
-        <div className="rounded-full py-2 hover:bg-base-focus">
+        <div className="w-fit rounded-full py-2 hover:bg-base-focus">
           <div className="flex w-fit items-center gap-4 px-3 text-xl">
             <div className="py-1">
               <DynamicComponent
@@ -31,13 +36,13 @@ export function NavItem(props: NavItemProps) {
               />
             </div>
 
-            {!props.hideContent ? (
+            {!hideContent ? (
               <span
                 className={classes('pr-4 capitalize <xl:hidden', {
                   'font-bold': isActive,
                 })}
               >
-                {props.name}
+                {name}
               </span>
             ) : undefined}
           </div>
