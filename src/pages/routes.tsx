@@ -1,6 +1,6 @@
 import { RouteObject, createBrowserRouter } from 'react-router-dom';
 
-import Login from './login/login';
+import Login from './login/login.page';
 
 import { lazyLoad } from '@/utils';
 

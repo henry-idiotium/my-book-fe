@@ -12,7 +12,6 @@
   ],
   "plugins": ["@nx", "react", "import"],
   "rules": {
-    "react-hooks/exhaustive-deps": "off",
     "react/jsx-no-undef": "off",
     "react/no-children-prop": "off",
     "react/react-in-jsx-scope": "off",
