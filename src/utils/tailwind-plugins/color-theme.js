@@ -14,6 +14,8 @@ module.exports = plugin(() => {}, {
     extend: {
       backgroundColor: { ...getColor(['base']), ...commonColors },
       colors: { ...getColor(['color'], undefined, '-accent'), ...commonColors },
+      borderColor: { 'color-base': 'var(--c-border)' },
+      boxShadowColor: { 'color-base': 'var(--c-base-focus)' },
     },
   },
 });
@@ -24,7 +26,8 @@ function getColor(names = [''], prefix = '--c-', suffix = '-focus') {
 
   names.forEach((name) => {
     scheme[name] = getValue(name);
-    scheme[name + suffix] = getValue(name + suffix);
+
+    if (suffix) scheme[name + suffix] = getValue(name + suffix);
   });
 
   return scheme;

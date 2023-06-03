@@ -1,12 +1,14 @@
+/** @typedef {import('tailwindcss').Config} config */
+
 const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const { join } = require('path');
 const plugins = require('./src/utils/tailwind-plugins');
 const defaultTheme = require('tailwindcss/defaultTheme');
+const withMT = require('@material-tailwind/react/utils/withMT');
 
 const spacingTheme = getTheme('spacing');
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   plugins,
   content: [
     join(
@@ -28,8 +30,7 @@ module.exports = {
         tertiary: '12px',
       },
       fontFamily: {
-        sans: ['Open Sans', ...defaultTheme.fontFamily.sans],
-        reading: 'Quicksand, sans-serif',
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
       },
       screens: {
         '<2xl': { max: '1535px' },
@@ -52,3 +53,5 @@ module.exports = {
 function getTheme(type) {
   return ({ theme }) => ({ ...theme(type) });
 }
+
+module.exports = withMT(config);

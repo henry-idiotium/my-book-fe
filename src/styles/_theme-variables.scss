@@ -33,17 +33,18 @@
 
       // get actual color if any
       @if type-of($sub-scheme) == 'map' {
-        $color: map-get($sub-scheme, 'default');
+        $color: map-get($sub-scheme, 'secondary');
+        $default-color: map-get($sub-scheme, 'default');
         // remap back to normal scheme
         // prettier-ignore
-        $color-scheme: map-merge($color-scheme, ($scheme-key: $color));
+        $color-scheme: map-merge($color-scheme, ($scheme-key: $default-color));
+      } @else {
+        // apply "makeup"
+        // prettier-ignore
+        @if $lighten == true { $color: lighten($color, $perc); }
+        // prettier-ignore
+        @else { $color: darken($color, $perc); }
       }
-
-      // apply "makeup"
-      // prettier-ignore
-      @if $lighten == true { $color: lighten($color, $perc); }
-      // prettier-ignore
-      @else { $color: darken($color, $perc); }
 
       // add secondary
       // prettier-ignore
@@ -66,11 +67,14 @@
 
 :root {
   $scheme-base: (
-    'default': #0f0f0f,
+    'default': (
+      'default': white,
+      'secondary': darken(white, 9%),
+    ),
     'dim': #1a1e2c,
     'dark': (
-      'default': white,
-      'secondary': darken(white, 5%),
+      'default': black,
+      'secondary': lighten(black, 11%),
     ),
   );
   @include getVarsThemeConfig(base, base, $scheme-base);
@@ -84,7 +88,13 @@
     'orange': #ff7a00,
     'green': #00ba7c,
   );
-  @include getVarsThemeConfig(accent, accent, $scheme-accent);
+  @include getVarsThemeConfig(
+    accent,
+    accent,
+    $scheme-accent,
+    $lighten: false,
+    $perc: 7%
+  );
 
   // text color, correspond to `base` config
   $scheme-color: (
@@ -96,5 +106,13 @@
     'dark': #e7e9ea,
   );
   @include getVarsThemeConfig(base, color, $scheme-color, accent, false);
+
+  // border color, correspond to `base` config
+  $scheme-color: (
+    'default': #fff,
+    'dim': #38444d,
+    'dark': #2f3336,
+  );
+  @include getVarsThemeConfig(base, border, $scheme-color, $suffix: '');
 }
 //#endregion

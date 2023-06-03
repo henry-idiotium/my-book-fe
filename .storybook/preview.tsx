@@ -1,5 +1,4 @@
-import '@/styles/tailwinds.css';
-import '@/styles/_theme-variables.scss';
+import '@/styles/main.scss';
 
 import { Preview } from '@storybook/react';
 
@@ -32,6 +31,16 @@ const preview: Preview = {
         items: THEME_CONFIG.ACCENT,
         dynamicTitle: true,
       },
+    },
+  },
+  parameters: {
+    backgrounds: {
+      default: 'default',
+      values: [
+        { name: 'dark', value: '#000' },
+        { name: 'dim', value: '#1a1e2c' },
+        { name: 'default', value: '#fff' },
+      ],
     },
   },
 };

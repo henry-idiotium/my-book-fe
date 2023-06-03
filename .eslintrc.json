@@ -12,11 +12,11 @@
   ],
   "plugins": ["@nx", "react", "import"],
   "rules": {
+    "react/jsx-key": "error",
     "react-hooks/exhaustive-deps": "off",
     "react/jsx-no-undef": "off",
     "react/no-children-prop": "off",
     "react/react-in-jsx-scope": "off",
-    "react-hooks/exhaustive-deps": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",

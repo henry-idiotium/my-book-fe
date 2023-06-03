@@ -3,6 +3,14 @@ import { Decorator } from '@storybook/react';
 export const withThemeBaseAdapter: Decorator = (Story, context) => {
   const baseValue = context.globals['theme-base'] as string;
 
+  switch (baseValue) {
+    case 'default': // light theme
+      break;
+
+    default:
+      break;
+  }
+
   document.documentElement.setAttribute('data-theme-base', baseValue);
 
   return <Story />;

@@ -6,7 +6,9 @@
   "targets": {
     "serve": {
       "executor": "@nx/vite:dev-server",
-      "options": { "buildTarget": "my-book-fe:build" },
+      "options": {
+        "buildTarget": "my-book-fe:build"
+      },
       "defaultConfiguration": "development",
       "configurations": {
         "development": {
@@ -21,10 +23,16 @@
     },
     "serve:static": {
       "executor": "@nx/web:file-server",
-      "options": { "buildTarget": "my-book-fe:build" },
+      "options": {
+        "buildTarget": "my-book-fe:build"
+      },
       "configurations": {
-        "development": { "buildTarget": "my-book-fe:build:development" },
-        "production": { "buildTarget": "my-book-fe:build:production" }
+        "development": {
+          "buildTarget": "my-book-fe:build:development"
+        },
+        "production": {
+          "buildTarget": "my-book-fe:build:production"
+        }
       }
     },
     "build": {
@@ -66,7 +74,9 @@
         "reportsDirectory": "coverage/my-book-fe"
       },
       "configurations": {
-        "watch": { "watch": true }
+        "watch": {
+          "watch": true
+        }
       }
     },
     "lint": {
@@ -96,7 +106,9 @@
         "configDir": "./.storybook"
       },
       "configurations": {
-        "ci": { "quiet": true }
+        "ci": {
+          "quiet": true
+        }
       }
     },
     "sb:static": {
@@ -106,7 +118,9 @@
         "staticFilePath": "dist/storybook/my-book-fe"
       },
       "configurations": {
-        "ci": { "buildTarget": "my-book-fe:build-storybook:ci" }
+        "ci": {
+          "buildTarget": "my-book-fe:build-storybook:ci"
+        }
       }
     },
     "stories": {
