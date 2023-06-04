@@ -1,5 +1,5 @@
 .container {
-  @apply grid justify-center min-h-screen my-0 mx-auto bg-base;
+  @apply grid justify-center min-h-screen my-0 mx-auto bg-base overflow-y-scroll relative;
 
   @apply <xl:max-w-[1335px];
   @apply xl:grid-cols-[auto_minmax(900px,1008px)] xl:py-0 xl:px-2 xl:box-content;

@@ -6,7 +6,8 @@
 import { z } from 'zod';
 
 export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
-  schema: T
+  schema: T,
+  options: { deep: boolean } = { deep: true }
 ): z.infer<T> {
   // is it a ZodEffect?
   if (schema instanceof z.ZodEffects) {
@@ -25,7 +26,8 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
     if (schema instanceof z.ZodArray) return [];
     if (schema instanceof z.ZodString) return '';
     if (schema instanceof z.ZodNumber) return 0;
-    if (schema instanceof z.ZodObject) return getZodDefault(schema); // return an content of object recursivly
+    if (schema instanceof z.ZodObject && options.deep)
+      return getZodDefault(schema); // return an content of object recursivly
 
     if (!('innerType' in schema._def)) return undefined;
 

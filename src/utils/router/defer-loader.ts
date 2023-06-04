@@ -5,12 +5,14 @@ import {
   useLoaderData as useReactRouterLoaderData,
 } from 'react-router-dom';
 
+// used for getting loader data
 export function useLoaderData<
   TLoader extends ReturnType<typeof deferredLoader>
 >() {
   return useReactRouterLoaderData() as ReturnType<TLoader>['data'];
 }
 
+// used for create loader func
 export function deferredLoader<TData extends Record<string, unknown>>(
   dataFunc: (args: LoaderFunctionArgs) => TData
 ) {

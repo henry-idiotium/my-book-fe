@@ -33,7 +33,7 @@ const reducer = combineReducers({
 const middlewares: Middleware[] = [authApi.middleware];
 const enhancers: StoreEnhancer[] = [];
 
-// Persistence
+// Persistences
 const persistConfig: PersistConfig<RootState> = {
   key: 'root',
   storage,
@@ -41,7 +41,7 @@ const persistConfig: PersistConfig<RootState> = {
 };
 const persistedReducer = persistReducer(persistConfig, reducer);
 
-// main
+// store setup function for testing purposes
 export function setupStore(preloadedState?: PreloadedState<RootState>) {
   return configureStore({
     devTools: process.env.NODE_ENV === 'development',
@@ -58,6 +58,7 @@ export function setupStore(preloadedState?: PreloadedState<RootState>) {
   });
 }
 
+// main
 export const appStore = setupStore();
 export default appStore;
 

@@ -1,23 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { object, string, z } from 'zod';
 
 import { RootState } from '..';
 
 import { authApi } from './auth-api';
 
-import { UserEntity, defaultUser } from '@/types';
+import { defaultUser, userZod } from '@/types';
+import { getZodDefault } from '@/utils';
 
 export const AUTH_FEATURE_KEY = 'auth';
 
-export interface AuthState {
-  token: string;
-  user: UserEntity;
-}
+const authZod = object({
+  token: string(),
+  user: object(userZod.shape),
+});
 
-export const initialAuthState: AuthState = { token: '', user: defaultUser };
+export type AuthState = z.infer<typeof authZod>;
+export const initialState = getZodDefault(authZod, { deep: false });
 
 export const authSlice = createSlice({
   name: AUTH_FEATURE_KEY,
-  initialState: initialAuthState,
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -37,8 +40,8 @@ export const authSlice = createSlice({
     builder.addMatcher(
       authApi.endpoints.logout.matchFulfilled,
       (state, action) => {
-        state.token = initialAuthState.token;
-        state.user = initialAuthState.user;
+        state.token = initialState.token;
+        state.user = initialState.user;
       }
     );
   },

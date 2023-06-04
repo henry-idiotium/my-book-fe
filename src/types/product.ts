@@ -7,5 +7,5 @@ export const productZod = z.object({
   name: z.string(),
 });
 
-export const defaultProduct = getZodDefault<typeof productZod>(productZod);
+export const defaultProduct = getZodDefault(productZod);
 export type ProductEntity = z.infer<typeof productZod>;

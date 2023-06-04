@@ -9,7 +9,7 @@
     }
 
     .input {
-      @apply h-10 w-full rounded-full border-color-base pe-10 shadow-sm sm:text-sm bg-base text-color border-solid focus:border-accent;
+      @apply h-11 w-full rounded-full border-color-base pe-10 shadow-sm sm:text-sm text-color border-solid focus:border-accent  bg-base-focus focus:bg-base;
 
       &::placeholder {
         @apply text-color-accent brightness-50;

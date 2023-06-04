@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useSelector } from '@/hooks';
 import {
@@ -11,19 +12,16 @@ import {
 import { selectAuth } from '@/stores/auth/auth.slice';
 import { LoginForm, loginFormZod } from '@/types';
 
-/* eslint-disable-next-line */
-export interface LoginProps {}
-
-export function Login(props: LoginProps) {
-  const { user, token } = useSelector(selectAuth);
+export function Login() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(loginFormZod),
-  });
+  } = useForm<LoginForm>({ resolver: zodResolver(loginFormZod) });
 
+  const { user, token } = useSelector(selectAuth);
   const [login, { isSuccess }] = useLoginMutation();
   const [refresh] = useRefreshMutation();
   const [logout] = useLogoutMutation();
@@ -36,7 +34,9 @@ export function Login(props: LoginProps) {
     if (token === '') {
       refresh(undefined);
     } else if (isSuccess) {
-      alert(user.email);
+      const from = String(location.state?.from?.pathname ?? '/');
+
+      navigate(from, { replace: true });
     }
   }, [isSuccess, token]);
 
@@ -79,7 +79,7 @@ export function Login(props: LoginProps) {
         </div>
         <hr />
         <div>
-          <a href="#">Forgot Password?</a>
+          <a href="/">Forgot Password?</a>
         </div>
       </form>
     </>

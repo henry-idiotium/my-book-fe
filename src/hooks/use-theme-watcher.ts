@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '@/hooks';
 import { ThemeState, selectTheme, themeActions } from '@/stores';
 
-export function useThemeWatcher(selector: string, throwError = false) {
+export function useThemeWatcher(selector = ':root', throwError = false) {
   const [error, setError] = useState<string>();
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);

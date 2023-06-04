@@ -8,7 +8,7 @@ import { RouterProvider } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { routes } from '@/pages/routes';
+import { router } from '@/pages/router';
 import { setupStore } from '@/stores';
 
 const store = setupStore();
@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <PersistGate loading={null} persistor={persistor}>
       <ThemeProvider>
         <StrictMode>
-          <RouterProvider router={routes} />
+          <RouterProvider router={router} />
         </StrictMode>
       </ThemeProvider>
     </PersistGate>
