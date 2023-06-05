@@ -25,7 +25,6 @@ export function Login(props: LoginProps) {
   });
 
   const [login, { isSuccess }] = useLoginMutation();
-  const [refresh] = useRefreshMutation();
   const [logout] = useLogoutMutation();
 
   const onSubmit: SubmitHandler<LoginForm> = async (data) => {
@@ -33,10 +32,12 @@ export function Login(props: LoginProps) {
   };
 
   useEffect(() => {
-    if (token === '') {
-      refresh(undefined);
-    } else if (isSuccess) {
-      alert(user.email);
+    if (isSuccess && token) {
+      const from = String(location.state?.from?.pathname ?? '/');
+
+      console.log('navigate to /home');
+
+      navigate(from, { replace: true });
     }
   }, [isSuccess, token]);
 
