@@ -35,11 +35,6 @@ export const axiosClient = axios.create({
   },
 });
 
-/**
- * @example
- * import {axiosClient, useAxios} from '@/hooks/use-axios.ts';
- * const [isLoading, {response, error}] = useAxios<TResponse, TBody>(axiosClient.post, path, body, withAuth);
- */
 const useHelper = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
@@ -116,6 +111,16 @@ const useHelper = <TResponse, TBody = undefined>(
   return [isLoading, res];
 };
 
+/**
+ * @example
+ * import {axiosClient, useAxios} from '@/hooks/use-axios.ts';
+ *
+ * const [isLoading, {response, error}] =
+ *    useAxios<TResponse, TBody>(axiosClient.post, path, body);
+ * // or
+ * const [isLoading, {response, error}]
+ *    = useAxios<TResponse, TBody>(axiosClient.get, path);
+ */
 export const useAxios = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
@@ -124,6 +129,16 @@ export const useAxios = <TResponse, TBody = undefined>(
   return useHelper(requestMethod, path, body, false);
 };
 
+/**
+ * @example
+ * import {axiosClient, useAxios} from '@/hooks/use-axios.ts';
+ *
+ * const [isLoading, {response, error}] =
+ *    useAxiosWithAuth<TResponse, TBody>(axiosClient.post, path, body);
+ * // or
+ * const [isLoading, {response, error}] =
+ *    useAxiosWithAuth<TResponse, TBody>(axiosClient.get, path);
+ */
 export const useAxiosWithAuth = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
