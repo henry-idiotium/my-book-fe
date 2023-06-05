@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import jwt_decode from 'jwt-decode';
 
 import { RootState } from '..';
 
@@ -10,10 +11,15 @@ export const AUTH_FEATURE_KEY = 'auth';
 
 export interface AuthState {
   token: string;
+  expires: number | undefined;
   user: UserEntity;
 }
 
-export const initialAuthState: AuthState = { token: '', user: defaultUser };
+export const initialAuthState: AuthState = {
+  token: '',
+  expires: undefined,
+  user: defaultUser,
+};
 
 export const authSlice = createSlice({
   name: AUTH_FEATURE_KEY,
@@ -24,6 +30,8 @@ export const authSlice = createSlice({
       authApi.endpoints.login.matchFulfilled,
       (state, action) => {
         state.token = action.payload.token;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        state.expires = (jwt_decode(action.payload.token) as any).exp;
         state.user = action.payload.user;
       }
     );

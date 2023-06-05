@@ -7,6 +7,7 @@ export interface SocketContextState {
 }
 
 export const SocketActions = {
+  USER_CONNECTING: 'user_connecting' as const,
   USER_CONNECTED: 'user_connected' as const,
   USER_DISCONNECTED: 'user_disconnected' as const,
 };

@@ -11,9 +11,7 @@ import { useSocket } from '@/hooks';
 
 const SocketContextComponent = (props: PropsWithChildren) => {
   const { children } = props;
-
   const socket = useSocket(`${import.meta.env.VITE_SERVER_URL}/chatbox`);
-
   const [SocketState, SocketDispatch] = useReducer(
     SocketReducer,
     initialSocketState
@@ -23,6 +21,8 @@ const SocketContextComponent = (props: PropsWithChildren) => {
   useEffect(() => {
     socket.connect();
     socket.on('connect', () => {
+      socket.emit(SocketActions.USER_CONNECTING);
+
       socket.on(SocketActions.USER_CONNECTED, (payload: unknown) => {
         SocketDispatch({
           type: SocketActions.USER_CONNECTED,
