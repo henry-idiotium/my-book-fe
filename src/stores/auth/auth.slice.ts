@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
 
@@ -30,7 +31,6 @@ export const authSlice = createSlice({
       authApi.endpoints.login.matchFulfilled,
       (state, action) => {
         state.token = action.payload.token;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         state.expires = (jwt_decode(action.payload.token) as any).exp;
         state.user = action.payload.user;
       }
@@ -39,6 +39,7 @@ export const authSlice = createSlice({
       authApi.endpoints.refresh.matchFulfilled,
       (state, action) => {
         state.token = action.payload.token;
+        state.expires = (jwt_decode(action.payload.token) as any).exp;
         state.user = action.payload.user;
       }
     );

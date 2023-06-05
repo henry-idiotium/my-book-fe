@@ -1,4 +1,9 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  HttpStatusCode,
+} from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,7 +14,7 @@ import { useRefreshMutation } from '@/stores/auth/auth-api';
 
 export interface Response<TResponse> {
   response: AxiosResponse<TResponse> | undefined;
-  error: unknown | undefined;
+  error: AxiosError | undefined;
 }
 
 type RequestMethod<TResponse, TBody = undefined> =
@@ -24,7 +29,7 @@ type RequestMethod<TResponse, TBody = undefined> =
     ) => Promise<AxiosResponse<TResponse>>);
 
 export const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_SERVER_URL,
+  baseURL: `${import.meta.env.VITE_SERVER_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -35,12 +40,12 @@ export const axiosClient = axios.create({
  * import {axiosClient, useAxios} from '@/hooks/use-axios.ts';
  * const [isLoading, {response, error}] = useAxios<TResponse, TBody>(axiosClient.post, path, body, withAuth);
  */
-export const useAxios = async <TResponse, TBody = undefined>(
+const useHelper = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
   body?: TBody,
   withAuth = false
-) => {
+): [boolean, Response<TResponse>] => {
   const { token, expires } = useSelector(selectAuth);
   const [
     refresh,
@@ -76,22 +81,53 @@ export const useAxios = async <TResponse, TBody = undefined>(
 
       setRes({ response, error: undefined });
     } catch (err) {
-      setRes({ response: undefined, error: err });
+      if (
+        withAuth &&
+        (err as AxiosError).status === HttpStatusCode.Unauthorized
+      ) {
+        navigate('/login', { state: { from: location } });
+      } else {
+        setRes({ response: undefined, error: err as AxiosError });
+      }
+
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (!withAuth) {
       handleRequest();
-    } else if (isUninitialized && expires && Date.now() >= expires * 1000) {
+
+      return;
+    }
+
+    const isTokenInvalid =
+      !token || (!!expires && Date.now() >= expires * 1000);
+
+    if (isUninitialized && isTokenInvalid) {
       refresh(undefined);
     } else if (!isUninitialized && !isRefreshLoading && isRefreshError) {
-      // navigate
-      navigate('/login', { replace: true, state: { from: location.pathname } });
+      navigate('/login', { state: { from: location } });
     } else if (!isRefreshLoading) {
       handleRequest();
     }
   }, [isUninitialized, isRefreshLoading]);
 
   return [isLoading, res];
+};
+
+export const useAxios = <TResponse, TBody = undefined>(
+  requestMethod: RequestMethod<TResponse, TBody>,
+  path: string,
+  body: TBody | undefined = undefined
+) => {
+  return useHelper(requestMethod, path, body, false);
+};
+
+export const useAxiosWithAuth = <TResponse, TBody = undefined>(
+  requestMethod: RequestMethod<TResponse, TBody>,
+  path: string,
+  body: TBody | undefined = undefined
+) => {
+  return useHelper(requestMethod, path, body, true);
 };

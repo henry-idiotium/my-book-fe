@@ -1,13 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useSelector } from '@/hooks';
-import {
-  useLoginMutation,
-  useLogoutMutation,
-  useRefreshMutation,
-} from '@/stores/auth/auth-api';
+import { useLoginMutation, useLogoutMutation } from '@/stores/auth/auth-api';
 import { selectAuth } from '@/stores/auth/auth.slice';
 import { LoginForm, loginFormZod } from '@/types';
 
@@ -16,6 +13,8 @@ export interface LoginProps {}
 
 export function Login(props: LoginProps) {
   const { user, token } = useSelector(selectAuth);
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     register,
     handleSubmit,
@@ -34,8 +33,6 @@ export function Login(props: LoginProps) {
   useEffect(() => {
     if (isSuccess && token) {
       const from = String(location.state?.from?.pathname ?? '/');
-
-      console.log('navigate to /home');
 
       navigate(from, { replace: true });
     }
