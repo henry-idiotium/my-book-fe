@@ -3,6 +3,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   HttpStatusCode,
+  AxiosInstance,
 } from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -54,7 +55,12 @@ const useHelper = <TResponse, TBody = undefined>(
   const { token, expires } = useSelector(selectAuth);
   const [
     refresh,
-    { isUninitialized, isError: isRefreshError, isLoading: isRefreshLoading },
+    {
+      isUninitialized,
+      isError: isRefreshError,
+      isLoading: isRefreshLoading,
+      error: refreshError,
+    },
   ] = useRefreshMutation();
   const [res, setRes] = useState<Response<TResponse>>({
     response: undefined,
@@ -83,12 +89,12 @@ const useHelper = <TResponse, TBody = undefined>(
       ).then(handleLoaded);
 
       setRes({ response, error: undefined });
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (withAuth && err.status === HttpStatusCode.Unauthorized) {
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (withAuth && error.status === HttpStatusCode.Unauthorized) {
           navigate('/login', { state: { from: location } });
         } else {
-          setRes({ response: undefined, error: err });
+          setRes({ response: undefined, error: error });
         }
 
         setLoading(false);
@@ -108,7 +114,12 @@ const useHelper = <TResponse, TBody = undefined>(
 
     if (isUninitialized && isTokenInvalid) {
       refresh(undefined);
-    } else if (!isUninitialized && !isRefreshLoading && isRefreshError) {
+    } else if (
+      isRefreshError &&
+      refreshError &&
+      'status' in refreshError &&
+      refreshError.status === HttpStatusCode.Unauthorized
+    ) {
       navigate('/login', { state: { from: location } });
     } else if (!isRefreshLoading) {
       handleRequest();
@@ -120,7 +131,7 @@ const useHelper = <TResponse, TBody = undefined>(
 
 /**
  * @example
- * import {axiosClient, useAxios} from '@/hooks/use-axios.ts';
+ * import {axiosClient, useAxios} from '@/hooks';
  *
  * const [isLoading, {response, error}] =
  *    useAxios<TResponse, TBody>(axiosClient.post, path, body);
@@ -131,12 +142,31 @@ const useHelper = <TResponse, TBody = undefined>(
 export const useAxios = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
-  body: TBody | undefined = undefined
+  body?: TBody
 ) => useHelper(requestMethod, path, body, false);
 
 /**
  * @example
- * import {axiosClient, useAxios} from '@/hooks/use-axios.ts';
+ * import { useAxios } from '@/hooks';
+ *
+ * const [isLoading, {response, error}] =
+ *    useAxios<TResponse, TBody>('post', path, body);
+ * // or
+ * const [isLoading, {response, error}] =
+ *    useAxios<TResponse, TBody>('get', path);
+ */
+export const useAltAxios = <TResponse, TBody = undefined>(
+  method: keyof AxiosInstance,
+  path: string,
+  body?: TBody
+) => {
+  const requestMethod = axiosClient[method] as RequestMethod<TResponse, TBody>;
+  return useHelper(requestMethod, path, body, false);
+};
+
+/**
+ * @example
+ * import {axiosClient, useAxios} from '@/hooks';
  *
  * const [isLoading, {response, error}] =
  *    useAxiosWithAuth<TResponse, TBody>(axiosClient.post, path, body);
@@ -147,5 +177,24 @@ export const useAxios = <TResponse, TBody = undefined>(
 export const useAxiosWithAuth = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
-  body: TBody | undefined = undefined
+  body?: TBody
 ) => useHelper(requestMethod, path, body, true);
+
+/**
+ * @example
+ * import { useAxiosWithAuth } from '@/hooks';
+ *
+ * const [isLoading, {response, error}] =
+ *    useAxiosWithAuth<TResponse, TBody>('post', path, body);
+ * // or
+ * const [isLoading, {response, error}] =
+ *    useAxiosWithAuth<TResponse, TBody>('get', path);
+ */
+export const useAltAxiosWithAuth = <TResponse, TBody = undefined>(
+  method: keyof AxiosInstance,
+  path: string,
+  body?: TBody
+) => {
+  const requestMethod = axiosClient[method] as RequestMethod<TResponse, TBody>;
+  return useHelper(requestMethod, path, body, false);
+};
