@@ -16,6 +16,16 @@ export type Response<TResponse> =
   | { response: AxiosResponse<TResponse>; error: undefined }
   | { response: undefined; error: AxiosError };
 
+type RequestMethod<TResponse, TBody = undefined> = ((
+  path: string,
+  body: TBody,
+  config?: AxiosRequestConfig
+) => Promise<AxiosResponse<TResponse>>) &
+  ((
+    path: string,
+    config?: AxiosRequestConfig
+  ) => Promise<AxiosResponse<TResponse>>);
+
 /**
  * @note
  * if response is not undefined then the error is and vice-versa,
@@ -27,17 +37,6 @@ export function hasResponse<TResponse>(
 ): response is AxiosResponse<TResponse> {
   return error === undefined;
 }
-
-type RequestMethod<TResponse, TBody = undefined> =
-  | ((
-      path: string,
-      body: TBody,
-      config?: AxiosRequestConfig
-    ) => Promise<AxiosResponse<TResponse>>)
-  | ((
-      path: string,
-      config?: AxiosRequestConfig
-    ) => Promise<AxiosResponse<TResponse>>);
 
 export const axiosClient = axios.create({
   baseURL: `${import.meta.env.VITE_SERVER_URL}/api`,
@@ -64,10 +63,11 @@ const useHelper = <TResponse, TBody = undefined>(
   const [isLoading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const handleLoaded = (_: AxiosResponse<TResponse>) => {
+
+  const handleLoaded = (res: AxiosResponse<TResponse>) => {
     setLoading(false);
 
-    return _;
+    return res;
   };
   const handleRequest = async () => {
     try {
@@ -77,26 +77,22 @@ const useHelper = <TResponse, TBody = undefined>(
         },
       };
 
-      let response: AxiosResponse<TResponse>;
-      if (body) {
-        response = await requestMethod(path, body, config).then(handleLoaded);
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        response = await requestMethod(path, config as any).then(handleLoaded);
-      }
+      const response = await (body
+        ? requestMethod(path, body, config)
+        : requestMethod(path, config)
+      ).then(handleLoaded);
 
       setRes({ response, error: undefined });
     } catch (err) {
-      if (
-        withAuth &&
-        (err as AxiosError).status === HttpStatusCode.Unauthorized
-      ) {
-        navigate('/login', { state: { from: location } });
-      } else {
-        setRes({ response: undefined, error: err as AxiosError });
-      }
+      if (err instanceof AxiosError) {
+        if (withAuth && err.status === HttpStatusCode.Unauthorized) {
+          navigate('/login', { state: { from: location } });
+        } else {
+          setRes({ response: undefined, error: err });
+        }
 
-      setLoading(false);
+        setLoading(false);
+      }
     }
   };
 
@@ -136,9 +132,7 @@ export const useAxios = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
   body: TBody | undefined = undefined
-) => {
-  return useHelper(requestMethod, path, body, false);
-};
+) => useHelper(requestMethod, path, body, false);
 
 /**
  * @example
@@ -154,6 +148,4 @@ export const useAxiosWithAuth = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
   body: TBody | undefined = undefined
-) => {
-  return useHelper(requestMethod, path, body, true);
-};
+) => useHelper(requestMethod, path, body, true);

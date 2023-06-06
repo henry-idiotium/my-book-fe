@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '@/hooks';
 import { ThemeState, selectTheme, themeActions } from '@/stores';
 
-export function useThemeWatcher(selector: string, throwError = false) {
+export function useThemeWatcher(selector = ':root', throwError = false) {
   const [error, setError] = useState<string>();
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
@@ -16,8 +16,8 @@ export function useThemeWatcher(selector: string, throwError = false) {
     setDataAtr(type, value);
   }
   function setDataAtr(key: keyof ThemeState, type: string) {
-    const el = document.querySelector(selector);
-    if (!el) {
+    const selectedEl = document.querySelector(selector);
+    if (!selectedEl) {
       const errorMessage = `Not found element with selector ${selector}`;
 
       setError(errorMessage);
@@ -26,7 +26,7 @@ export function useThemeWatcher(selector: string, throwError = false) {
       else return;
     }
 
-    el.setAttribute(`data-theme-${key}`, type);
+    selectedEl.setAttribute(`data-theme-${key}`, type);
   }
 
   return [error] as const;
