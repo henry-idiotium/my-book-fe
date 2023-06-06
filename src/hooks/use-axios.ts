@@ -12,9 +12,20 @@ import { useSelector } from '.';
 import { selectAuth } from '@/stores';
 import { useRefreshMutation } from '@/stores/auth/auth-api';
 
-export interface Response<TResponse> {
-  response: AxiosResponse<TResponse> | undefined;
-  error: AxiosError | undefined;
+export type Response<TResponse> =
+  | { response: AxiosResponse<TResponse>; error: undefined }
+  | { response: undefined; error: AxiosError };
+
+/**
+ * @note
+ * if response is not undefined then the error is and vice-versa,
+ * use this guard after finish loading for safe-type usage of response and error
+ */
+export function hasResponse<TResponse>(
+  response: AxiosResponse<TResponse> | undefined,
+  error: AxiosError | undefined
+): response is AxiosResponse<TResponse> {
+  return error === undefined;
 }
 
 type RequestMethod<TResponse, TBody = undefined> =
@@ -48,7 +59,7 @@ const useHelper = <TResponse, TBody = undefined>(
   ] = useRefreshMutation();
   const [res, setRes] = useState<Response<TResponse>>({
     response: undefined,
-    error: undefined,
+    error: new AxiosError(),
   });
   const [isLoading, setLoading] = useState(true);
   const navigate = useNavigate();
