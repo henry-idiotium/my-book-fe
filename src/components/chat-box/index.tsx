@@ -2,11 +2,13 @@ import SocketContextComponent from './chat-box-context-wrapper';
 import ChatBoxMain from './chat-box-main';
 
 /* eslint-disable-next-line */
-export interface ChatBoxProps {}
+export interface ChatBoxProps {
+  id: string;
+}
 
 export function ChatBox(props: ChatBoxProps) {
   return (
-    <SocketContextComponent>
+    <SocketContextComponent id={props.id}>
       <ChatBoxMain />
     </SocketContextComponent>
   );

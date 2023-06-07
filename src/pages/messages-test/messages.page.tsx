@@ -1,23 +1,10 @@
 // import ChatBox from '@/components/chat-box';
-import { axiosClient, useAxiosWithAuth } from '@/hooks/use-axios';
-import { ChatboxEntity } from '@/types';
+import ChatBox from '@/components/chat-box';
 
 export function MessagesTest() {
-  const [isLoading, { response, error }] = useAxiosWithAuth<ChatboxEntity[]>(
-    axiosClient.get,
-    '/chatboxes'
-  );
-
   return (
     <div className="">
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {response?.data[0].name}
-          {error?.response?.status}
-        </>
-      )}
+      <ChatBox id="647be2ed787dd91c6fc2aa8a" />
     </div>
   );
 }

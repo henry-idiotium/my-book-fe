@@ -1,9 +1,9 @@
 import axios, {
   AxiosError,
+  AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
   HttpStatusCode,
-  AxiosInstance,
 } from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -50,6 +50,7 @@ const useHelper = <TResponse, TBody = undefined>(
   requestMethod: RequestMethod<TResponse, TBody>,
   path: string,
   body?: TBody,
+  config?: AxiosRequestConfig,
   withAuth = false
 ): [boolean, Response<TResponse>] => {
   const { token, expires } = useSelector(selectAuth);
@@ -77,15 +78,16 @@ const useHelper = <TResponse, TBody = undefined>(
   };
   const handleRequest = async () => {
     try {
-      const config: AxiosRequestConfig = {
+      const configWithAuth: AxiosRequestConfig = {
+        ...config,
         headers: {
           Authorization: withAuth ? `Bearer ${token}` : undefined,
         },
       };
 
       const response = await (body
-        ? requestMethod(path, body, config)
-        : requestMethod(path, config)
+        ? requestMethod(path, body, configWithAuth)
+        : requestMethod(path, configWithAuth)
       ).then(handleLoaded);
 
       setRes({ response, error: undefined });
@@ -131,22 +133,6 @@ const useHelper = <TResponse, TBody = undefined>(
 
 /**
  * @example
- * import {axiosClient, useAxios} from '@/hooks';
- *
- * const [isLoading, {response, error}] =
- *    useAxios<TResponse, TBody>(axiosClient.post, path, body);
- * // or
- * const [isLoading, {response, error}]
- *    = useAxios<TResponse, TBody>(axiosClient.get, path);
- */
-export const useAxios = <TResponse, TBody = undefined>(
-  requestMethod: RequestMethod<TResponse, TBody>,
-  path: string,
-  body?: TBody
-) => useHelper(requestMethod, path, body, false);
-
-/**
- * @example
  * import { useAxios } from '@/hooks';
  *
  * const [isLoading, {response, error}] =
@@ -158,27 +144,12 @@ export const useAxios = <TResponse, TBody = undefined>(
 export const useAltAxios = <TResponse, TBody = undefined>(
   method: keyof AxiosInstance,
   path: string,
-  body?: TBody
+  body?: TBody,
+  config?: AxiosRequestConfig
 ) => {
   const requestMethod = axiosClient[method] as RequestMethod<TResponse, TBody>;
-  return useHelper(requestMethod, path, body, false);
+  return useHelper(requestMethod, path, body, config, false);
 };
-
-/**
- * @example
- * import {axiosClient, useAxios} from '@/hooks';
- *
- * const [isLoading, {response, error}] =
- *    useAxiosWithAuth<TResponse, TBody>(axiosClient.post, path, body);
- * // or
- * const [isLoading, {response, error}] =
- *    useAxiosWithAuth<TResponse, TBody>(axiosClient.get, path);
- */
-export const useAxiosWithAuth = <TResponse, TBody = undefined>(
-  requestMethod: RequestMethod<TResponse, TBody>,
-  path: string,
-  body?: TBody
-) => useHelper(requestMethod, path, body, true);
 
 /**
  * @example
@@ -191,10 +162,14 @@ export const useAxiosWithAuth = <TResponse, TBody = undefined>(
  *    useAxiosWithAuth<TResponse, TBody>('get', path);
  */
 export const useAltAxiosWithAuth = <TResponse, TBody = undefined>(
-  method: keyof AxiosInstance,
+  method: keyof Pick<
+    AxiosInstance,
+    'delete' | 'post' | 'postForm' | 'put' | 'patch' | 'get'
+  >,
   path: string,
-  body?: TBody
+  body?: TBody,
+  config?: AxiosRequestConfig
 ) => {
   const requestMethod = axiosClient[method] as RequestMethod<TResponse, TBody>;
-  return useHelper(requestMethod, path, body, false);
+  return useHelper(requestMethod, path, body, config, true);
 };

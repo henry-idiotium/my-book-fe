@@ -1,17 +1,30 @@
 import { PropsWithChildren, useEffect, useReducer, useState } from 'react';
+import { Socket, io } from 'socket.io-client';
 
 import {
-  SocketActions,
+  Actions,
   SocketContextProvider,
   SocketReducer,
   initialSocketState,
 } from './chat-box.context';
 
-import { useSocket } from '@/hooks';
+import { hasResponse, useAltAxiosWithAuth } from '@/hooks/use-axios';
+import {
+  ConversationEntity,
+  UserConnectedPayload,
+  UserDisconnectedPayload,
+  UserJoinedPayload,
+} from '@/types';
 
-const SocketContextComponent = (props: PropsWithChildren) => {
+export interface SocketContextComponentProps extends PropsWithChildren {
+  id: string;
+}
+
+const SocketContextComponent = (props: SocketContextComponentProps) => {
+  const [isChatboxLoading, { response, error }] =
+    useAltAxiosWithAuth<ConversationEntity>('get', `/chatboxes/${props.id}`);
   const { children } = props;
-  const socket = useSocket(`${import.meta.env.VITE_SERVER_URL}/chatbox`);
+  let socket: Socket;
   const [SocketState, SocketDispatch] = useReducer(
     SocketReducer,
     initialSocketState
@@ -19,25 +32,68 @@ const SocketContextComponent = (props: PropsWithChildren) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isChatboxLoading) return;
+
+    if (!hasResponse(response, error)) {
+      console.log(error);
+
+      return;
+    }
+
+    SocketDispatch({
+      type: Actions.CHATBOX_RECEIVED,
+      payload: response.data,
+    });
+
+    socket = io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
+      autoConnect: false,
+      query: {
+        chatboxId: response.data.id,
+        userId: Math.floor(Math.random() * 10000),
+      },
+    });
     socket.connect();
     socket.on('connect', () => {
-      socket.emit(SocketActions.USER_CONNECTING);
+      handleUserEvents();
+    });
 
-      socket.on(SocketActions.USER_CONNECTED, (payload: unknown) => {
+    return () => {
+      if (socket) socket.close();
+    };
+  }, [isChatboxLoading]);
+
+  const handleUserEvents = () => {
+    socket.on(
+      Actions.SOCKET_USER_CONNECTED,
+      (payload: UserConnectedPayload) => {
+        socket.off(Actions.SOCKET_USER_CONNECTED);
         SocketDispatch({
-          type: SocketActions.USER_CONNECTED,
-          payload: { userCount: payload, socket },
+          type: Actions.SOCKET_USER_CONNECTED,
+          payload: { eventPayload: payload, socket },
         });
         setLoading(false);
-      });
+      }
+    );
 
-      socket.on(SocketActions.USER_DISCONNECTED, (payload) => {
-        SocketDispatch({ type: SocketActions.USER_DISCONNECTED, payload });
+    socket.on(Actions.SOCKET_USER_JOINED, (payload: UserJoinedPayload) => {
+      SocketDispatch({
+        type: Actions.SOCKET_USER_JOINED,
+        payload,
       });
     });
-  }, []);
 
-  if (loading) return <p>... loading Socket IO ....</p>;
+    socket.on(
+      Actions.SOCKET_USER_DISCONNECTED,
+      (payload: UserDisconnectedPayload) => {
+        SocketDispatch({
+          type: Actions.SOCKET_USER_DISCONNECTED,
+          payload,
+        });
+      }
+    );
+  };
+
+  if (loading || isChatboxLoading) return <p>... loading Socket IO ....</p>;
 
   return (
     <SocketContextProvider value={{ SocketState, SocketDispatch }}>

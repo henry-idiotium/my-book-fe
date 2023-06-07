@@ -4,15 +4,16 @@ import { messageZod } from './message';
 
 import { getZodDefault } from '@/utils';
 
-export const chatboxZod = z.object({
+export const conversationGroupZod = z.object({
   id: z.string(),
   name: z.string(),
   admin: z.number(),
   theme: z.string().optional(),
   quickEmoji: z.string().optional(),
+  photo: z.string().optional(),
   members: z.array(z.number()).optional(),
   messages: z.array(messageZod).optional(),
 });
 
-export const defaultChatbox = getZodDefault<typeof chatboxZod>(chatboxZod);
-export type ChatboxEntity = z.infer<typeof chatboxZod>;
+export const defaultConversationGroup = getZodDefault(conversationGroupZod);
+export type ConversationGroupEntity = z.infer<typeof conversationGroupZod>;
