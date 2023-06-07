@@ -2,12 +2,21 @@ import { createContext } from 'react';
 import { Socket, io } from 'socket.io-client';
 
 import {
+  CommonActions,
+  ConversationActions,
+  ConversationGroupActions,
+  SocketActions,
+} from './actions';
+
+import {
+  ConversationEntity,
   ConversationGroupEntity,
   MessageEntity,
   MessageReceivedPayload,
   UserConnectedPayload,
   UserDisconnectedPayload,
   UserJoinedPayload,
+  defaultConversation,
   defaultConversationGroup,
 } from '@/types';
 
@@ -17,18 +26,15 @@ export interface ChatboxSocketContextState {
   messages: MessageEntity[];
   messagePending: string | undefined;
   socket: Socket;
-  chatbox: ConversationGroupEntity;
+  conversation: ConversationEntity;
+  conversationGroup: ConversationGroupEntity;
 }
 
-export const Actions = {
-  SOCKET_MESSAGE_RECEIVED: 'socket_message_received' as const,
-  SOCKET_MESSAGE_SENT: 'socket_message_sent' as const,
-  SOCKET_USER_JOINED: 'socket_user_joined' as const,
-  SOCKET_USER_CONNECTED: 'socket_user_connected' as const,
-  SOCKET_USER_DISCONNECTED: 'socket_user_disconnected' as const,
-  CHATBOX_RECEIVED: 'chatbox_received' as const,
-  MESSAGE_RECEIVED: 'message_received' as const,
-  MESSAGE_PENDING: 'message_pending' as const,
+const Actions = {
+  ...CommonActions,
+  ...SocketActions,
+  ...ConversationActions,
+  ...ConversationGroupActions,
 };
 
 export type SocketContextPayload = string | string[] | Socket;
@@ -49,7 +55,8 @@ export const initialSocketState: ChatboxSocketContextState = {
   socket: io({ autoConnect: false }),
   messages: [],
   messagePending: undefined,
-  chatbox: defaultConversationGroup,
+  conversation: defaultConversation,
+  conversationGroup: defaultConversationGroup,
 };
 
 export const SocketReducer = (
@@ -108,12 +115,21 @@ export const SocketReducer = (
       };
     }
 
-    case Actions.CHATBOX_RECEIVED: {
+    case Actions.CONVERSATION_GROUP_RECEIVED: {
       const payload = action.payload as ConversationGroupEntity;
 
       return {
         ...state,
-        chatbox: payload,
+        conversationGroup: payload,
+      };
+    }
+
+    case Actions.CONVERSATION_RECEIVED: {
+      const payload = action.payload as ConversationEntity;
+
+      return {
+        ...state,
+        conversation: payload,
       };
     }
 

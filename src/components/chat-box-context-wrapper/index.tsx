@@ -2,7 +2,11 @@ import { PropsWithChildren, useEffect, useReducer, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 
 import {
-  Actions,
+  ConversationActions,
+  ConversationGroupActions,
+  SocketActions,
+} from './actions';
+import {
   SocketContextProvider,
   SocketReducer,
   initialSocketState,
@@ -11,6 +15,7 @@ import {
 import { hasResponse, useAltAxiosWithAuth } from '@/hooks/use-axios';
 import {
   ConversationEntity,
+  ConversationGroupEntity,
   UserConnectedPayload,
   UserDisconnectedPayload,
   UserJoinedPayload,
@@ -18,11 +23,20 @@ import {
 
 export interface SocketContextComponentProps extends PropsWithChildren {
   id: string;
+  dispatchType:
+    | typeof ConversationActions.CONVERSATION_RECEIVED
+    | typeof ConversationGroupActions.CONVERSATION_GROUP_RECEIVED;
 }
 
 const ChatboxContextWrapper = (props: SocketContextComponentProps) => {
-  const [isChatboxLoading, { response, error }] =
-    useAltAxiosWithAuth<ConversationEntity>('get', `/chatboxes/${props.id}`);
+  const requestUrl =
+    props.dispatchType === ConversationActions.CONVERSATION_RECEIVED
+      ? `/chatboxes/conversations/${props.id}`
+      : `/chatboxes/${props.id}`;
+
+  const [isChatboxLoading, { response, error }] = useAltAxiosWithAuth<
+    ConversationEntity | ConversationGroupEntity
+  >('get', requestUrl);
   const { children } = props;
   let socket: Socket;
   const [SocketState, SocketDispatch] = useReducer(
@@ -41,7 +55,7 @@ const ChatboxContextWrapper = (props: SocketContextComponentProps) => {
     }
 
     SocketDispatch({
-      type: Actions.CHATBOX_RECEIVED,
+      type: props.dispatchType,
       payload: response.data,
     });
 
@@ -64,29 +78,32 @@ const ChatboxContextWrapper = (props: SocketContextComponentProps) => {
 
   const handleUserEvents = () => {
     socket.on(
-      Actions.SOCKET_USER_CONNECTED,
+      SocketActions.SOCKET_USER_CONNECTED,
       (payload: UserConnectedPayload) => {
-        socket.off(Actions.SOCKET_USER_CONNECTED);
+        socket.off(SocketActions.SOCKET_USER_CONNECTED);
         SocketDispatch({
-          type: Actions.SOCKET_USER_CONNECTED,
+          type: SocketActions.SOCKET_USER_CONNECTED,
           payload: { eventPayload: payload, socket },
         });
         setLoading(false);
       }
     );
 
-    socket.on(Actions.SOCKET_USER_JOINED, (payload: UserJoinedPayload) => {
-      SocketDispatch({
-        type: Actions.SOCKET_USER_JOINED,
-        payload,
-      });
-    });
+    socket.on(
+      SocketActions.SOCKET_USER_JOINED,
+      (payload: UserJoinedPayload) => {
+        SocketDispatch({
+          type: SocketActions.SOCKET_USER_JOINED,
+          payload,
+        });
+      }
+    );
 
     socket.on(
-      Actions.SOCKET_USER_DISCONNECTED,
+      SocketActions.SOCKET_USER_DISCONNECTED,
       (payload: UserDisconnectedPayload) => {
         SocketDispatch({
-          type: Actions.SOCKET_USER_DISCONNECTED,
+          type: SocketActions.SOCKET_USER_DISCONNECTED,
           payload,
         });
       }

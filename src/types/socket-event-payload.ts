@@ -19,6 +19,7 @@ export type MessageSentPayload = {
   chatboxId: string;
   userId: number;
   content: string;
+  isGroup: boolean;
 };
 
 export type MessageReceivedPayload = MessageEntity;

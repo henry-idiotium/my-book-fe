@@ -1,13 +1,7 @@
-// import ChatBox from '@/components/chat-box';
-import ChatboxContextWrapper from '@/components/chat-box-context-wrapper';
-import ConversationGroup from '@/components/conversation-group';
+import Conversation from '@/components/conversation';
 
 export function MessagesTest() {
-  return (
-    <ChatboxContextWrapper id="647be2ed787dd91c6fc2aa8a">
-      <ConversationGroup />
-    </ChatboxContextWrapper>
-  );
+  return <Conversation id="647c08247b052300bace33b1" />;
 }
 
 export default MessagesTest;
