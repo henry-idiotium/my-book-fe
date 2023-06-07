@@ -1,9 +1,8 @@
 import { useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
+import { Actions, SocketContext } from '../chat-box-context-wrapper';
 import loadingMessages from '../loading-screen/loading-messages';
-
-import SocketContext, { Actions } from './chat-box.context';
 
 import { hasResponse, useAltAxiosWithAuth } from '@/hooks';
 import { selectAuth } from '@/stores';
@@ -13,7 +12,7 @@ import {
   MessageSentPayload,
 } from '@/types';
 
-export function ChatBoxMain() {
+export function ConversationGroup() {
   const { SocketState: state, SocketDispatch } = useContext(SocketContext);
   const { userCount, userIds, socket, messages, chatbox, messagePending } =
     state;
@@ -93,7 +92,7 @@ export function ChatBoxMain() {
       </div>
       <div className="border border-red-500 p-4">
         <h1>Currently online: {userCount}</h1>
-        {userIds.map((e) => (
+        {Array.from(userIds).map((e) => (
           <span
             key={e}
             className="border-2 border-violet-300 bg-violet-600 bg-clip-border p-1"
@@ -129,4 +128,4 @@ export function ChatBoxMain() {
   );
 }
 
-export default ChatBoxMain;
+export default ConversationGroup;

@@ -20,7 +20,7 @@ export interface SocketContextComponentProps extends PropsWithChildren {
   id: string;
 }
 
-const SocketContextComponent = (props: SocketContextComponentProps) => {
+const ChatboxContextWrapper = (props: SocketContextComponentProps) => {
   const [isChatboxLoading, { response, error }] =
     useAltAxiosWithAuth<ConversationEntity>('get', `/chatboxes/${props.id}`);
   const { children } = props;
@@ -102,4 +102,5 @@ const SocketContextComponent = (props: SocketContextComponentProps) => {
   );
 };
 
-export default SocketContextComponent;
+export default ChatboxContextWrapper;
+export * from './chat-box.context';

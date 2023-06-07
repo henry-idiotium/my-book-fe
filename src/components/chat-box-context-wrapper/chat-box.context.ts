@@ -13,7 +13,7 @@ import {
 
 export interface ChatboxSocketContextState {
   userCount: number;
-  userIds: number[];
+  userIds: Set<number>;
   messages: MessageEntity[];
   messagePending: string | undefined;
   socket: Socket;
@@ -45,7 +45,7 @@ export interface ChatboxSocketContextProps {
 
 export const initialSocketState: ChatboxSocketContextState = {
   userCount: 0,
-  userIds: [],
+  userIds: new Set<number>(),
   socket: io({ autoConnect: false }),
   messages: [],
   messagePending: undefined,
@@ -67,30 +67,35 @@ export const SocketReducer = (
       return {
         ...state,
         userCount: payload.eventPayload.userCount,
-        userIds: payload.eventPayload.userIds,
+        userIds: new Set(payload.eventPayload.userIds),
         socket: payload.socket,
       };
     }
 
     case Actions.SOCKET_USER_JOINED: {
       const payload = action.payload as UserJoinedPayload;
+      const newUserIds = new Set(state.userIds);
+
+      newUserIds.add(payload.userJoinedId);
 
       return {
         ...state,
         userCount: payload.userCount,
-        userIds: [...state.userIds, payload.userJoinedId],
+        userIds: newUserIds,
       };
     }
 
     case Actions.SOCKET_USER_DISCONNECTED: {
       const payload = action.payload as UserDisconnectedPayload;
 
+      const newUserIds = new Set(state.userIds);
+
+      newUserIds.delete(payload.userDisconnectedId);
+
       return {
         ...state,
         userCount: payload.userCount,
-        userIds: state.userIds.filter(
-          (id) => id !== payload.userDisconnectedId
-        ),
+        userIds: newUserIds,
       };
     }
 
@@ -136,13 +141,10 @@ export const SocketReducer = (
   }
 };
 
-const SocketContext = createContext<ChatboxSocketContextProps>({
+export const SocketContext = createContext<ChatboxSocketContextProps>({
   SocketState: initialSocketState,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   SocketDispatch: () => {},
 });
-
 export const SocketContextConsumer = SocketContext.Consumer;
 export const SocketContextProvider = SocketContext.Provider;
-
-export default SocketContext;
