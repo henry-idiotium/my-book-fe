@@ -9,7 +9,6 @@ import {
   socketReducer,
 } from './context';
 
-import { SocketActions } from '@/components/chat-box-context-wrapper/actions';
 import { selectAuth } from '@/stores';
 import {
   UserConnectedPayload,
@@ -64,21 +63,18 @@ export function ChatboxSocketContextProvider({
       }
     );
 
-    socket.on(
-      SocketActions.SOCKET_USER_JOINED,
-      (payload: UserJoinedPayload) => {
-        socketDispatch({
-          type: SocketActions.SOCKET_USER_JOINED,
-          payload,
-        });
-      }
-    );
+    socket.on(actions.SOCKET_USER_JOINED, (payload: UserJoinedPayload) => {
+      socketDispatch({
+        type: actions.SOCKET_USER_JOINED,
+        payload,
+      });
+    });
 
     socket.on(
-      SocketActions.SOCKET_USER_DISCONNECTED,
+      actions.SOCKET_USER_DISCONNECTED,
       (payload: UserDisconnectedPayload) => {
         socketDispatch({
-          type: SocketActions.SOCKET_USER_DISCONNECTED,
+          type: actions.SOCKET_USER_DISCONNECTED,
           payload,
         });
       }

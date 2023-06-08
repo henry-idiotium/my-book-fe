@@ -1,6 +1,6 @@
-import ChatboxContextWrapper from '../chat-box-context-wrapper';
-
 import ConversationHelper from './helper';
+
+import SocketContextProvider from '@/pages/messages/socket-context-provider/socket-context-provider';
 
 export interface ConversationProps {
   id: string;
@@ -8,8 +8,8 @@ export interface ConversationProps {
 
 export default function Conversation(props: ConversationProps) {
   return (
-    <ChatboxContextWrapper isGroup={false} id={props.id}>
+    <SocketContextProvider isGroup={false} id={props.id}>
       <ConversationHelper />
-    </ChatboxContextWrapper>
+    </SocketContextProvider>
   );
 }

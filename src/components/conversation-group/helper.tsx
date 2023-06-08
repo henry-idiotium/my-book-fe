@@ -1,14 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { SocketContext } from '../chat-box-context-wrapper';
-import {
-  CommonActions,
-  SocketActions,
-} from '../chat-box-context-wrapper/actions';
 import loadingMessages from '../loading-screen/loading-messages';
 
 import { hasResponse, useAltAxiosWithAuth } from '@/hooks';
+import actions from '@/pages/messages/socket-context-provider/actions';
+import { chatboxSocketContext } from '@/pages/messages/socket-context-provider/context';
 import { selectAuth } from '@/stores';
 import {
   MessageEntity,
@@ -17,7 +14,8 @@ import {
 } from '@/types';
 
 export function ConversationGroupHelper() {
-  const { SocketState: state, SocketDispatch } = useContext(SocketContext);
+  const { socketState: state, socketDispatch } =
+    useContext(chatboxSocketContext);
   const {
     userCount,
     userIds,
@@ -43,20 +41,20 @@ export function ConversationGroupHelper() {
       return;
     }
 
-    SocketDispatch({
-      type: CommonActions.MESSAGE_RECEIVED,
+    socketDispatch({
+      type: actions.MESSAGE_RECEIVED,
       payload: response.data,
     });
 
     socket.on(
-      SocketActions.SOCKET_MESSAGE_RECEIVED,
+      actions.SOCKET_MESSAGE_RECEIVED,
       (payload: MessageReceivedPayload) => {
-        SocketDispatch({
-          type: SocketActions.SOCKET_MESSAGE_RECEIVED,
+        socketDispatch({
+          type: actions.SOCKET_MESSAGE_RECEIVED,
           payload,
         });
-        SocketDispatch({
-          type: CommonActions.MESSAGE_PENDING,
+        socketDispatch({
+          type: actions.MESSAGE_PENDING,
           payload: undefined,
         });
       }
@@ -66,15 +64,15 @@ export function ConversationGroupHelper() {
   const sendMessage = () => {
     const index = Math.floor(Math.random() * loadingMessages.length);
 
-    socket.emit(SocketActions.SOCKET_MESSAGE_SENT, {
+    socket.emit(actions.SOCKET_MESSAGE_SENT, {
       chatboxId: conversationGroup.id,
       content: loadingMessages[index],
       userId: user.id,
       isGroup: true,
     } as MessageSentPayload);
 
-    SocketDispatch({
-      type: CommonActions.MESSAGE_PENDING,
+    socketDispatch({
+      type: actions.MESSAGE_PENDING,
       payload: loadingMessages[index],
     });
 
@@ -85,7 +83,7 @@ export function ConversationGroupHelper() {
 
   return (
     <div>
-      <div className="border border-sky-500 p-4">
+      <div className="border-sky-500 border p-4">
         <span className="flex">
           <h1>Admin: {conversationGroup.admin}</h1>
         </span>
@@ -94,7 +92,7 @@ export function ConversationGroupHelper() {
           {conversationGroup.members?.map((e) => (
             <span
               key={e}
-              className="border-2 border-violet-300 bg-violet-600 bg-clip-border p-1"
+              className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
             >
               {e}
             </span>
@@ -106,7 +104,7 @@ export function ConversationGroupHelper() {
         {Array.from(userIds).map((e) => (
           <span
             key={e}
-            className="border-2 border-violet-300 bg-violet-600 bg-clip-border p-1"
+            className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
           >
             {e}
           </span>
