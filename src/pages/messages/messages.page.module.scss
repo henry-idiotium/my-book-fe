@@ -1,0 +1,63 @@
+.container {
+  .wrapper {
+    @apply grid min-h-screen wh-full;
+    @apply lg:grid-cols-[minmax(386px,389px)_576px];
+    @apply <lg:max-w-[600px];
+
+    > * {
+      @apply border-r border-color;
+    }
+
+    .chatboxes-pane {
+      @apply wh-full max-w-[600px];
+
+      .chatbox {
+        @apply wh-auto;
+
+        &-header {
+          @apply w-full h-[53px] flex items-center p-4 justify-between mx-1;
+
+          > h2 {
+            @apply text-[20px] font-semibold;
+          }
+
+          &-option {
+            @apply flex;
+
+            &-item {
+              @apply p-2;
+
+              &-icon {
+                @apply wh-5;
+              }
+            }
+          }
+        }
+
+        &-search {
+          @apply w-full p-3;
+
+          &-input {
+            @apply h-10 pl-9 bg-base;
+          }
+        }
+
+        &-content {
+          @apply wh-auto;
+        }
+      }
+    }
+
+    // messaging pane
+    .messaging {
+      &-pane {
+        @apply wh-full;
+        @apply <lg:hidden;
+      }
+
+      &-wrapper {
+        @apply wh-full;
+      }
+    }
+  }
+}

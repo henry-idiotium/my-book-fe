@@ -1,0 +1,41 @@
+.container {
+  @apply h-full <xl:w-[88px] <sm:w-[72] shrink-0 relative px-2 py-0 mr-0 ml-auto overflow-x-hidden;
+
+  .wrapper {
+    @apply h-full <xl:max-w-[88px] flex flex-col relative justify-between;
+
+    .nav {
+      @apply flex flex-col <xl:items-center;
+
+      &-main {
+        @apply flex flex-col gap-[10px] <xl:items-center;
+      }
+
+      .logo {
+        @apply wh-[50px] py-2 my-1 rounded-full hover:bg-base-focus;
+
+        &-img {
+          @apply wh-full flex justify-center items-center;
+
+          > img {
+            @apply wh-10;
+          }
+        }
+      }
+    }
+
+    .user {
+      @apply w-full;
+    }
+  }
+
+  // invisible scrollbar
+  -ms-overflow-style: none; /* Edge */
+  scrollbar-width: none; /* Firefox */
+  overflow: -moz-scrollbars-none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+    width: 0; /* Remove scrollbar space */
+    background: transparent; /* Optional: just make scrollbar invisible */
+  }
+}

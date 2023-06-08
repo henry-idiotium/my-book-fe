@@ -1,0 +1,24 @@
+.container {
+  @apply relative grid justify-center min-h-screen mx-auto my-0 overflow-y-scroll bg-base;
+
+  @apply <xl:max-w-[1335px];
+  @apply xl:grid-cols-[auto_minmax(900px,1008px)] xl:py-0 xl:px-2 xl:box-content;
+  @apply <xl:grid-cols-[minmax(88px,100px)_minmax(700px,990px)];
+  @apply <lg:grid-cols-[minmax(88px,120px)_minmax(600px,700px)] <lg:max-w-[1005px];
+  @apply <md:grid-cols-[90px_minmax(600px,700px)];
+
+  .nav {
+    @apply sticky top-0 max-h-screen overflow-auto border-r border-color;
+    @apply md:flex md:justify-end;
+
+    &-wrapper {
+      @apply h-full;
+      @apply sm:<xl:w-[88px];
+      @apply xl:min-w-[88px] xl:w-[275px];
+    }
+  }
+
+  .main {
+    @apply wh-full;
+  }
+}

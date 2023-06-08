@@ -1,17 +1,18 @@
 type ElementScheme = GenericObject<boolean>;
-type Props = ElementScheme | [ElementScheme | string];
+type Props = (ElementScheme | string | undefined)[];
 
-export function classes(props: Props) {
-  if (Array.isArray(props)) {
-    return props.reduce<string>((className, value) => {
+export function classes(...props: Props) {
+  return props
+    .map((className) => {
       const name =
-        typeof value === 'object' ? extractClassScheme(value) : value;
+        typeof className === 'object'
+          ? extractClassScheme(className)
+          : className;
 
-      return `${className} ${name}`;
-    }, '');
-  } else {
-    return extractClassScheme(props);
-  }
+      return name;
+    })
+    .filter((cn) => cn && cn !== '')
+    .join(' ');
 }
 
 function extractClassScheme(obj: ElementScheme) {
