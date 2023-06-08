@@ -2,23 +2,19 @@ import { RouteObject, createBrowserRouter } from 'react-router-dom';
 
 import Home from './home/home.page';
 import Login from './login/login.page';
+import MessagesTest from './messages-test/messages.page';
 import Messages from './messages/messages.page';
 
-import App from '@/app';
-
 export const router = createBrowserRouter([
+  { path: '/login', Component: Login },
+  { path: '/home', Component: Home },
+  { path: '/messages', Component: Messages },
   {
-    path: '/',
-    Component: App,
-    children: [
-      { path: '/login', Component: Login },
-      { path: '/home', Component: Home },
-      { path: '/messages', Component: Messages },
-
-      // Note: Mock pages
-      ...eps('explore', 'lists', 'bookmarks', 'profile', 'notifications'),
-    ],
+    path: 'test',
+    element: <MessagesTest />,
   },
+  // Note: Mock pages
+  ...eps('explore', 'lists', 'bookmarks', 'profile', 'notifications'),
 ]);
 export default router;
 

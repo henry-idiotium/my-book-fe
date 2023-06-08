@@ -12,39 +12,36 @@ import {
 } from 'react-icons/ri';
 import { TbBell, TbBellFilled } from 'react-icons/tb';
 import { useSelector } from 'react-redux';
-import { Outlet, useLocation } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 
 import styles from './app.module.scss';
+import router from './pages/router';
 import { selectAuth } from './stores';
 import { useRefreshMutation } from './stores/auth/auth-api';
 
-import { NavBar } from '@/components';
 import { NavItemProps } from '@/components/nav-bar/nav-item/nav-item';
 import { useThemeWatcher } from '@/hooks';
 import { classes } from '@/utils';
 
 export function App() {
   useThemeWatcher();
-  const location = useLocation();
-  const auth = useSelector(selectAuth);
-  const [refresh, { isSuccess, isUninitialized }] = useRefreshMutation();
+  const { token } = useSelector(selectAuth);
+  const [refresh, { isUninitialized, isLoading }] = useRefreshMutation();
 
   useEffect(() => {
-    if (isUninitialized && !auth.token) refresh(undefined);
-  }, [isSuccess, location.pathname]);
+    if (!token) refresh(undefined);
+  }, []);
 
+  // todo refactor
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navItems = getNavItems();
+
+  if ((!token && isUninitialized) || isLoading) return <div>loading...</div>;
 
   return (
     <div className={styles.container}>
-      <nav className={styles.nav}>
-        <div className={styles.navWrapper}>
-          <NavBar scheme={navItems} />
-        </div>
-      </nav>
-
       <main className={styles.main}>
-        <Outlet />
+        <RouterProvider router={router} />
       </main>
     </div>
   );
