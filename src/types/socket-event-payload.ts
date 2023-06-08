@@ -1,8 +1,11 @@
+import { ConversationEntity } from './conversation';
+import { ConversationGroupEntity } from './conversation-group';
 import { MessageEntity } from './message';
 
 export type UserConnectedPayload = {
   userCount: number;
   userIds: number[];
+  chatbox: ConversationEntity | ConversationGroupEntity;
 };
 
 export type UserJoinedPayload = {

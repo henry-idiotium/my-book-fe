@@ -11,10 +11,6 @@ export const CommonActions = {
   MESSAGE_PENDING: 'message_pending' as const,
 };
 
-export const ConversationActions = {
-  CONVERSATION_RECEIVED: 'conversation_received' as const,
-};
+export const ConversationActions = {};
 
-export const ConversationGroupActions = {
-  CONVERSATION_GROUP_RECEIVED: 'conversation_group_received' as const,
-};
+export const ConversationGroupActions = {};

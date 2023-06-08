@@ -70,12 +70,21 @@ export const SocketReducer = (
       const payload = action.payload as {
         eventPayload: UserConnectedPayload;
         socket: Socket;
+        isGroup: boolean;
       };
       return {
         ...state,
         userCount: payload.eventPayload.userCount,
         userIds: new Set(payload.eventPayload.userIds),
         socket: payload.socket,
+        ...(payload.isGroup
+          ? {
+              conversationGroup: payload.eventPayload
+                .chatbox as ConversationGroupEntity,
+            }
+          : {
+              conversation: payload.eventPayload.chatbox as ConversationEntity,
+            }),
       };
     }
 
@@ -112,24 +121,6 @@ export const SocketReducer = (
       return {
         ...state,
         messages: [...state.messages, payload],
-      };
-    }
-
-    case Actions.CONVERSATION_GROUP_RECEIVED: {
-      const payload = action.payload as ConversationGroupEntity;
-
-      return {
-        ...state,
-        conversationGroup: payload,
-      };
-    }
-
-    case Actions.CONVERSATION_RECEIVED: {
-      const payload = action.payload as ConversationEntity;
-
-      return {
-        ...state,
-        conversation: payload,
       };
     }
 
