@@ -12,6 +12,5 @@ export const conversationZod = z.object({
   messages: z.array(messageZod).optional(),
 });
 
-export const defaultConversation =
-  getZodDefault<typeof conversationZod>(conversationZod);
+export const defaultConversation = getZodDefault(conversationZod);
 export type ConversationEntity = z.infer<typeof conversationZod>;

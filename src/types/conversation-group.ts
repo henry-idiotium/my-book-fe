@@ -10,9 +10,9 @@ export const conversationGroupZod = z.object({
   admin: z.number(),
   theme: z.string().optional(),
   quickEmoji: z.string().optional(),
-  photo: z.string().optional(),
   members: z.array(z.number()).optional(),
   messages: z.array(messageZod).optional(),
+  photo: z.string().optional(),
 });
 
 export const defaultConversationGroup = getZodDefault(conversationGroupZod);

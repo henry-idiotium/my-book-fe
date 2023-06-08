@@ -11,6 +11,5 @@ export const loginFormZod = z.object({
     .min(6, { message: 'Password must be at least 6 characters' }),
 });
 
-export const defaultLoginForm =
-  getZodDefault<typeof loginFormZod>(loginFormZod);
+export const defaultLoginForm = getZodDefault(loginFormZod);
 export type LoginForm = z.infer<typeof loginFormZod>;

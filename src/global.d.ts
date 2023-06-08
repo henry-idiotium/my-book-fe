@@ -8,6 +8,7 @@ declare global {
     : Type;
   type Mutable<Type> = { -readonly [Key in keyof Type]-?: Type[Key] };
   type PartialStrict<T extends string, M = string> = T | Omit<M, T>;
+  type PartialPick<T, O extends keyof T> = Partial<Pick<T, O>> & Omit<T, O>;
 
   namespace NodeJS {
     interface ProcessEnv {

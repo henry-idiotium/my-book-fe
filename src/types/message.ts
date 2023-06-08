@@ -10,5 +10,5 @@ export const messageZod = z.object({
   at: z.date(),
 });
 
-export const defaultMessage = getZodDefault<typeof messageZod>(messageZod);
+export const defaultMessage = getZodDefault(messageZod);
 export type MessageEntity = z.infer<typeof messageZod>;

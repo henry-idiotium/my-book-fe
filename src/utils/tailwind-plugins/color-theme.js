@@ -12,8 +12,23 @@ const commonColors = getColor([
 module.exports = plugin(() => {}, {
   theme: {
     extend: {
-      backgroundColor: { ...getColor(['base']), ...commonColors },
-      colors: { ...getColor(['color'], undefined, '-accent'), ...commonColors },
+      backgroundColor: {
+        ...commonColors,
+        base: 'var(--c-base)',
+        'base-focus': 'var(--c-base-focus)',
+        'base-hover': 'var(--c-base-hover)',
+      },
+      textColor: {
+        ...commonColors,
+        color: 'var(--c-text)',
+        'color-accent': 'var(--c-text-accent)',
+      },
+      borderColor: {
+        ...commonColors,
+        color: 'var(--c-border)',
+        'color-accent': 'var(--c-border-accent)',
+      },
+      boxShadowColor: { 'color-base': 'var(--c-base-focus)' },
     },
   },
 });
@@ -24,7 +39,8 @@ function getColor(names = [''], prefix = '--c-', suffix = '-focus') {
 
   names.forEach((name) => {
     scheme[name] = getValue(name);
-    scheme[name + suffix] = getValue(name + suffix);
+
+    if (suffix) scheme[name + suffix] = getValue(name + suffix);
   });
 
   return scheme;

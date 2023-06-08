@@ -1,100 +1,133 @@
-// helpers
+//#region helpers
 @mixin set-vars($name, $color) {
   --c-#{$name}: #{$color};
 }
+@mixin set-attr-theme($attr-key, $value, $var-name, $color) {
+  &[data-theme-#{$attr-key}='#{$value}'] {
+    @include set-vars($var-name, $color);
+  }
+}
+
+@mixin set-theme-vars($attr-key, $base-var-name, $scheme) {
+  @each $theme-name, $scheme-color in $scheme {
+    // scheme keys in each of its key-value map can be a color value,
+    // or another map
+    @if type-of($scheme-color) == 'map' {
+      @each $sub-theme-name, $color in $scheme-color {
+        $name: $base-var-name + '-' + $sub-theme-name;
+
+        // prettier-ignore
+        @if ($sub-theme-name == 'default') { $name: $base-var-name; }
+
+        @include set-attr-theme($attr-key, $theme-name, $name, $color);
+      }
+    } @else {
+      @include set-attr-theme(
+        $attr-key,
+        $theme-name,
+        $base-var-name,
+        $scheme-color
+      );
+    }
+  }
+}
+
+@function get-default-scheme($color) {
+  @return ('default': $color, 'focus': lighten($color, 5%));
+}
+//#endregion
+// -------------------------------------------------------
 
 :root {
-  $css-vars: (
+  // --------------------
+  // STAUS COLOR, no theme config relate
+  // prettier-ignore
+  @each $key, $color in (
     'neutral': #393c3f,
     'info': #3abff8,
     'success': #36d097,
     'warning': #fbbd23,
     'error': #f87272,
+  ) { @include set-vars($key, $color); }
+
+  // --------------------
+  // BASE
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: base,
+    $scheme: (
+      'default': (
+        'default': white,
+        'focus': darken(white, 9%),
+        'hover': #f7f9f9,
+      ),
+      'dim': (
+        'default': #15202b,
+        'focus': lighten(#15202b, 7%),
+        'hover': #1e2732,
+      ),
+      'dark': (
+        'default': black,
+        'focus': lighten(black, 11%),
+        'hover': #16181c,
+      ),
+    )
   );
-  @each $key, $color in $css-vars {
-    @include set-vars($key, $color);
-  }
+
+  // --------------------
+  // ACCENT
+  @include set-theme-vars(
+    $attr-key: accent,
+    $base-var-name: accent,
+    $scheme: (
+      'blue': get-default-scheme(#1d9bf0),
+      'gold': get-default-scheme(#ffd400),
+      'pink': get-default-scheme(#f91880),
+      'purple': get-default-scheme(#7856ff),
+      'orange': get-default-scheme(#ff7a00),
+      'green': get-default-scheme(#00ba7c),
+    )
+  );
+
+  // --------------------
+  // TEXT COLOR, correspond to `base` config
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: text,
+    $scheme: (
+      'default': (
+        'default': #131416,
+        'accent': lighten(#0f1419, 35%),
+      ),
+      'dim': (
+        'default': #f1f3f3,
+        'accent': #8b98a5,
+      ),
+      'dark': (
+        'default': #e7e9ea,
+        'accent': #71767b,
+      ),
+    )
+  );
+
+  // --------------------
+  // BORDER COLOR, correspond to `base` config
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: border,
+    $scheme: (
+      'default': (
+        'default': #fff,
+        'accent': darken(#fff, 10%),
+      ),
+      'dim': (
+        'default': #38444d,
+        'accent': lighten(#38444d, 5%),
+      ),
+      'dark': (
+        'default': #2f3336,
+        'accent': #333639,
+      ),
+    )
+  );
 }
-
-//#region theme config
-@mixin getVarsThemeConfig(
-  $config-key,
-  $group-name,
-  $color-scheme,
-  $suffix: focus,
-  $lighten: true,
-  $perc: 5%
-) {
-  $secondary-scheme: ();
-
-  @if $suffix != '' {
-    @each $scheme-key, $sub-scheme in $color-scheme {
-      $color: $sub-scheme;
-
-      // get actual color if any
-      @if type-of($sub-scheme) == 'map' {
-        $color: map-get($sub-scheme, 'default');
-        // remap back to normal scheme
-        // prettier-ignore
-        $color-scheme: map-merge($color-scheme, ($scheme-key: $color));
-      }
-
-      // apply "makeup"
-      // prettier-ignore
-      @if $lighten == true { $color: lighten($color, $perc); }
-      // prettier-ignore
-      @else { $color: darken($color, $perc); }
-
-      // add secondary
-      // prettier-ignore
-      $secondary-scheme: map-merge($secondary-scheme, ($scheme-key: $color));
-    }
-  }
-
-  // render
-  @each $config-value, $color in $color-scheme {
-    &[data-theme-#{$config-key}='#{$config-value}'] {
-      @include set-vars($group-name, $color);
-
-      @if $suffix!= '' {
-        $color: map-get($secondary-scheme, $config-value);
-        @include set-vars($group-name + '-' + $suffix, $color);
-      }
-    }
-  }
-}
-
-:root {
-  $scheme-base: (
-    'default': #0f0f0f,
-    'dim': #1a1e2c,
-    'dark': (
-      'default': white,
-      'secondary': darken(white, 5%),
-    ),
-  );
-  @include getVarsThemeConfig(base, base, $scheme-base);
-
-  // accent
-  $scheme-accent: (
-    'blue': #1d9bf0,
-    'gold': #ffd400,
-    'pink': #f91880,
-    'purple': #7856ff,
-    'orange': #ff7a00,
-    'green': #00ba7c,
-  );
-  @include getVarsThemeConfig(accent, accent, $scheme-accent);
-
-  // text color, correspond to `base` config
-  $scheme-color: (
-    'default': (
-      'default': #0f1419,
-      'secondary': lighten(#0f1419, 5%),
-    ),
-    'dim': #f7f9f9,
-    'dark': #e7e9ea,
-  );
-  @include getVarsThemeConfig(base, color, $scheme-color, accent, false);
-}
-//#endregion
