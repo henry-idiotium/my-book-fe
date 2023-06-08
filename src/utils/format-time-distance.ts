@@ -8,7 +8,8 @@ import {
 } from 'date-fns';
 
 type FormatOption = {
-  showTimestamp: boolean;
+  showTimestamp?: boolean;
+  timeRangeDefineNow?: number; // seconds
 };
 
 export function formatTimeDistance(
@@ -18,7 +19,7 @@ export function formatTimeDistance(
 ) {
   if (formerDate > latterDate) return '';
 
-  const { showTimestamp = false } = options ?? {};
+  const { showTimestamp = false, timeRangeDefineNow } = options ?? {};
 
   // date templates
   const timestampTmpl = 'H:mm';
@@ -27,14 +28,17 @@ export function formatTimeDistance(
   const inYearTmpl = ['MM dd', showTimestampTmpl].join(' ');
   const passYearTmpl = ['dd/MM/YYYY', showTimestampTmpl].join(' ');
 
-  const { hours, minutes, seconds } = intervalToDuration({
-    start: formerDate,
-    end: latterDate,
-  });
+  const {
+    hours = 0,
+    minutes = 0,
+    seconds = 0,
+  } = intervalToDuration({ start: formerDate, end: latterDate });
 
   // is today (not diff date)
   if (isSameDay(formerDate, latterDate)) {
-    return formatRange(hours, minutes, seconds);
+    return !timeRangeDefineNow || seconds > timeRangeDefineNow
+      ? formatRange(hours, minutes, seconds)
+      : 'now';
   }
 
   // is yesterday
@@ -66,11 +70,7 @@ export function formatTimeDistance(
 
 export default formatTimeDistance;
 
-function formatRange(hours?: number, minutes?: number, seconds?: number) {
-  hours ??= 0;
-  minutes ??= 0;
-  seconds ??= 0;
-
+function formatRange(hours: number, minutes: number, seconds: number) {
   if (hours) return hours + 'h';
   else if (minutes) return minutes + 'm';
   else if (seconds) return seconds + 's';

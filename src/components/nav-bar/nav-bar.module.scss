@@ -5,7 +5,7 @@
     @apply h-full <xl:max-w-[88px] flex flex-col relative justify-between;
 
     .nav {
-      @apply flex flex-col <xl:items-center;
+      @apply flex flex-col <xl:items-center gap-1;
 
       &-main {
         @apply flex flex-col gap-[10px] <xl:items-center;
@@ -15,10 +15,10 @@
         @apply wh-[50px] py-2 my-1 rounded-full hover:bg-base-focus;
 
         &-img {
-          @apply wh-full flex justify-center items-center;
+          @apply flex items-center justify-center wh-full;
 
           > img {
-            @apply wh-10;
+            @apply wh-[34px];
           }
         }
       }

@@ -21,7 +21,7 @@ export type ChatEntryProps = {
 export function ChatEntry({ convo, onClick }: ChatEntryProps) {
   // mock
   const mainUser = mock.getMainUser();
-  const members = mock // other users
+  const members = mock // other users, may include main user
     .getConvoMembers(2)
     .sort((m) => m.id)
     .filter(
@@ -30,7 +30,7 @@ export function ChatEntry({ convo, onClick }: ChatEntryProps) {
         convo.members?.includes(m.id)
     );
 
-  const convoInfo = getConvoInfo(convo, mainUser.id, members);
+  const chatEntryInfo = getChatEntryInfo(convo, mainUser.id, members);
   const latestMessage = getLastestMessageInfo(convo.messages);
 
   return (
@@ -46,20 +46,20 @@ export function ChatEntry({ convo, onClick }: ChatEntryProps) {
 
         <div className={styles.content}>
           <div className={styles.info}>
-            <div className={styles.userName}>
-              <span>{convoInfo?.name}</span>
+            <div className={styles.infoName}>
+              <span>{chatEntryInfo?.name}</span>
             </div>
 
-            {convoInfo?.socialId ? (
-              <div className={styles.userId}>
-                <span>{convoInfo.socialId}</span>
+            {chatEntryInfo?.socialId ? (
+              <div className={styles.infoId}>
+                <span>{chatEntryInfo.socialId}</span>
               </div>
             ) : undefined}
 
             {latestMessage ? (
               <>
-                <span className={styles.sep}>·</span>
-                <div className={styles.timeLastMessage}>
+                <span>·</span>
+                <div className={styles.infoTimeLastMessage}>
                   <span>{latestMessage.at}</span>
                 </div>
               </>
@@ -76,7 +76,7 @@ export function ChatEntry({ convo, onClick }: ChatEntryProps) {
 }
 export default ChatEntry;
 
-function getConvoInfo(
+function getChatEntryInfo(
   convo: ChatEntryProps['convo'],
   mainUserId: number,
   members?: MinimalUserEntity[]
@@ -111,7 +111,7 @@ function getLastestMessageInfo(messages?: MessageEntity[], showTime = false) {
 
   return {
     ...latestMsg,
-    at: formatTimeDistance(latestMsg.at),
+    at: formatTimeDistance(latestMsg.at, undefined, { timeRangeDefineNow: 5 }),
   };
 }
 

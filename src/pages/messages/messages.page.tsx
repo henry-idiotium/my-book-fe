@@ -1,9 +1,11 @@
+import { Button } from '@material-tailwind/react';
 import { useEffect, useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
 
 import ChatEntry from './chat-entry/chat-entry';
+import EmptyConversation from './empty-conversation';
 import styles from './messages.page.module.scss';
 
 import { mock } from '@/api/mock';
@@ -12,12 +14,12 @@ import { Input } from '@/components';
 export function Messages() {
   const headerOptions = getHeaderOptionScheme();
 
-  const [activeChat, setActiveChat] = useState<number | string>();
+  const [activeChat, setActiveChat] = useState<string>();
 
   // mock
   const convos = mock.getConvos(7);
 
-  function handleSelectChatEntry(convoId: string | number) {
+  function handleSelectChatEntry(convoId: string) {
     setActiveChat(convoId);
   }
 
@@ -61,7 +63,9 @@ export function Messages() {
         </header>
 
         <main className={styles.messagingPane}>
-          <div className={styles.messagingWrapper}></div>
+          <div className={styles.messagingWrapper}>
+            {activeChat ? <></> : <EmptyConversation />}
+          </div>
         </main>
       </div>
     </div>

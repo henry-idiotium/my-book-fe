@@ -19,9 +19,9 @@ export default defineConfig(({ mode, command }) => {
 
     css: {
       modules: {
-        localsConvention: 'camelCaseOnly',
+        localsConvention: 'camelCase',
         generateScopedName:
-          command === 'serve' ? '[name]_[local]' : '[hash:base64:8]',
+          command === 'serve' ? '[name]__[local]' : '[hash:base64:8]',
       },
     },
 

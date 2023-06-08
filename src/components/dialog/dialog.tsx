@@ -9,10 +9,9 @@ export interface DialogTriggerArgs
   extends Pick<DialogProps, 'open' | 'handleOpen'> {
   toggle: () => void;
 }
-export interface DialogProps {
+export interface DialogProps extends React.PropsWithChildren {
   open: boolean;
   handleOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  children: React.ReactNode;
   trigger: (args: DialogTriggerArgs) => React.ReactNode;
   header?: string;
 }

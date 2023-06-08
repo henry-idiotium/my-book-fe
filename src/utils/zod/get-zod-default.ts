@@ -21,6 +21,7 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
   function getDefaultValue(schema: z.ZodTypeAny): unknown {
     if (schema instanceof z.ZodDefault) return schema._def.defaultValue();
     if (schema instanceof z.ZodOptional) return undefined;
+    if (schema instanceof z.ZodNullable) return null;
 
     if (schema instanceof z.ZodArray) return [];
     if (schema instanceof z.ZodString) return '';

@@ -7,8 +7,9 @@ import {
 
 import { classes } from '@/utils';
 
-export interface PopoverProps extends Omit<MTPopoverProps, 'children'> {
-  children: React.ReactNode;
+export interface PopoverProps
+  extends Omit<MTPopoverProps, 'children'>,
+    React.PropsWithChildren {
   trigger: React.ReactNode;
   className?: string;
 }
