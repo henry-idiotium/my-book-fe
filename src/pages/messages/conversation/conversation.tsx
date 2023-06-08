@@ -13,7 +13,6 @@ import {
   ConversationEntity,
   MessageEntity,
   MessageReceivedPayload,
-  MessageSentPayload,
 } from '@/types';
 
 export interface ConversationProps {

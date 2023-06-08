@@ -1,18 +1,18 @@
 import { Socket, io } from 'socket.io-client';
 import { z } from 'zod';
 
-import actions from './actions';
+import actions, { socketEmit, socketOn } from './actions';
 
 import {
-  UserDisconnectedPayload,
-  MessageReceivedPayload,
-  UserJoinedPayload,
   MessageEntity,
-  UserConnectedPayload,
-  messageZod,
-  conversationZod,
-  conversationGroupZod,
+  MessageReceivedPayload,
   MessageSentPayload,
+  UserConnectedPayload,
+  UserDisconnectedPayload,
+  UserJoinedPayload,
+  conversationGroupZod,
+  conversationZod,
+  messageZod,
 } from '@/types';
 
 const {
@@ -55,7 +55,7 @@ export const chatboxSocketContextStateZod = z.object({
   messages: z.array(messageZod),
   messagePending: z.string().optional(),
   socket: z
-    .custom<Socket<ClientToServerEvents, ServerToClientEvents>>()
+    .custom<Socket<ServerToClientEvents, ClientToServerEvents>>()
     .default(io({ autoConnect: false })),
   conversation: conversationZod,
   conversationGroup: conversationGroupZod,
@@ -70,17 +70,11 @@ export type ChatboxSocketContext = {
   socketDispatch: React.Dispatch<ChatboxSocketContextDispatch>;
 };
 
-type HandleEvent = GenericObject & {
-  [Key in keyof SocketAction]: {
-    [K in Key extends string
-      ? SocketAction[Key]
-      : never]: SocketAction[Key] extends keyof PayloadMap
-      ? (args: PayloadMap[SocketAction[Key]]) => void
-      : never;
-  };
+type HandleEvent<T extends Record<keyof T, keyof PayloadMap>> = {
+  [Key in keyof T as T[Key]]: (args: PayloadMap[T[Key]]) => void;
 };
 
 // emit
-export type ServerToClientEvents = HandleEvent['SOCKET_MESSAGE_SENT'];
+export type ServerToClientEvents = HandleEvent<typeof socketOn>;
 // on event
-export type ClientToServerEvents = HandleEvent['SOCKET_MESSAGE_RECEIVED'];
+export type ClientToServerEvents = HandleEvent<typeof socketEmit>;

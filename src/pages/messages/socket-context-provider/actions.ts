@@ -3,9 +3,12 @@ const common = {
   MESSAGE_PENDING: 'message_pending',
 } as const;
 
-const socket = {
-  SOCKET_MESSAGE_RECEIVED: 'socket_message_received',
+export const socketEmit = {
   SOCKET_MESSAGE_SENT: 'socket_message_sent',
+} as const;
+
+export const socketOn = {
+  SOCKET_MESSAGE_RECEIVED: 'socket_message_received',
   SOCKET_USER_JOINED: 'socket_user_joined',
   SOCKET_USER_CONNECTED: 'socket_user_connected',
   SOCKET_USER_DISCONNECTED: 'socket_user_disconnected',
@@ -15,10 +18,12 @@ const conversation = {} as const;
 
 const conversationGroup = {} as const;
 
-export const actions = {
+const actions = {
   ...common,
-  ...socket,
+  ...socketEmit,
+  ...socketOn,
   ...conversation,
   ...conversationGroup,
 } as const;
+
 export default actions;
