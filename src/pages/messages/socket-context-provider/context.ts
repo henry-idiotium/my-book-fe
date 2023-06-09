@@ -54,7 +54,7 @@ export function socketReducer(
 
       return {
         ...state,
-        userCount: payload.userCount,
+        userCount: state.userCount - 1,
         userIds: newUserIds,
       };
     }
