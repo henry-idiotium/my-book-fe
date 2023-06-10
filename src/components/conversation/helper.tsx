@@ -3,53 +3,45 @@ import { useSelector } from 'react-redux';
 
 import loadingMessages from '../loading-screen/loading-messages';
 
-import { hasResponse, useAltAxiosWithAuth } from '@/hooks';
 import actions from '@/pages/messages/socket-context-provider/actions';
 import { chatboxSocketContext } from '@/pages/messages/socket-context-provider/context';
 import { selectAuth } from '@/stores';
-import { MessageEntity, MessageReceivedPayload } from '@/types';
+import { MessageEntity } from '@/types';
 
 export function ConversationHelper() {
   const { socketState: state, socketDispatch } =
     useContext(chatboxSocketContext);
   const { userCount, userIds, socket, messages, conversation, messagePending } =
     state;
-  const [isLoading, { response, error }] = useAltAxiosWithAuth<MessageEntity[]>(
-    'get',
-    `/chatboxes/conversations/${conversation.id}/messages`,
-    undefined,
-    { params: { count: 5 } }
-  );
   const { user } = useSelector(selectAuth);
 
   useEffect(() => {
-    if (isLoading) return;
-
-    if (!hasResponse(response, error)) {
-      console.log(error);
-
-      return;
-    }
-
-    socketDispatch({
-      type: actions.MESSAGE_RECEIVED,
-      payload: response.data,
+    console.log(messages);
+    socket.on(actions.SOCKET_MESSAGE_RECEIVED, (payload: MessageEntity) => {
+      socketDispatch({
+        type: actions.SOCKET_MESSAGE_RECEIVED,
+        payload,
+      });
+      socketDispatch({
+        type: actions.MESSAGE_PENDING,
+        payload: undefined,
+      });
     });
 
-    socket.on(
-      actions.SOCKET_MESSAGE_RECEIVED,
-      (payload: MessageReceivedPayload) => {
-        socketDispatch({
-          type: actions.SOCKET_MESSAGE_RECEIVED,
-          payload,
-        });
-        socketDispatch({
-          type: actions.MESSAGE_PENDING,
-          payload: undefined,
-        });
-      }
-    );
-  }, [isLoading]);
+    socket.on(actions.SOCKET_MESSAGE_DELETED, (payload) => {
+      socketDispatch({
+        type: actions.SOCKET_MESSAGE_DELETED,
+        payload,
+      });
+    });
+
+    socket.on(actions.SOCKET_MESSAGE_UPDATED, (payload) => {
+      socketDispatch({
+        type: actions.SOCKET_MESSAGE_UPDATED,
+        payload,
+      });
+    });
+  }, []);
 
   const sendMessage = () => {
     const index = Math.floor(Math.random() * loadingMessages.length);
@@ -57,7 +49,6 @@ export function ConversationHelper() {
     socket.emit(actions.SOCKET_MESSAGE_SENT, {
       chatboxId: conversation.id,
       content: loadingMessages[index],
-      userId: user.id,
       isGroup: false,
     });
 
@@ -69,7 +60,26 @@ export function ConversationHelper() {
     return loadingMessages[index];
   };
 
-  if (isLoading) return <p>... loading messages ....</p>;
+  const updateMessage = (id: string, content: string) => {
+    socket.emit(actions.SOCKET_MESSAGE_UPDATING, {
+      chatboxId: conversation.id,
+      id,
+      content: content + ' edited---',
+      isGroup: false,
+    });
+    socketDispatch({
+      type: actions.SOCKET_MESSAGE_UPDATED,
+      payload: { id, content: content + ' edited---' },
+    });
+  };
+
+  const deleteMessage = (id: string) => {
+    socket.emit(actions.SOCKET_MESSAGE_DELETING, {
+      chatboxId: conversation.id,
+      id,
+      isGroup: false,
+    });
+  };
 
   return (
     <div>
@@ -116,6 +126,18 @@ export function ConversationHelper() {
           <div key={e.id} color={e.from === user.id ? 'blue' : 'black'}>
             {e.content} by {e.from !== user.id ? e.from : 'you'} (at{' '}
             {new Date(e.at).toDateString()})
+            <button
+              className="border border-blue-500"
+              onClick={() => updateMessage(e.id, e.content ?? '')}
+            >
+              update
+            </button>
+            <button
+              className="border border-red-500"
+              onClick={() => deleteMessage(e.id)}
+            >
+              delete
+            </button>
           </div>
         ))}
         <div color="blue">{messagePending}</div>

@@ -4,9 +4,11 @@ import { z } from 'zod';
 import actions, { socketEmit, socketOn } from './actions';
 
 import {
+  MessageDeletingPayload,
   MessageEntity,
-  MessageReceivedPayload,
   MessageSentPayload,
+  MessageUpdatedPayload,
+  MessageUpdatingPayload,
   UserConnectedPayload,
   UserDisconnectedPayload,
   UserJoinedPayload,
@@ -17,28 +19,35 @@ import {
 
 const {
   MESSAGE_PENDING,
-  MESSAGE_RECEIVED,
+
   SOCKET_MESSAGE_RECEIVED,
   SOCKET_MESSAGE_SENT,
   SOCKET_USER_CONNECTED,
   SOCKET_USER_DISCONNECTED,
   SOCKET_USER_JOINED,
+  SOCKET_MESSAGE_DELETED,
+  SOCKET_MESSAGE_DELETING,
+  SOCKET_MESSAGE_UPDATED,
+  SOCKET_MESSAGE_UPDATING,
 } = actions;
 
 type SocketAction = typeof actions;
 
 type PayloadMap = {
   [SOCKET_USER_DISCONNECTED]: UserDisconnectedPayload;
-  [SOCKET_MESSAGE_RECEIVED]: MessageReceivedPayload;
+  [SOCKET_MESSAGE_RECEIVED]: MessageEntity;
   [SOCKET_MESSAGE_SENT]: MessageSentPayload;
   [SOCKET_USER_JOINED]: UserJoinedPayload;
-  [MESSAGE_RECEIVED]: MessageEntity[];
   [MESSAGE_PENDING]: string | undefined;
   [SOCKET_USER_CONNECTED]: {
     eventPayload: UserConnectedPayload;
     socket: Socket;
     isGroup: boolean;
   };
+  [SOCKET_MESSAGE_DELETING]: MessageDeletingPayload;
+  [SOCKET_MESSAGE_DELETED]: { id: string };
+  [SOCKET_MESSAGE_UPDATED]: MessageUpdatedPayload;
+  [SOCKET_MESSAGE_UPDATING]: MessageUpdatingPayload;
 };
 export type ChatboxSocketContextDispatch = {
   [Key in keyof SocketAction]: {

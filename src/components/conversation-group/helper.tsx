@@ -7,11 +7,7 @@ import { hasResponse, useAltAxiosWithAuth } from '@/hooks';
 import actions from '@/pages/messages/socket-context-provider/actions';
 import { chatboxSocketContext } from '@/pages/messages/socket-context-provider/context';
 import { selectAuth } from '@/stores';
-import {
-  MessageEntity,
-  MessageReceivedPayload,
-  MessageSentPayload,
-} from '@/types';
+import { MessageEntity } from '@/types';
 
 export function ConversationGroupHelper() {
   const { socketState: state, socketDispatch } =
@@ -26,7 +22,7 @@ export function ConversationGroupHelper() {
   } = state;
   const [isLoading, { response, error }] = useAltAxiosWithAuth<MessageEntity[]>(
     'get',
-    `/chatboxes/${conversationGroup.id}/messages`,
+    `/${conversationGroup.id}/messages`,
     undefined,
     { params: { count: 5 } }
   );
@@ -41,24 +37,16 @@ export function ConversationGroupHelper() {
       return;
     }
 
-    socketDispatch({
-      type: actions.MESSAGE_RECEIVED,
-      payload: response.data,
+    socket.on(actions.SOCKET_MESSAGE_RECEIVED, (payload: MessageEntity) => {
+      socketDispatch({
+        type: actions.SOCKET_MESSAGE_RECEIVED,
+        payload,
+      });
+      socketDispatch({
+        type: actions.MESSAGE_PENDING,
+        payload: undefined,
+      });
     });
-
-    socket.on(
-      actions.SOCKET_MESSAGE_RECEIVED,
-      (payload: MessageReceivedPayload) => {
-        socketDispatch({
-          type: actions.SOCKET_MESSAGE_RECEIVED,
-          payload,
-        });
-        socketDispatch({
-          type: actions.MESSAGE_PENDING,
-          payload: undefined,
-        });
-      }
-    );
   }, [isLoading]);
 
   const sendMessage = () => {
@@ -67,9 +55,8 @@ export function ConversationGroupHelper() {
     socket.emit(actions.SOCKET_MESSAGE_SENT, {
       chatboxId: conversationGroup.id,
       content: loadingMessages[index],
-      userId: user.id,
       isGroup: true,
-    } as MessageSentPayload);
+    });
 
     socketDispatch({
       type: actions.MESSAGE_PENDING,

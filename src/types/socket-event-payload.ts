@@ -1,6 +1,5 @@
 import { ConversationEntity } from './conversation';
 import { ConversationGroupEntity } from './conversation-group';
-import { MessageEntity } from './message';
 
 export type UserConnectedPayload = {
   userCount: number;
@@ -17,11 +16,22 @@ export type UserDisconnectedPayload = {
   userDisconnectedId: number;
 };
 
+type MessageBase = { isGroup: boolean; chatboxId: string };
+
 export type MessageSentPayload = {
-  chatboxId: string;
-  userId: number;
   content: string;
-  isGroup: boolean;
+} & MessageBase;
+
+export type MessageUpdatingPayload = {
+  id: string;
+  content: string;
+} & MessageBase;
+
+export type MessageUpdatedPayload = {
+  id: string;
+  content: string;
 };
 
-export type MessageReceivedPayload = MessageEntity;
+export type MessageDeletingPayload = {
+  id: string;
+} & MessageBase;

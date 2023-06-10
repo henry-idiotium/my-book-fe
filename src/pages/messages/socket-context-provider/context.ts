@@ -19,11 +19,16 @@ export function socketReducer(
 
   switch (type) {
     case actions.SOCKET_USER_CONNECTED: {
+      const messages = payload.eventPayload.chatbox.messages ?? [];
+
+      delete payload.eventPayload.chatbox.messages;
+
       return {
         ...state,
         userCount: payload.eventPayload.userCount,
         userIds: new Set(payload.eventPayload.userIds),
         socket: payload.socket,
+        messages,
         ...(payload.isGroup
           ? {
               conversationGroup: payload.eventPayload
@@ -66,17 +71,33 @@ export function socketReducer(
       };
     }
 
-    case actions.MESSAGE_RECEIVED: {
-      return {
-        ...state,
-        messages: payload,
-      };
-    }
-
     case actions.MESSAGE_PENDING: {
       return {
         ...state,
         messagePending: payload,
+      };
+    }
+
+    case actions.SOCKET_MESSAGE_DELETED: {
+      return {
+        ...state,
+        messages: state.messages.map((e) => {
+          if (e.id === payload.id) return { ...e, content: null };
+
+          return e;
+        }),
+      };
+    }
+
+    case actions.SOCKET_MESSAGE_UPDATED: {
+      return {
+        ...state,
+        messages: state.messages.map((e) => {
+          if (e.id === payload.id)
+            return { ...e, content: payload.content, isEdited: true };
+
+          return e;
+        }),
       };
     }
 
