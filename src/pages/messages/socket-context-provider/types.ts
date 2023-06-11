@@ -1,7 +1,7 @@
 import { Socket, io } from 'socket.io-client';
 import { z } from 'zod';
 
-import actions, { socketEmit, socketOn } from './actions';
+import actions, { socketEmitEvents, socketListenEvents } from './actions';
 
 import {
   MessageDeletingPayload,
@@ -83,7 +83,7 @@ type HandleEvent<T extends Record<keyof T, keyof PayloadMap>> = {
   [Key in keyof T as T[Key]]: (args: PayloadMap[T[Key]]) => void;
 };
 
-// emit
-export type ServerToClientEvents = HandleEvent<typeof socketOn>;
-// on event
-export type ClientToServerEvents = HandleEvent<typeof socketEmit>;
+// emitter
+export type ServerToClientEvents = HandleEvent<typeof socketListenEvents>;
+// listener
+export type ClientToServerEvents = HandleEvent<typeof socketEmitEvents>;

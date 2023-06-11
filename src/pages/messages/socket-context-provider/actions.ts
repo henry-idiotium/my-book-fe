@@ -2,13 +2,13 @@ const common = {
   MESSAGE_PENDING: 'message_pending',
 } as const;
 
-export const socketEmit = {
+export const socketEmitEvents = {
   SOCKET_MESSAGE_SENT: 'socket_message_sent',
   SOCKET_MESSAGE_UPDATING: 'socket_message_updating',
   SOCKET_MESSAGE_DELETING: 'socket_message_deleting',
 } as const;
 
-export const socketOn = {
+export const socketListenEvents = {
   SOCKET_MESSAGE_RECEIVED: 'socket_message_received',
   SOCKET_USER_JOINED: 'socket_user_joined',
   SOCKET_USER_CONNECTED: 'socket_user_connected',
@@ -23,8 +23,8 @@ const conversationGroup = {} as const;
 
 const actions = {
   ...common,
-  ...socketEmit,
-  ...socketOn,
+  ...socketEmitEvents,
+  ...socketListenEvents,
   ...conversation,
   ...conversationGroup,
 } as const;

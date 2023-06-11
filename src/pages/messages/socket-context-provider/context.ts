@@ -8,35 +8,33 @@ import {
   chatboxSocketContextStateZod,
 } from './types';
 
-import { ConversationEntity, ConversationGroupEntity } from '@/types';
 import { getZodDefault } from '@/utils';
 
 export function socketReducer(
   state: ChatboxSocketContextState,
   { type, payload }: ChatboxSocketContextDispatch
-): ChatboxSocketContextState {
+) {
   console.log('Action: ' + type + ' - Payload: ', payload);
 
   switch (type) {
     case actions.SOCKET_USER_CONNECTED: {
-      const messages = payload.eventPayload.chatbox.messages ?? [];
+      const messages =
+        structuredClone(payload.eventPayload.chatbox.messages) ?? [];
 
       delete payload.eventPayload.chatbox.messages;
 
+      const convo: Partial<ChatboxSocketContextState> =
+        'conversationBetween' in payload.eventPayload.chatbox
+          ? { conversation: payload.eventPayload.chatbox }
+          : { conversationGroup: payload.eventPayload.chatbox };
+
       return {
         ...state,
+        ...convo,
+        messages,
         userCount: payload.eventPayload.userCount,
         userIds: new Set(payload.eventPayload.userIds),
         socket: payload.socket,
-        messages,
-        ...(payload.isGroup
-          ? {
-              conversationGroup: payload.eventPayload
-                .chatbox as ConversationGroupEntity,
-            }
-          : {
-              conversation: payload.eventPayload.chatbox as ConversationEntity,
-            }),
       };
     }
 
