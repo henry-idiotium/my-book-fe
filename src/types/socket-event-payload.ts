@@ -3,7 +3,6 @@ import { ConversationGroupEntity } from './conversation-group';
 
 export type UserConnectedPayload = {
   userCount: number;
-  userIds: number[];
   chatbox: ConversationEntity | ConversationGroupEntity;
 };
 

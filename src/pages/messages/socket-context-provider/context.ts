@@ -17,48 +17,31 @@ export function socketReducer(
   console.log('Action: ' + type + ' - Payload: ', payload);
 
   switch (type) {
-    case actions.SOCKET_USER_CONNECTED: {
-      const messages =
-        structuredClone(payload.eventPayload.chatbox.messages) ?? [];
-
-      delete payload.eventPayload.chatbox.messages;
-
-      const convo: Partial<ChatboxSocketContextState> =
-        'conversationBetween' in payload.eventPayload.chatbox
-          ? { conversation: payload.eventPayload.chatbox }
-          : { conversationGroup: payload.eventPayload.chatbox };
-
-      return {
-        ...state,
-        ...convo,
-        messages,
-        userCount: payload.eventPayload.userCount,
-        userIds: new Set(payload.eventPayload.userIds),
-        socket: payload.socket,
-      };
-    }
-
     case actions.SOCKET_USER_JOINED: {
-      const newUserIds = new Set(state.userIds);
+      const activeUser = state.users.get(payload.userJoinedId);
+      if (!activeUser || !activeUser.metadata) return;
 
-      newUserIds.add(payload.userJoinedId);
+      activeUser.metadata.isActive = true;
+      const newUsers = new Map(state.users);
+
+      newUsers.set(payload.userJoinedId, activeUser);
 
       return {
         ...state,
         userCount: payload.userCount,
-        userIds: newUserIds,
+        users: newUsers,
       };
     }
 
     case actions.SOCKET_USER_DISCONNECTED: {
-      const newUserIds = new Set(state.userIds);
+      const newUsers = new Map(state.users);
 
-      newUserIds.delete(payload.userDisconnectedId);
+      newUsers.delete(payload.userDisconnectedId);
 
       return {
         ...state,
         userCount: state.userCount - 1,
-        userIds: newUserIds,
+        users: newUsers,
       };
     }
 

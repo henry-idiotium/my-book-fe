@@ -11,12 +11,12 @@ import { MessageEntity } from '@/types';
 export function ConversationHelper() {
   const { socketState: state, socketDispatch } =
     useContext(chatboxSocketContext);
-  const { userCount, userIds, socket, messages, conversation, messagePending } =
+  const { userCount, users, socket, messages, conversation, messagePending } =
     state;
   const { user } = useSelector(selectAuth);
 
   useEffect(() => {
-    console.log(messages);
+    console.log('called');
     socket.on(actions.SOCKET_MESSAGE_RECEIVED, (payload: MessageEntity) => {
       socketDispatch({
         type: actions.SOCKET_MESSAGE_RECEIVED,
@@ -88,22 +88,22 @@ export function ConversationHelper() {
           <h1>Between:({conversation.conversationBetween?.length ?? 0}): </h1>
           {conversation.conversationBetween?.map((e) => (
             <span
-              key={e}
+              key={e.id}
               className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
             >
-              {e}
+              {e.id}
             </span>
           ))}
         </span>
       </div>
       <div className="border border-red-500 p-4">
         <h1>Currently online: {userCount}</h1>
-        {Array.from(userIds).map((e) => (
+        {Array.from(users, ([key, value]) => value).map((e) => (
           <span
-            key={e}
+            key={e.id}
             className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
           >
-            {e}
+            {e.id}
           </span>
         ))}
       </div>

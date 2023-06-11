@@ -37,5 +37,13 @@ export const defaultUser = getZodDefault(userZod);
 export type UserEntity = z.infer<typeof userZod>;
 
 // minimal user
-export type MinimalUserEntity = Partial<UserEntity> &
-  Pick<UserEntity, 'id' | 'email' | 'firstName' | 'lastName' | 'socialId'>;
+export const minimalUserZod = z.object({
+  id: z.number(),
+  email: z.string().email(),
+  firstName: z.string(),
+  lastName: z.string(),
+  socialId: z.string().optional(),
+  metadata: z.record(z.any()).optional(),
+});
+
+export type MinimalUserEntity = z.infer<typeof minimalUserZod>;

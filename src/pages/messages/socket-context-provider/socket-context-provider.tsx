@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Socket, io } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 import actions from './actions';
 import {
@@ -8,6 +8,7 @@ import {
   initialSocketState,
   socketReducer,
 } from './context';
+import { ChatboxSocketContextState } from './types';
 
 import { selectAuth } from '@/stores';
 import {
@@ -18,65 +19,92 @@ import {
 
 export interface SocketContextProviderProps extends React.PropsWithChildren {
   id: string;
-  isGroup: boolean;
 }
 
 export function ChatboxSocketContextProvider({
   id,
-  isGroup,
   children,
 }: SocketContextProviderProps) {
   const { token } = useSelector(selectAuth);
-  const [socketState, socketDispatch] = useReducer(
-    socketReducer,
-    initialSocketState
-  );
+  const [, socketDispatch] = useReducer(socketReducer, initialSocketState);
+  const [initState, setState] = useState({ ...initialSocketState });
   const [loading, setLoading] = useState(true);
-
-  let socket: Socket;
+  const [isInit, setIsInit] = useState(false);
 
   useEffect(() => {
-    socket = io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
-      query: { chatboxId: id },
-      extraHeaders: { Authorization: token },
-    });
+    if (!isInit) {
+      setState({
+        ...initState,
+        socket: io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
+          query: { chatboxId: id },
+          extraHeaders: { Authorization: token },
+        }),
+      });
+      setIsInit(true);
 
-    socket.on('connect', () => {
+      return;
+    }
+
+    initState.socket.on('connect', () => {
       handleUserEvents();
     });
 
     return () => {
-      if (socket) socket.close();
+      if (initState.socket) initState.socket.close();
     };
-  }, []);
+  }, [isInit]);
 
   function handleUserEvents() {
-    socket.on(
+    initState.socket.on(
       actions.SOCKET_USER_CONNECTED,
       (payload: UserConnectedPayload) => {
-        socket.off(actions.SOCKET_USER_CONNECTED);
-        socketDispatch({
-          type: actions.SOCKET_USER_CONNECTED,
-          payload: { eventPayload: payload, socket, isGroup },
+        initState.socket.off(actions.SOCKET_USER_CONNECTED);
+        const messages = payload.chatbox.messages ?? [];
+
+        delete payload.chatbox.messages;
+        const users = new Map(
+          'conversationBetween' in payload.chatbox
+            ? payload.chatbox.conversationBetween.map((e) => [e.id, e])
+            : payload.chatbox.members?.map((e) => [e.id, e]) ?? []
+        );
+
+        const convo: Partial<ChatboxSocketContextState> =
+          'conversationBetween' in payload.chatbox
+            ? { conversation: payload.chatbox, conversationGroup: undefined }
+            : {
+                conversationGroup: payload.chatbox,
+                conversation: undefined,
+              };
+
+        setState({
+          ...initState,
+          ...convo,
+          messages,
+          userCount: payload.userCount,
+          users,
         });
+
         setLoading(false);
-      }
-    );
 
-    socket.on(actions.SOCKET_USER_JOINED, (payload: UserJoinedPayload) => {
-      socketDispatch({
-        type: actions.SOCKET_USER_JOINED,
-        payload,
-      });
-    });
+        initState.socket.on(
+          actions.SOCKET_USER_JOINED,
+          (payload: UserJoinedPayload) => {
+            socketDispatch({
+              type: actions.SOCKET_USER_JOINED,
+              payload,
+            });
+          }
+        );
 
-    socket.on(
-      actions.SOCKET_USER_DISCONNECTED,
-      (payload: UserDisconnectedPayload) => {
-        socketDispatch({
-          type: actions.SOCKET_USER_DISCONNECTED,
-          payload,
-        });
+        initState.socket.on(
+          actions.SOCKET_USER_DISCONNECTED,
+          (payload: UserDisconnectedPayload) => {
+            socketDispatch({
+              type: actions.SOCKET_USER_DISCONNECTED,
+              payload,
+            });
+          }
+        );
       }
     );
   }
@@ -84,7 +112,9 @@ export function ChatboxSocketContextProvider({
   if (loading) return <p>... loading Socket IO ....</p>;
 
   return (
-    <chatboxSocketContext.Provider value={{ socketDispatch, socketState }}>
+    <chatboxSocketContext.Provider
+      value={{ socketDispatch, socketState: initState }}
+    >
       {children}
     </chatboxSocketContext.Provider>
   );

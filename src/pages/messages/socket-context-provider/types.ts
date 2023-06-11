@@ -9,17 +9,18 @@ import {
   MessageSentPayload,
   MessageUpdatedPayload,
   MessageUpdatingPayload,
+  MinimalUserEntity,
   UserConnectedPayload,
   UserDisconnectedPayload,
   UserJoinedPayload,
   conversationGroupZod,
   conversationZod,
   messageZod,
+  minimalUserZod,
 } from '@/types';
 
 const {
   MESSAGE_PENDING,
-
   SOCKET_MESSAGE_RECEIVED,
   SOCKET_MESSAGE_SENT,
   SOCKET_USER_CONNECTED,
@@ -39,11 +40,7 @@ type PayloadMap = {
   [SOCKET_MESSAGE_SENT]: MessageSentPayload;
   [SOCKET_USER_JOINED]: UserJoinedPayload;
   [MESSAGE_PENDING]: string | undefined;
-  [SOCKET_USER_CONNECTED]: {
-    eventPayload: UserConnectedPayload;
-    socket: Socket;
-    isGroup: boolean;
-  };
+  [SOCKET_USER_CONNECTED]: UserConnectedPayload;
   [SOCKET_MESSAGE_DELETING]: MessageDeletingPayload;
   [SOCKET_MESSAGE_DELETED]: { id: string };
   [SOCKET_MESSAGE_UPDATED]: MessageUpdatedPayload;
@@ -60,7 +57,9 @@ export type ChatboxSocketContextDispatch = {
 
 export const chatboxSocketContextStateZod = z.object({
   userCount: z.number(),
-  userIds: z.set(z.number()).default(new Set<number>()),
+  users: z
+    .map(z.number(), minimalUserZod)
+    .default(new Map<number, MinimalUserEntity>()),
   messages: z.array(messageZod),
   messagePending: z.string().optional(),
   socket: z
