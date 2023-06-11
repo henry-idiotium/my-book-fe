@@ -21,6 +21,7 @@ export type UserStatusEntity = z.infer<typeof userStatusZod>;
 //user
 export const userZod = z.object({
   id: z.number(),
+  alias: z.string(),
   email: z.string(),
   provider: z.string(),
   socialId: z.union([z.number(), z.string()]).optional(),
@@ -39,6 +40,7 @@ export type UserEntity = z.infer<typeof userZod>;
 // minimal user
 export const minimalUserZod = z.object({
   id: z.number(),
+  alias: z.string(),
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),

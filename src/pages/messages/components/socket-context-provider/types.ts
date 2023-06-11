@@ -30,11 +30,13 @@ const {
   SOCKET_MESSAGE_DELETING,
   SOCKET_MESSAGE_UPDATED,
   SOCKET_MESSAGE_UPDATING,
+  INIT,
 } = actions;
 
 type SocketAction = typeof actions;
 
 type PayloadMap = {
+  [INIT]: ChatboxSocketContextState;
   [SOCKET_USER_DISCONNECTED]: UserDisconnectedPayload;
   [SOCKET_MESSAGE_RECEIVED]: MessageEntity;
   [SOCKET_MESSAGE_SENT]: MessageSentPayload;

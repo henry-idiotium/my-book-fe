@@ -8,7 +8,7 @@ export interface ConversationProps {
 
 export default function Conversation(props: ConversationProps) {
   return (
-    <SocketContextProvider isGroup={false} id={props.id}>
+    <SocketContextProvider id={props.id}>
       <ConversationHelper />
     </SocketContextProvider>
   );

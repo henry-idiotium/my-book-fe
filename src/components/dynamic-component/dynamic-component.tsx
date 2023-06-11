@@ -7,6 +7,7 @@ export interface DynamicComponentProps extends GenericObject {
   asAlt?: (args: GenericObject) => JSX.Element;
 }
 
+// DEPRECATED: might want to implement other ways
 export function DynamicComponent(props: DynamicComponentProps) {
   const { cond, as: el, asAlt: altEl } = props;
   const Component = cond ? el : altEl;

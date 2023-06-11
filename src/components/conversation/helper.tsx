@@ -9,14 +9,20 @@ import { selectAuth } from '@/stores';
 import { MessageEntity } from '@/types';
 
 export function ConversationHelper() {
-  const { socketState: state, socketDispatch } =
-    useContext(chatboxSocketContext);
-  const { userCount, users, socket, messages, conversation, messagePending } =
-    state;
+  const {
+    socketState: {
+      userCount,
+      users,
+      socket,
+      messages,
+      conversation,
+      messagePending,
+    },
+    socketDispatch,
+  } = useContext(chatboxSocketContext);
   const { user } = useSelector(selectAuth);
 
   useEffect(() => {
-    console.log('called');
     socket.on(actions.SOCKET_MESSAGE_RECEIVED, (payload: MessageEntity) => {
       socketDispatch({
         type: actions.SOCKET_MESSAGE_RECEIVED,
@@ -86,7 +92,7 @@ export function ConversationHelper() {
       <div className="border-sky-500 border p-4">
         <span className="flex items-center">
           <h1>Between:({conversation.conversationBetween?.length ?? 0}): </h1>
-          {conversation.conversationBetween?.map((e) => (
+          {conversation.conversationBetween?.map((e, index) => (
             <span
               key={e.id}
               className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"

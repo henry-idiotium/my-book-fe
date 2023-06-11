@@ -16,16 +16,19 @@
     @apply flex flex-col overflow-hidden whitespace-nowrap text-color-accent;
 
     .info {
-      @apply flex items-center w-auto gap-1 overflow-hidden;
+      @apply flex items-center w-auto overflow-hidden;
 
       &_name {
-        @apply w-fit max-w-[75%] font-semibold text-color text-ellipsis overflow-hidden;
+        @apply w-fit max-w-[75%] font-semibold text-color text-ellipsis overflow-hidden pr-1;
       }
       &_id {
         @apply overflow-hidden text-sm text-ellipsis;
       }
       &_time-last-message {
-        @apply overflow-hidden text-sm text-ellipsis;
+        @apply overflow-hidden text-sm text-ellipsis shrink-0;
+      }
+      &-sep {
+        @apply px-1 font-semibold;
       }
     }
 

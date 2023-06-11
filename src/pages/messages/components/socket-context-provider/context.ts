@@ -13,13 +13,17 @@ import { getZodDefault } from '@/utils';
 export function socketReducer(
   state: ChatboxSocketContextState,
   { type, payload }: ChatboxSocketContextDispatch
-) {
+): ChatboxSocketContextState {
   console.log('Action: ' + type + ' - Payload: ', payload);
 
   switch (type) {
+    case actions.INIT: {
+      return { ...state, ...payload };
+    }
+
     case actions.SOCKET_USER_JOINED: {
       const activeUser = state.users.get(payload.userJoinedId);
-      if (!activeUser || !activeUser.metadata) return;
+      if (!activeUser || !activeUser.metadata) return state;
 
       activeUser.metadata.isActive = true;
       const newUsers = new Map(state.users);

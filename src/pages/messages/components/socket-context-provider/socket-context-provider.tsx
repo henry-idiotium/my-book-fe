@@ -26,42 +26,48 @@ export function ChatboxSocketContextProvider({
   children,
 }: SocketContextProviderProps) {
   const { token } = useSelector(selectAuth);
-  const [, socketDispatch] = useReducer(socketReducer, initialSocketState);
-  const [initState, setState] = useState({ ...initialSocketState });
+  const [socketState, socketDispatch] = useReducer(
+    socketReducer,
+    initialSocketState
+  );
   const [loading, setLoading] = useState(true);
   const [isInit, setIsInit] = useState(false);
 
   useEffect(() => {
     if (!isInit) {
-      setState({
-        ...initState,
-        socket: io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
-          query: { chatboxId: id },
-          extraHeaders: { Authorization: token },
-        }),
+      socketDispatch({
+        type: actions.INIT,
+        payload: {
+          ...initialSocketState,
+          socket: io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
+            query: { chatboxId: id },
+            extraHeaders: { Authorization: token },
+          }),
+        },
       });
       setIsInit(true);
 
       return;
     }
 
-    initState.socket.on('connect', () => {
+    socketState.socket.on('connect', () => {
       handleUserEvents();
     });
 
     return () => {
-      if (initState.socket) initState.socket.close();
+      if (socketState.socket) socketState.socket.close();
     };
   }, [isInit]);
 
   function handleUserEvents() {
-    initState.socket.on(
+    socketState.socket.on(
       actions.SOCKET_USER_CONNECTED,
       (payload: UserConnectedPayload) => {
-        initState.socket.off(actions.SOCKET_USER_CONNECTED);
+        socketState.socket.off(actions.SOCKET_USER_CONNECTED);
         const messages = payload.chatbox.messages ?? [];
 
         delete payload.chatbox.messages;
+
         const users = new Map(
           'conversationBetween' in payload.chatbox
             ? payload.chatbox.conversationBetween.map((e) => [e.id, e])
@@ -70,23 +76,23 @@ export function ChatboxSocketContextProvider({
 
         const convo: Partial<ChatboxSocketContextState> =
           'conversationBetween' in payload.chatbox
-            ? { conversation: payload.chatbox, conversationGroup: undefined }
-            : {
-                conversationGroup: payload.chatbox,
-                conversation: undefined,
-              };
+            ? { conversation: payload.chatbox }
+            : { conversationGroup: payload.chatbox };
 
-        setState({
-          ...initState,
-          ...convo,
-          messages,
-          userCount: payload.userCount,
-          users,
+        socketDispatch({
+          type: actions.INIT,
+          payload: {
+            ...socketState,
+            ...convo,
+            messages,
+            userCount: payload.userCount,
+            users,
+          },
         });
 
         setLoading(false);
 
-        initState.socket.on(
+        socketState.socket.on(
           actions.SOCKET_USER_JOINED,
           (payload: UserJoinedPayload) => {
             socketDispatch({
@@ -96,7 +102,7 @@ export function ChatboxSocketContextProvider({
           }
         );
 
-        initState.socket.on(
+        socketState.socket.on(
           actions.SOCKET_USER_DISCONNECTED,
           (payload: UserDisconnectedPayload) => {
             socketDispatch({
@@ -112,9 +118,7 @@ export function ChatboxSocketContextProvider({
   if (loading) return <p>... loading Socket IO ....</p>;
 
   return (
-    <chatboxSocketContext.Provider
-      value={{ socketDispatch, socketState: initState }}
-    >
+    <chatboxSocketContext.Provider value={{ socketDispatch, socketState }}>
       {children}
     </chatboxSocketContext.Provider>
   );

@@ -19,9 +19,7 @@ export function Login(props: LoginProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(loginFormZod),
-  });
+  } = useForm<LoginForm>({ resolver: zodResolver(loginFormZod) });
 
   const [login, { isSuccess }] = useLoginMutation();
   const [logout] = useLogoutMutation();

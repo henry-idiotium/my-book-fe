@@ -2,20 +2,38 @@ import { RouteObject, createBrowserRouter } from 'react-router-dom';
 
 import Home from './home/home.page';
 import Login from './login/login.page';
-import MessagesTest from './messages-test/messages.page';
 import Messages from './messages/messages.page';
+import MessagesTest from './messages-test/messages.page';
 
-export const router = createBrowserRouter([
-  { path: '/login', Component: Login },
+import Root from '@/layouts/root/root.layout';
+import RouteWrapper from '@/layouts/route-wrapper/route-wrapper.layout';
+
+export const privateRoutes: RouteObject[] = [
+  { path: '/', element: <>this is private!!!</> },
   { path: '/home', Component: Home },
   { path: '/messages', Component: Messages },
-  {
-    path: 'test',
-    element: <MessagesTest />,
-  },
+
+  { path: 'test', Component: MessagesTest },
+
   // Note: Mock pages
   ...eps('explore', 'lists', 'bookmarks', 'profile', 'notifications'),
+];
+export const publicRoutes: RouteObject[] = [
+  { path: '/', element: <>this is public!!!</> },
+  { path: '/foo', element: <>this is public!!! foo</> },
+  { path: '/login', Component: Login },
+];
+
+export const router = createBrowserRouter([
+  {
+    Component: Root,
+    children: [
+      { element: <RouteWrapper type="public" />, children: publicRoutes },
+      { element: <RouteWrapper type="private" />, children: privateRoutes },
+    ],
+  },
 ]);
+
 export default router;
 
 // ---------------------------------------

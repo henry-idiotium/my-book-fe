@@ -1,27 +1,58 @@
-import { Button } from '@material-tailwind/react';
 import { useEffect, useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
 
-import ChatEntry from './chat-entry/chat-entry';
-import EmptyConversation from './empty-conversation';
+import {
+  ChatEntryProps,
+  ChatEntry,
+  Conversation,
+  EmptyConversation,
+  ChatboxEntry,
+} from './components';
 import styles from './messages.page.module.scss';
 
-import { mock } from '@/api/mock';
-import { Input } from '@/components';
+import { Input, LoadingScreen } from '@/components';
+import { useAltAxios } from '@/hooks/use-alt-axios';
+import { ConversationEntity, ConversationGroupEntity } from '@/types';
 
 export function Messages() {
   const headerOptions = getHeaderOptionScheme();
 
-  const [activeChat, setActiveChat] = useState<string>();
+  // chats between two
+  const [pairRes, fetchPairs] = useAltAxios<ConversationEntity[]>(
+    `/conversations`,
+    { manual: true }
+  );
+  // chats between multiple, or group
+  const [groupRes, fetchGroups] = useAltAxios<ConversationGroupEntity[]>(
+    `/chatboxes`,
+    { manual: true }
+  );
 
-  // mock
-  const convos = mock.getConvos(7);
+  const [activeChatId, setActiveChatId] = useState<string>();
+  const [chatEntries, setChatEntries] = useState<ChatboxEntry[]>([]);
+
+  useEffect(() => {
+    if (!pairRes.data) fetchPairs();
+
+    if (!groupRes.data) fetchGroups();
+  }, []);
+
+  // merge fetched data
+  useEffect(() => {
+    const pairChats = pairRes.data ?? [];
+    const groupChats = groupRes.data ?? [];
+
+    setChatEntries([...pairChats, ...groupChats]);
+  }, [pairRes.data, groupRes.data]);
 
   function handleSelectChatEntry(convoId: string) {
-    setActiveChat(convoId);
+    setActiveChatId(convoId);
+    // more...
   }
+
+  if (pairRes.loading || groupRes.loading) return <LoadingScreen />;
 
   return (
     <div className={styles.container}>
@@ -51,11 +82,11 @@ export function Messages() {
             </div>
 
             <div className={styles.chatboxContent}>
-              {convos?.map((convo, index) => (
+              {chatEntries.map((entry, index) => (
                 <ChatEntry
                   key={index}
-                  convo={convo}
-                  onClick={() => handleSelectChatEntry(convo.id)}
+                  entry={entry}
+                  onClick={() => handleSelectChatEntry(entry.id)}
                 />
               ))}
             </div>
@@ -64,7 +95,7 @@ export function Messages() {
 
         <main className={styles.messagingPane}>
           <div className={styles.messagingWrapper}>
-            {activeChat ? <></> : <EmptyConversation />}
+            {activeChatId ? <Conversation /> : <EmptyConversation />}
           </div>
         </main>
       </div>

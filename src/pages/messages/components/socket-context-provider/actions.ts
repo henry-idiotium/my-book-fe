@@ -1,5 +1,6 @@
 const common = {
   MESSAGE_PENDING: 'message_pending',
+  INIT: 'init',
 } as const;
 
 export const socketEmitEvents = {

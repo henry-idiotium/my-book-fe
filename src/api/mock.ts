@@ -4,7 +4,7 @@ import { MessageEntity, MinimalUserEntity } from '@/types';
 export const mock = {
   getMainUser: (): MinimalUserEntity => ({
     id: 1,
-    email: 'main.user@real.mail.com',
+    alias: 'main.user@real.mail.com',
     firstName: 'Johnny',
     lastName: 'McDonald',
   }),
@@ -12,25 +12,25 @@ export const mock = {
     mock.getMainUser(),
     {
       id: 2,
-      email: 'not.main.user.2@real.mail.com',
+      alias: 'not.main.user.2@real.mail.com',
       firstName: 'Lizzie',
       lastName: 'Rose',
     },
     {
       id: 3,
-      email: 'not.main.user.3@real.mail.com',
+      alias: 'not.main.user.3@real.mail.com',
       firstName: 'Lena',
       lastName: 'Boone',
     },
     {
       id: 4,
-      email: 'not.main.user.4@real.mail.com',
+      alias: 'not.main.user.4@real.mail.com',
       firstName: 'Henry',
       lastName: 'Powell',
     },
     {
       id: 5,
-      email: 'not.main.user.5@real.mail.com',
+      alias: 'not.main.user.5@real.mail.com',
       firstName: 'Iva',
       lastName: 'Love',
     },
@@ -84,7 +84,7 @@ export const mock = {
       },
     ];
 
-    const convos: ChatEntryProps['convo'][] = [
+    const convos: ChatEntryProps['entry'][] = [
       {
         id: 'bf698a60-7540-58b9-a11a-3fdd1049fbd6',
         name: 'et nesciunt et',
