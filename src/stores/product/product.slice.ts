@@ -12,6 +12,10 @@ import { RootState } from '..';
 import { getProductById, getProducts } from '@/api';
 import { ProductEntity, SliceStatus } from '@/types';
 
+/**
+ * NOTE: this is just a template redux store
+ */
+
 export const PRODUCT_FEATURE_KEY = 'product';
 
 export type ProductState = EntityState<ProductEntity> & SliceStatus;

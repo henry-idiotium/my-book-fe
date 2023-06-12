@@ -7,4 +7,5 @@ export * from './classname-adapter';
 export * from './get-app-url';
 export * from './object-omit-keys';
 export * from './format-time-readable';
-export * from './user-info-helpers';
+export * as User from './user-helpers';
+export * as Convo from './conversation-helpers';

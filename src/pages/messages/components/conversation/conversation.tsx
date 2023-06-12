@@ -39,7 +39,7 @@ export function Conversation(props: ConversationProps) {
     socket.on(actions.SOCKET_MESSAGE_UPDATED, (payload) => {
       socketDispatch({ type: actions.SOCKET_MESSAGE_UPDATED, payload });
     });
-  });
+  }, []);
 
   function sendMessage() {
     const index = Math.floor(Math.random() * loadingMessages.length);

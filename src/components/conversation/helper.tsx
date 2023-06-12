@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 
 import loadingMessages from '../loading-screen/loading-messages';
 
-import actions from '@/pages/messages/socket-context-provider/actions';
-import { chatboxSocketContext } from '@/pages/messages/socket-context-provider/context';
+import actions from '@/pages/messages/components/socket-context-provider/actions';
+import { chatboxSocketContext } from '@/pages/messages/components/socket-context-provider/context';
 import { selectAuth } from '@/stores';
 import { MessageEntity } from '@/types';
 

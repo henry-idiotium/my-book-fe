@@ -1,3 +1,4 @@
+import { Reducer } from '@reduxjs/toolkit';
 import { createContext } from 'react';
 
 import actions from './actions';
@@ -10,10 +11,10 @@ import {
 
 import { getZodDefault } from '@/utils';
 
-export function socketReducer(
-  state: ChatboxSocketContextState,
-  { type, payload }: ChatboxSocketContextDispatch
-): ChatboxSocketContextState {
+export const socketReducer: Reducer<
+  ChatboxSocketContextState,
+  ChatboxSocketContextDispatch
+> = (state = initialSocketState, { type, payload }) => {
   console.log('Action: ' + type + ' - Payload: ', payload);
 
   switch (type) {
@@ -89,7 +90,7 @@ export function socketReducer(
     default:
       return state;
   }
-}
+};
 
 export const initialSocketState = getZodDefault(chatboxSocketContextStateZod);
 export const chatboxSocketContext = createContext<ChatboxSocketContext>({

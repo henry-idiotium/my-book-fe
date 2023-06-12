@@ -1,7 +1,9 @@
 import {
+  AnyAction,
   Middleware,
   PreloadedState,
   StoreEnhancer,
+  ThunkAction,
   combineReducers,
   configureStore,
 } from '@reduxjs/toolkit';
@@ -25,10 +27,10 @@ import { THEME_FEATURE_KEY, themeReducer } from './theme/theme.slice';
 
 // Configurations
 const reducer = combineReducers({
-  [AUTH_FEATURE_KEY]: authReducer,
-  [authApi.reducerPath]: authApi.reducer,
   [PRODUCT_FEATURE_KEY]: productReducer,
   [THEME_FEATURE_KEY]: themeReducer,
+  [AUTH_FEATURE_KEY]: authReducer,
+  [authApi.reducerPath]: authApi.reducer,
 });
 const middlewares: Middleware[] = [authApi.middleware];
 const enhancers: StoreEnhancer[] = [];
@@ -36,16 +38,15 @@ const enhancers: StoreEnhancer[] = [];
 // Persistence
 const persistConfig: PersistConfig<RootState> = {
   key: 'root',
-  storage,
   whitelist: [THEME_FEATURE_KEY],
+  storage,
 };
-const persistedReducer = persistReducer(persistConfig, reducer);
 
-// main
+// store factory, for testing
 export function setupStore(preloadedState?: PreloadedState<RootState>) {
   return configureStore({
     devTools: process.env.NODE_ENV === 'development',
-    reducer: persistedReducer,
+    reducer: persistReducer(persistConfig, reducer),
     enhancers,
     preloadedState,
     middleware: (defaultMiddlewares) => {
@@ -66,3 +67,10 @@ setupListeners(appStore.dispatch);
 export type AppStore = ReturnType<typeof setupStore>;
 export type RootState = ReturnType<typeof reducer>;
 export type AppDispatch = AppStore['dispatch'];
+
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  RootState,
+  unknown,
+  AnyAction
+>;

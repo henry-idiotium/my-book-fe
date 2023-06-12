@@ -36,7 +36,7 @@ const {
 type SocketAction = typeof actions;
 
 type PayloadMap = {
-  [INIT]: ChatboxSocketContextState;
+  [INIT]: Partial<ChatboxSocketContextState>;
   [SOCKET_USER_DISCONNECTED]: UserDisconnectedPayload;
   [SOCKET_MESSAGE_RECEIVED]: MessageEntity;
   [SOCKET_MESSAGE_SENT]: MessageSentPayload;

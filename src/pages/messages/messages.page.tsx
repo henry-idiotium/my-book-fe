@@ -1,58 +1,42 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
 
 import {
-  ChatEntryProps,
   ChatEntry,
   Conversation,
   EmptyConversation,
-  ChatboxEntry,
+  SocketContextProvider,
 } from './components';
+import { useFetchConversations } from './hooks/fetch-convo';
 import styles from './messages.page.module.scss';
 
 import { Input, LoadingScreen } from '@/components';
-import { useAltAxios } from '@/hooks/use-alt-axios';
-import { ConversationEntity, ConversationGroupEntity } from '@/types';
 
 export function Messages() {
-  const headerOptions = getHeaderOptionScheme();
-
-  // chats between two
-  const [pairRes, fetchPairs] = useAltAxios<ConversationEntity[]>(
-    `/conversations`,
-    { manual: true }
-  );
-  // chats between multiple, or group
-  const [groupRes, fetchGroups] = useAltAxios<ConversationGroupEntity[]>(
-    `/chatboxes`,
-    { manual: true }
-  );
+  const [
+    { data: chatEntries, errors: fetchError, loadings: fetchLoading },
+    refetch,
+  ] = useFetchConversations();
 
   const [activeChatId, setActiveChatId] = useState<string>();
-  const [chatEntries, setChatEntries] = useState<ChatboxEntry[]>([]);
 
-  useEffect(() => {
-    if (!pairRes.data) fetchPairs();
-
-    if (!groupRes.data) fetchGroups();
-  }, []);
-
-  // merge fetched data
-  useEffect(() => {
-    const pairChats = pairRes.data ?? [];
-    const groupChats = groupRes.data ?? [];
-
-    setChatEntries([...pairChats, ...groupChats]);
-  }, [pairRes.data, groupRes.data]);
+  const headerOptions = getHeaderOptionScheme();
 
   function handleSelectChatEntry(convoId: string) {
     setActiveChatId(convoId);
     // more...
   }
 
-  if (pairRes.loading || groupRes.loading) return <LoadingScreen />;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function reloadEntries() {
+    refetch();
+  }
+
+  if (fetchLoading) return <LoadingScreen />;
+
+  if (fetchError.length) return <div className="text-lg">Fetch Error</div>;
 
   return (
     <div className={styles.container}>
@@ -95,7 +79,13 @@ export function Messages() {
 
         <main className={styles.messagingPane}>
           <div className={styles.messagingWrapper}>
-            {activeChatId ? <Conversation /> : <EmptyConversation />}
+            {activeChatId ? (
+              <SocketContextProvider id={activeChatId}>
+                <Conversation />
+              </SocketContextProvider>
+            ) : (
+              <EmptyConversation />
+            )}
           </div>
         </main>
       </div>

@@ -1,6 +1,6 @@
 import ConversationHelper from './helper';
 
-import SocketContextProvider from '@/pages/messages/socket-context-provider/socket-context-provider';
+import SocketContextProvider from '@/pages/messages/components/socket-context-provider/socket-context-provider';
 
 export interface ConversationProps {
   id: string;

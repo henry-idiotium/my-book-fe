@@ -11,7 +11,7 @@ import {
   MessageEntity,
   MinimalUserEntity,
 } from '@/types';
-import { extractUserName, formatTimeReadable } from '@/utils';
+import { User, formatTimeReadable } from '@/utils';
 
 export type ChatboxEntry = PartialPick<
   ConversationEntity,
@@ -78,8 +78,8 @@ export default ChatEntry;
 
 function getEntryName(entry: ChatboxEntry, members?: MinimalUserEntity[]) {
   return !entry.admin
-    ? extractUserName(members?.at(0))
-    : members?.map((m) => extractUserName(m)).join(', ') ?? '';
+    ? User.extractFullName(members?.at(0))
+    : members?.map((m) => User.extractFullName(m)).join(', ') ?? '';
 }
 
 function filterMembers(entry: ChatboxEntry, mainUserId: number) {

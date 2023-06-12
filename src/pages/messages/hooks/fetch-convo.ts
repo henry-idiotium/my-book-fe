@@ -1,49 +1,40 @@
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
 
 import { ChatboxEntry } from '../components';
 
 import { useAltAxios } from '@/hooks/use-alt-axios';
 import { ConversationEntity, ConversationGroupEntity } from '@/types';
 
-type Both<T> = { convo: T; group: T };
-type ResponseState = {
-  data: ChatboxEntry;
-  loadings: Both<boolean>;
-  errors: Partial<Both<AxiosError>>;
-};
+type Result = [
+  { data: ChatboxEntry[]; loadings: boolean; errors: AxiosError[] },
+  () => Promise<void>
+];
 
-export function useFetchConversations() {
-  const [data, setData] = useState<ChatboxEntry[]>([]);
-  const [errors, setErrors] = useState<AxiosError[]>([]);
-  const [loadings, setLoadings] = useState<boolean>(true);
-
+export function useFetchConversations(): Result {
   // chats between two
-  const [pairs, fetchConvos] =
-    useAltAxios<ConversationEntity[]>(`/conversations`);
+  const [
+    { data: convoData = [], loading: convoLoading, error: convoError },
+    fetchConvos,
+  ] = useAltAxios<ConversationEntity[]>(`/conversations`);
 
   // chats between multiple, or group
-  const [groups, fetchConvoGroups] =
-    useAltAxios<ConversationGroupEntity[]>(`/chatboxes`);
+  const [
+    { data: groupData = [], loading: groupLoading, error: groupError },
+    fetchConvoGroups,
+  ] = useAltAxios<ConversationGroupEntity[]>(`/chatboxes`);
 
-  // data
-  useEffect(() => {
-    // setData([...pairs.data, ...groups.data]);
-  }, [[pairs.data, groups.data]]);
-  // error
-  useEffect(() => {
-    if (pairs.error) {
-      setErrors((prev) => [...prev, pairs.error]);
-    }
-    // setErrors([pairs.error, groups.error]);
-  }, [[pairs.error, groups.error]]);
-  // loading
-  useEffect(() => {}, [[pairs.loading, groups.loading]]);
+  const response: Result['0'] = {
+    data: [...convoData, ...groupData],
+    loadings: convoLoading || groupLoading,
+    errors: [convoError, groupError].filter(
+      (e): e is AxiosError => e !== undefined
+    ),
+  };
 
-  function refetch() {
-    fetchConvos();
-    fetchConvoGroups();
+  async function refetch() {
+    await fetchConvos();
+    await fetchConvoGroups();
   }
 
-  return [response, refetch] as const;
+  return [response, refetch];
 }

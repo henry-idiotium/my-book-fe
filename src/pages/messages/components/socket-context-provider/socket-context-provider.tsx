@@ -11,108 +11,86 @@ import {
 import { ChatboxSocketContextState } from './types';
 
 import { selectAuth } from '@/stores';
-import {
-  UserConnectedPayload,
-  UserDisconnectedPayload,
-  UserJoinedPayload,
-} from '@/types';
+import { Convo } from '@/utils';
 
-export interface SocketContextProviderProps extends React.PropsWithChildren {
+interface Props extends React.PropsWithChildren {
   id: string;
 }
 
-export function ChatboxSocketContextProvider({
-  id,
-  children,
-}: SocketContextProviderProps) {
+export function SocketContextProvider({ id, children }: Props) {
   const { token } = useSelector(selectAuth);
   const [socketState, socketDispatch] = useReducer(
     socketReducer,
     initialSocketState
   );
+
   const [loading, setLoading] = useState(true);
-  const [isInit, setIsInit] = useState(false);
 
+  const { socket } = socketState;
+
+  // init socket
   useEffect(() => {
-    if (!isInit) {
-      socketDispatch({
-        type: actions.INIT,
-        payload: {
-          ...initialSocketState,
-          socket: io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
-            query: { chatboxId: id },
-            extraHeaders: { Authorization: token },
-          }),
-        },
-      });
-      setIsInit(true);
+    socketDispatch({
+      type: actions.INIT,
+      payload: {
+        socket: io(`${import.meta.env.VITE_SERVER_URL}/chatbox`, {
+          query: { chatboxId: id },
+          extraHeaders: { Authorization: token },
+        }),
+      },
+    });
+  }, []);
 
-      return;
-    }
+  // connect socket
+  useEffect(() => {
+    if (socket.connected) return;
 
-    socketState.socket.on('connect', () => {
-      handleUserEvents();
+    socket.on('connect', () => {
+      handleConnectUser();
     });
 
     return () => {
-      if (socketState.socket) socketState.socket.close();
+      socket.close();
     };
-  }, [isInit]);
+  }, [socket]);
 
-  function handleUserEvents() {
-    socketState.socket.on(
-      actions.SOCKET_USER_CONNECTED,
-      (payload: UserConnectedPayload) => {
-        socketState.socket.off(actions.SOCKET_USER_CONNECTED);
-        const messages = payload.chatbox.messages ?? [];
+  function handleConnectUser() {
+    socket.on(actions.SOCKET_USER_CONNECTED, (payload) => {
+      socket.off(actions.SOCKET_USER_CONNECTED);
 
-        delete payload.chatbox.messages;
+      // avoid ref
+      const messages = structuredClone(payload.chatbox.messages ?? []);
 
-        const users = new Map(
-          'conversationBetween' in payload.chatbox
-            ? payload.chatbox.conversationBetween.map((e) => [e.id, e])
-            : payload.chatbox.members?.map((e) => [e.id, e]) ?? []
-        );
+      delete payload.chatbox.messages;
 
-        const convo: Partial<ChatboxSocketContextState> =
-          'conversationBetween' in payload.chatbox
-            ? { conversation: payload.chatbox }
-            : { conversationGroup: payload.chatbox };
+      const users = new Map(
+        !Convo.isGroup(payload.chatbox)
+          ? payload.chatbox.conversationBetween.map((user) => [user.id, user])
+          : payload.chatbox.members?.map((user) => [user.id, user]) ?? []
+      );
 
-        socketDispatch({
-          type: actions.INIT,
-          payload: {
-            ...socketState,
-            ...convo,
-            messages,
-            userCount: payload.userCount,
-            users,
-          },
-        });
+      const convo: Partial<ChatboxSocketContextState> = Convo.isGroup(
+        payload.chatbox
+      )
+        ? { conversationGroup: payload.chatbox }
+        : { conversation: payload.chatbox };
 
-        setLoading(false);
+      socketDispatch({
+        type: actions.INIT,
+        payload: { ...convo, messages, users, userCount: payload.userCount },
+      });
 
-        socketState.socket.on(
-          actions.SOCKET_USER_JOINED,
-          (payload: UserJoinedPayload) => {
-            socketDispatch({
-              type: actions.SOCKET_USER_JOINED,
-              payload,
-            });
-          }
-        );
+      // done initiating
+      setLoading(false);
 
-        socketState.socket.on(
-          actions.SOCKET_USER_DISCONNECTED,
-          (payload: UserDisconnectedPayload) => {
-            socketDispatch({
-              type: actions.SOCKET_USER_DISCONNECTED,
-              payload,
-            });
-          }
-        );
-      }
-    );
+      socket.on(actions.SOCKET_USER_JOINED, (payload) => {
+        socketDispatch({ type: actions.SOCKET_USER_JOINED, payload });
+      });
+
+      socket.on(actions.SOCKET_USER_DISCONNECTED, (payload) => {
+        socketDispatch({ type: actions.SOCKET_USER_DISCONNECTED, payload });
+      });
+    });
   }
 
   if (loading) return <p>... loading Socket IO ....</p>;
@@ -124,4 +102,4 @@ export function ChatboxSocketContextProvider({
   );
 }
 
-export default ChatboxSocketContextProvider;
+export default SocketContextProvider;

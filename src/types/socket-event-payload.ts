@@ -1,5 +1,4 @@
-import { ConversationEntity } from './conversation';
-import { ConversationGroupEntity } from './conversation-group';
+import { ConversationEntity, ConversationGroupEntity } from '.';
 
 export type UserConnectedPayload = {
   userCount: number;
