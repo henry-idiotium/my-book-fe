@@ -23,18 +23,15 @@ export function RouteWrapper({ type = 'custom' }: RouteWrapperProps) {
 
   switch (type) {
     case 'public': {
-      return token ? <Navigate to="/home" replace={false} /> : <Outlet />;
+      const from: string | undefined = location.state?.from?.pathname;
+
+      return token ? <Navigate to={from ?? '/home'} /> : <Outlet />;
     }
 
     case 'private': {
       const isMatchRoot = path === '/';
 
-      if (token)
-        return isMatchRoot ? (
-          <Navigate to="/home" replace={false} />
-        ) : (
-          <Outlet />
-        );
+      if (token) return isMatchRoot ? <Navigate to="/home" /> : <Outlet />;
 
       // Remarks:
       // this is just to make sure that it not accidentally match private case

@@ -29,7 +29,7 @@ export function ChatEntry({ entry, onClick }: ChatEntryProps) {
 
   const members = filterMembers(entry, mainUser.id);
   const entryName = getEntryName(entry, members);
-  const latestMessage = getLastestMessage(entry.messages);
+  const latestMessage = getLatestMessage(entry.messages);
   const oppositeTalker = members?.at(0);
 
   return (
@@ -88,7 +88,7 @@ function filterMembers(entry: ChatboxEntry, mainUserId: number) {
   );
 }
 
-function getLastestMessage(messages?: MessageEntity[], showTime = false) {
+function getLatestMessage(messages?: MessageEntity[], showTime = false) {
   if (!messages) {
     return {
       id: '68f1fc63-3151-5ac0-8aed-7fe8c709ef20',

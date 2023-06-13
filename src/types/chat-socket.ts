@@ -8,14 +8,14 @@ import {
 } from '@/types';
 import { getZodDefault } from '@/utils';
 
-export const chatboxSocketStateZod = z.object({
-  convoId: z.string(),
+export const chatSocketEntityZod = z.object({
+  convoId: z.string(), // note: conversation id
   messages: z.array(messageZod),
   messagePending: z.string().nullable(),
   conversation: conversationZod,
   conversationGroup: conversationGroupZod,
-  users: z.map(z.number(), minimalUserZod),
+  users: z.record(z.number(), minimalUserZod).default({}),
   userActiveCount: z.number(),
 });
-export type ChatboxSocketState = z.infer<typeof chatboxSocketStateZod>;
-export const initialChatboxSocketState = getZodDefault(chatboxSocketStateZod);
+export type ChatSocketEntity = z.infer<typeof chatSocketEntityZod>;
+export const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);

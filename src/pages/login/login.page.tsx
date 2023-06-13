@@ -21,20 +21,20 @@ export function Login(props: LoginProps) {
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(loginFormZod) });
 
-  const [login, { isSuccess }] = useLoginMutation();
+  const [login, { isSuccess, isError, isLoading }] = useLoginMutation();
   const [logout] = useLogoutMutation();
 
-  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+  const onSubmit: SubmitHandler<LoginForm> = async (data, event) => {
+    event?.preventDefault();
     await login(data);
   };
 
   useEffect(() => {
-    if (isSuccess && token) {
-      const from = String(location.state?.from?.pathname ?? '/');
+    if (!isSuccess || !token) return;
 
-      navigate(from, { replace: true });
-    }
-  }, [isSuccess, token]);
+    const from = String(location.state?.from?.pathname ?? '/');
+    navigate(from, { replace: true });
+  }, [isSuccess, token, isError, isLoading]);
 
   return (
     <>
@@ -75,7 +75,7 @@ export function Login(props: LoginProps) {
         </div>
         <hr />
         <div>
-          <a href="#">Forgot Password?</a>
+          <a href="/">Forgot Password?</a>
         </div>
       </form>
     </>

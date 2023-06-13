@@ -74,7 +74,11 @@ export function Messages() {
 
         <main className={styles.messagingPane}>
           <div className={styles.messagingWrapper}>
-            {activeChatId ? <Conversation /> : <EmptyConversation />}
+            {activeChatId ? (
+              <Conversation id={activeChatId} />
+            ) : (
+              <EmptyConversation />
+            )}
           </div>
         </main>
       </div>

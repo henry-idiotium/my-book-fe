@@ -1,38 +1,32 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
 import styles from './conversation.module.scss';
 
 import loadingMessages from '@/components/loading-screen/loading-messages';
 import { useDispatch, useSelector } from '@/hooks';
-import { selectAuth } from '@/stores';
 import {
-  messageDeleted,
-  messagePending,
-  messageReceive as messageReceived,
-  messageUpdated,
-  selectConvoById,
-  socketMap,
-  userConnected,
-  userDisconnected,
-  userJoined,
-} from '@/stores/convo/convo.slice';
-import { ChatboxSocket, chatboxEvents as actions } from '@/types';
+  chatSocketActions as actions,
+  chatSocketRecord,
+  selectAuth,
+  selectChatSocketById,
+} from '@/stores';
+import { ChatSocket, chatSocketEvents as events } from '@/types';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ConversationProps {
   id: string;
 }
 
 export function Conversation({ id }: ConversationProps) {
   const { user, token } = useSelector(selectAuth);
-  const convoState = useSelector(selectConvoById(id));
+  const chatSocketState = useSelector(selectChatSocketById(id));
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (convoState) return;
+    if (chatSocketState) return;
 
-    const socket: ChatboxSocket = io(
+    // init socket
+    const socket: ChatSocket = io(
       `${import.meta.env.VITE_SERVER_URL}/chatbox`,
       {
         query: { chatboxId: id },
@@ -40,71 +34,72 @@ export function Conversation({ id }: ConversationProps) {
       }
     );
 
-    socket.on(actions.userConnected.name, ({ chatbox, userActiveCount }) => {
-      socket.off(actions.userConnected.name);
+    // add socket to current state holder
+    chatSocketRecord[id] = socket; // add socket object into record
 
-      socket.on(
-        actions.userJoined.name,
-        ({ userActiveCount, userJoinedId }) => {
-          dispatch(
-            userJoined({ chatboxId: id, userActiveCount, userJoinedId })
-          );
-        }
-      );
+    // init listeners
+    socket.on(events.userConnected.name, ({ chatbox, userActiveCount }) => {
+      socket.off(events.userConnected.name);
 
-      socket.on(actions.userDisconnected.name, ({ id: userId }) => {
-        dispatch(userDisconnected({ chatboxId: id, userId }));
+      socket.on(events.userJoined.name, ({ userActiveCount, userJoinedId }) => {
+        dispatch(
+          actions.userJoined({ convoId: id, userActiveCount, userJoinedId })
+        );
       });
 
-      dispatch(userConnected({ chatbox, socket, userActiveCount }));
+      socket.on(events.userDisconnected.name, ({ id: userId }) => {
+        dispatch(actions.userDisconnected({ convoId: id, userId }));
+      });
+
+      socket.emit(events.messageSent.name, { content: 'fooo' });
+
+      dispatch(actions.userConnected({ chatbox, userActiveCount }));
     });
 
-    socket.on(actions.messageReceived.name, (payload) => {
-      dispatch(messageReceived({ ...payload, chatboxId: id }));
-      dispatch(messagePending({ chatboxId: id, content: null }));
+    socket.on(events.messageReceived.name, (payload) => {
+      dispatch(actions.messageReceived({ ...payload, convoId: id }));
+      dispatch(actions.messagePending({ convoId: id, content: null }));
     });
 
-    socket.on(actions.messageDeleted.name, (payload) => {
-      dispatch(messageDeleted({ chatboxId: id, id: payload.id }));
+    socket.on(events.messageDeleted.name, ({ id: msgId }) => {
+      dispatch(actions.messageDeleted({ convoId: id, id: msgId }));
     });
 
-    socket.on(actions.messageUpdated.name, ({ content, id: messageId }) => {
-      dispatch(messageUpdated({ chatboxId: id, content, id: messageId }));
+    socket.on(events.messageUpdated.name, ({ content, id: msgId }) => {
+      dispatch(actions.messageUpdated({ convoId: id, id: msgId, content }));
     });
   }, []);
 
   function sendMessage() {
-    const index = Math.floor(Math.random() * loadingMessages.length);
-    const content = loadingMessages[index];
-
-    const socket = socketMap.get(id);
-    if (!socket) {
-      // handle error
+    const socket = chatSocketRecord[id];
+    if (!socket?.connected) {
+      // note: should add error handding
       return;
     }
 
-    socket.emit(actions.messageSent.name, {
-      content,
-    });
+    const index = Math.floor(Math.random() * loadingMessages.length);
+    const content = loadingMessages[index];
 
-    dispatch(messagePending({ chatboxId: id, content }));
+    socket.emit(events.messageSent.name, { content });
+
+    dispatch(actions.messagePending({ convoId: id, content }));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateMessage = (messageId: string, content: string) => {
-    const socket = socketMap.get(id);
-    if (!socket) {
-      // handle error
+    const socket = chatSocketRecord[id];
+    if (!socket?.connected) {
+      // note: should add error handding
       return;
     }
 
-    socket.emit(actions.messageUpdating.name, {
+    socket.emit(events.messageUpdating.name, {
       content: content + 'edited',
       id,
     });
     dispatch(
-      messageUpdated({
-        chatboxId: id,
+      actions.messageUpdated({
+        convoId: id,
         content: content + 'edited',
         id: messageId,
       })
@@ -113,19 +108,18 @@ export function Conversation({ id }: ConversationProps) {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const deleteMessage = (messageId: string) => {
-    const socket = socketMap.get(id);
-    if (!socket) {
-      // handle error
+    const socket = chatSocketRecord[id];
+    if (!socket?.connected) {
+      // note: should add error handding
       return;
     }
 
-    socket.emit(actions.messageDeleting.name, {
-      id: messageId,
-    });
+    socket.emit(events.messageDeleting.name, { id: messageId });
   };
 
-  if (!convoState) return null;
-  const convo = convoState.conversation;
+  if (!chatSocketState) return null;
+  const convo = chatSocketState.conversation;
+
   return (
     <div className={styles.container}>
       <div>
@@ -143,13 +137,13 @@ export function Conversation({ id }: ConversationProps) {
           </span>
         </div>
         <div className="border border-red-500 p-4">
-          <h1>Currently online: {convoState.userActiveCount}</h1>
-          {Array.from(convoState.users).map(([_, member], index) => (
+          <h1>Currently online: {chatSocketState.userActiveCount}</h1>
+          {Object.values(chatSocketState.users).map((user, index) => (
             <span
               key={index}
               className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
             >
-              {member.alias}
+              {user.alias}
             </span>
           ))}
         </div>
@@ -168,13 +162,13 @@ export function Conversation({ id }: ConversationProps) {
           Send message
         </button>
         <div>
-          {convoState.messages.map((e) => (
+          {chatSocketState.messages.map((e) => (
             <div key={e.id} color={e.from === user.id ? 'blue' : 'black'}>
               {e.content} by {e.from !== user.id ? e.from : 'you'} (at{' '}
               {new Date(e.at).toDateString()})
             </div>
           ))}
-          <div color="blue">{convoState.messagePending}</div>
+          <div color="blue">{chatSocketState.messagePending}</div>
         </div>
       </div>
     </div>

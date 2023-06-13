@@ -13,14 +13,14 @@ const convoZod = z.object({
   messages: z.array(messageZod).optional(),
 });
 
-// pair chat
+// pair conversation
 export const conversationZod = convoZod.merge(
   z.object({ conversationBetween: z.array(minimalUserZod) })
 );
 export const defaultConversation = getZodDefault(conversationZod);
 export type ConversationEntity = z.infer<typeof conversationZod>;
 
-// group chat
+// group conversation
 export const conversationGroupZod = convoZod.merge(
   z.object({
     name: z.string(),

@@ -1,7 +1,6 @@
 import '@/styles/main.scss';
 
 import { ThemeProvider } from '@material-tailwind/react';
-import { enableMapSet } from 'immer';
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -11,8 +10,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import App from './app';
 
 import { setupStore } from '@/stores';
-
-enableMapSet();
 
 const store = setupStore();
 const persistor = persistStore(store);
