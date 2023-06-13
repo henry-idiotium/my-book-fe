@@ -12,24 +12,24 @@ import {
   UserJoined,
 } from './convo.type';
 
-import { initialSocketState } from '@/pages/messages/components/socket-context-provider/context';
 import {
   ChatboxSocket,
-  ChatboxSocketContextState,
-} from '@/pages/messages/components/socket-context-provider/types';
+  ChatboxSocketState,
+  initialChatboxSocketState,
+} from '@/types';
 import { Convo } from '@/utils';
 
 export const socketMap = new Map<string, ChatboxSocket>();
 export const CONVO_FEATURE_KEY = 'chatboxSockets';
 
-const initialState = new Map<string, ChatboxSocketContextState>();
+const initialState = new Map<string, ChatboxSocketState>();
 
 const convoSlice = createSlice({
   name: CONVO_FEATURE_KEY,
   initialState,
   reducers: {
     userConnected: (state, action: PayloadAction<UserConnected>) => {
-      const { chatbox, socket, userCount } = action.payload;
+      const { chatbox, socket, userActiveCount } = action.payload;
 
       const messages = structuredClone(chatbox.messages ?? []);
       delete chatbox.messages;
@@ -40,13 +40,18 @@ const convoSlice = createSlice({
           : chatbox.members?.map((user) => [user.id, user]) ?? []
       );
 
-      const convo: Partial<ChatboxSocketContextState> = Convo.isGroup(chatbox)
+      const convo: Partial<ChatboxSocketState> = Convo.isGroup(chatbox)
         ? { conversationGroup: chatbox }
         : { conversation: chatbox };
 
-      const oldState = state.get(chatbox.id) ?? initialSocketState;
-      const newState = { ...oldState, ...convo, messages, users, userCount };
-      state.set(chatbox.id, newState);
+      const oldState = state.get(chatbox.id) ?? initialChatboxSocketState;
+      state.set(chatbox.id, {
+        ...oldState,
+        ...convo,
+        messages,
+        users,
+        userActiveCount,
+      });
 
       socketMap.set(chatbox.id, socket);
     },
@@ -58,11 +63,11 @@ const convoSlice = createSlice({
       oldState.users.delete(userId);
       state.set(chatboxId, {
         ...oldState,
-        userCount: oldState.userCount - 1,
+        userActiveCount: oldState.userActiveCount - 1,
       });
     },
     userJoined: (state, action: PayloadAction<UserJoined>) => {
-      const { userCount, userJoinedId, chatboxId } = action.payload;
+      const { userActiveCount, userJoinedId, chatboxId } = action.payload;
       const oldState = state.get(chatboxId);
       if (!oldState) return;
 
@@ -74,7 +79,7 @@ const convoSlice = createSlice({
 
       state.set(chatboxId, {
         ...oldState,
-        userCount,
+        userActiveCount,
       });
     },
     messageReceive: (state, action: PayloadAction<MessageReceived>) => {
@@ -83,7 +88,7 @@ const convoSlice = createSlice({
       if (!oldState) return;
 
       oldState.messages.push(message);
-      state.set(chatboxId, { ...oldState, messagePending: undefined });
+      state.set(chatboxId, { ...oldState, messagePending: null });
     },
     messagePending: (state, action: PayloadAction<MessagePending>) => {
       const { chatboxId, content } = action.payload;

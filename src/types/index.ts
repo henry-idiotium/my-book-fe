@@ -1,4 +1,5 @@
 export * from './chatbox';
+export * from './chatbox-event';
 export * from './chatbox-socket';
 export * from './login-form';
 export * from './message';

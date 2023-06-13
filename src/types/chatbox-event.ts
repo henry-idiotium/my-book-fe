@@ -1,3 +1,5 @@
+import { Socket } from 'socket.io-client';
+
 import { MessagePayload, UserPayload } from './socket-event-payload';
 
 export const socketEmitEvents = {
@@ -47,18 +49,18 @@ export const chatboxEvents = {
   ...socketListenEvents,
 } as const;
 
-type EventUnion = typeof socketEmitEvents | typeof socketListenEvents;
+export type GetEventType<TEvent extends keyof typeof chatboxEvents> =
+  (typeof chatboxEvents)[TEvent]['type'];
 
-type ExtractValues<T extends EventUnion> = T[keyof T] extends {
-  name: string;
-  type: unknown;
-}
-  ? T[keyof T]
-  : never;
-
-type HandleEvents<T extends EventUnion> = {
-  [Key in ExtractValues<T> as Key['name']]: (payload: Key['type']) => void;
+type HandleEvent<TEvent extends keyof typeof chatboxEvents> = {
+  [Key in (typeof chatboxEvents)[TEvent] as Key['name']]: (
+    args: Key['type']
+  ) => void;
 };
 
-export type ChatboxEmitEvents = HandleEvents<typeof socketEmitEvents>;
-export type ChatboxListenEvents = HandleEvents<typeof socketListenEvents>;
+// listener
+export type ServerToClientEvents = HandleEvent<keyof typeof socketListenEvents>;
+// emitter
+export type ClientToServerEvents = HandleEvent<keyof typeof socketEmitEvents>;
+
+export type ChatboxSocket = Socket<ServerToClientEvents, ClientToServerEvents>;

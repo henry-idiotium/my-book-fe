@@ -1,12 +1,12 @@
 import { ConversationEntity, ConversationGroupEntity } from '../chatbox';
 
 export type Connected = {
-  userCount: number;
+  userActiveCount: number;
   chatbox: ConversationEntity | ConversationGroupEntity;
 };
 
 export type Joined = {
-  userCount: number;
+  userActiveCount: number;
   userJoinedId: number;
 };
 

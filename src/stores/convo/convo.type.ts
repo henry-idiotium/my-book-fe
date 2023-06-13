@@ -1,12 +1,12 @@
-import { ChatboxSocket } from '@/pages/messages/components/socket-context-provider/types';
 import {
+  ChatboxSocket,
   ConversationEntity,
   ConversationGroupEntity,
   MessageEntity,
 } from '@/types';
 
 export interface UserConnected {
-  userCount: number;
+  userActiveCount: number;
   chatbox: ConversationEntity | ConversationGroupEntity;
   socket: ChatboxSocket;
 }
@@ -18,7 +18,7 @@ export interface UserDisconnected {
 
 export interface UserJoined {
   chatboxId: string;
-  userCount: number;
+  userActiveCount: number;
   userJoinedId: number;
 }
 
@@ -28,7 +28,7 @@ export interface MessageReceived extends MessageEntity {
 
 export interface MessagePending {
   chatboxId: string;
-  content: string;
+  content: string | null;
 }
 
 export interface MessageDeleted {

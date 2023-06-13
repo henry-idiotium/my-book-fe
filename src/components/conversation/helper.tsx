@@ -11,7 +11,7 @@ import { MessageEntity } from '@/types';
 export function ConversationHelper() {
   const {
     socketState: {
-      userCount,
+      userActiveCount,
       users,
       socket,
       messages,
@@ -103,7 +103,7 @@ export function ConversationHelper() {
         </span>
       </div>
       <div className="border border-red-500 p-4">
-        <h1>Currently online: {userCount}</h1>
+        <h1>Currently online: {userActiveCount}</h1>
         {Array.from(users, ([key, value]) => value).map((e) => (
           <span
             key={e.id}
