@@ -22,11 +22,13 @@ import storage from 'redux-persist/lib/storage';
 
 import { authApi } from './auth/auth-api';
 import { AUTH_FEATURE_KEY, authReducer } from './auth/auth.slice';
+import { CONVO_FEATURE_KEY, convoReducer } from './convo/convo.slice';
 import { PRODUCT_FEATURE_KEY, productReducer } from './product/product.slice';
 import { THEME_FEATURE_KEY, themeReducer } from './theme/theme.slice';
 
 // Configurations
 const reducer = combineReducers({
+  [CONVO_FEATURE_KEY]: convoReducer,
   [PRODUCT_FEATURE_KEY]: productReducer,
   [THEME_FEATURE_KEY]: themeReducer,
   [AUTH_FEATURE_KEY]: authReducer,

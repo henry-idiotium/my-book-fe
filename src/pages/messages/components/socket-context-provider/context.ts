@@ -18,10 +18,6 @@ export const socketReducer: Reducer<
   console.log('Action: ' + type + ' - Payload: ', payload);
 
   switch (type) {
-    case actions.INIT: {
-      return { ...state, ...payload };
-    }
-
     case actions.SOCKET_USER_JOINED: {
       const activeUser = state.users.get(payload.userJoinedId);
       if (!activeUser || !activeUser.metadata) return state;

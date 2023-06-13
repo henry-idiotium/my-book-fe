@@ -1,7 +1,3 @@
-const common = {
-  MESSAGE_PENDING: 'message_pending',
-} as const;
-
 export const socketEmitEvents = {
   SOCKET_MESSAGE_SENT: 'socket_message_sent',
   SOCKET_MESSAGE_UPDATING: 'socket_message_updating',
@@ -17,16 +13,9 @@ export const socketListenEvents = {
   SOCKET_MESSAGE_DELETED: 'socket_message_deleted',
 } as const;
 
-const conversation = {} as const;
-
-const conversationGroup = {} as const;
-
 const actions = {
-  ...common,
   ...socketEmitEvents,
   ...socketListenEvents,
-  ...conversation,
-  ...conversationGroup,
 } as const;
 
 export default actions;

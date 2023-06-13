@@ -29,19 +29,6 @@
       "warn",
       { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
     ],
-    "padding-line-between-statements": [
-      "warn",
-      { "blankLine": "always", "next": "*", "prev": ["const", "let", "var"] },
-      { "blankLine": "always", "next": "*", "prev": "if" },
-      { "blankLine": "always", "next": "if", "prev": "*" },
-      { "blankLine": "always", "next": "return", "prev": "*" },
-      { "blankLine": "any", "next": "return", "prev": ["const", "let", "var"] },
-      {
-        "blankLine": "any",
-        "next": ["const", "let", "var", "return", "if", "for"],
-        "prev": ["const", "let", "var"]
-      }
-    ],
     "react/jsx-sort-props": [
       "warn",
       {

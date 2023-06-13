@@ -1,4 +1,4 @@
-import { Socket, io } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { z } from 'zod';
 
 import actions, { socketEmitEvents, socketListenEvents } from './actions';
@@ -30,13 +30,11 @@ const {
   SOCKET_MESSAGE_DELETING,
   SOCKET_MESSAGE_UPDATED,
   SOCKET_MESSAGE_UPDATING,
-  INIT,
 } = actions;
 
 type SocketAction = typeof actions;
 
 type PayloadMap = {
-  [INIT]: Partial<ChatboxSocketContextState>;
   [SOCKET_USER_DISCONNECTED]: UserDisconnectedPayload;
   [SOCKET_MESSAGE_RECEIVED]: MessageEntity;
   [SOCKET_MESSAGE_SENT]: MessageSentPayload;
@@ -56,6 +54,7 @@ export type ChatboxSocketContextDispatch = {
       : unknown;
   };
 }[keyof SocketAction];
+export type ChatboxSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 export const chatboxSocketContextStateZod = z.object({
   userCount: z.number(),
@@ -64,9 +63,6 @@ export const chatboxSocketContextStateZod = z.object({
     .default(new Map<number, MinimalUserEntity>()),
   messages: z.array(messageZod),
   messagePending: z.string().optional(),
-  socket: z
-    .custom<Socket<ServerToClientEvents, ClientToServerEvents>>()
-    .default(io({ autoConnect: false })),
   conversation: conversationZod,
   conversationGroup: conversationGroupZod,
 });

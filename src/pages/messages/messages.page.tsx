@@ -3,12 +3,7 @@ import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
 
-import {
-  ChatEntry,
-  Conversation,
-  EmptyConversation,
-  SocketContextProvider,
-} from './components';
+import { ChatEntry, Conversation, EmptyConversation } from './components';
 import { useFetchConversations } from './hooks/fetch-convo';
 import styles from './messages.page.module.scss';
 
@@ -79,13 +74,7 @@ export function Messages() {
 
         <main className={styles.messagingPane}>
           <div className={styles.messagingWrapper}>
-            {activeChatId ? (
-              <SocketContextProvider id={activeChatId}>
-                <Conversation />
-              </SocketContextProvider>
-            ) : (
-              <EmptyConversation />
-            )}
+            {activeChatId ? <Conversation /> : <EmptyConversation />}
           </div>
         </main>
       </div>

@@ -8,10 +8,8 @@ import {
   initialSocketState,
   socketReducer,
 } from './context';
-import { ChatboxSocketContextState } from './types';
 
 import { selectAuth } from '@/stores';
-import { Convo } from '@/utils';
 
 interface Props extends React.PropsWithChildren {
   id: string;
@@ -57,31 +55,6 @@ export function SocketContextProvider({ id, children }: Props) {
   function handleConnectUser() {
     socket.on(actions.SOCKET_USER_CONNECTED, (payload) => {
       socket.off(actions.SOCKET_USER_CONNECTED);
-
-      // avoid ref
-      const messages = structuredClone(payload.chatbox.messages ?? []);
-
-      delete payload.chatbox.messages;
-
-      const users = new Map(
-        !Convo.isGroup(payload.chatbox)
-          ? payload.chatbox.conversationBetween.map((user) => [user.id, user])
-          : payload.chatbox.members?.map((user) => [user.id, user]) ?? []
-      );
-
-      const convo: Partial<ChatboxSocketContextState> = Convo.isGroup(
-        payload.chatbox
-      )
-        ? { conversationGroup: payload.chatbox }
-        : { conversation: payload.chatbox };
-
-      socketDispatch({
-        type: actions.INIT,
-        payload: { ...convo, messages, users, userCount: payload.userCount },
-      });
-
-      // done initiating
-      setLoading(false);
 
       socket.on(actions.SOCKET_USER_JOINED, (payload) => {
         socketDispatch({ type: actions.SOCKET_USER_JOINED, payload });

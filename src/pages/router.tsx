@@ -3,7 +3,6 @@ import { RouteObject, createBrowserRouter } from 'react-router-dom';
 import Home from './home/home.page';
 import Login from './login/login.page';
 import Messages from './messages/messages.page';
-import MessagesTest from './messages-test/messages.page';
 
 import Root from '@/layouts/root/root.layout';
 import RouteWrapper from '@/layouts/route-wrapper/route-wrapper.layout';
@@ -12,8 +11,6 @@ export const privateRoutes: RouteObject[] = [
   { path: '/', element: <>this is private!!!</> },
   { path: '/home', Component: Home },
   { path: '/messages', Component: Messages },
-
-  { path: 'test', Component: MessagesTest },
 
   // Note: Mock pages
   ...eps('explore', 'lists', 'bookmarks', 'profile', 'notifications'),

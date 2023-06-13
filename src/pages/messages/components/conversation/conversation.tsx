@@ -1,32 +1,53 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
 
 import actions from '../socket-context-provider/actions';
-import { chatboxSocketContext } from '../socket-context-provider/context';
+import { ChatboxSocket } from '../socket-context-provider/types';
 
 import styles from './conversation.module.scss';
 
 import loadingMessages from '@/components/loading-screen/loading-messages';
-import { useSelector } from '@/hooks';
+import { useDispatch, useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
+import { selectConvoById, userConnected } from '@/stores/convo/convo.slice';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ConversationProps {}
+export interface ConversationProps {
+  id: string;
+}
 
-export function Conversation(props: ConversationProps) {
-  const { user } = useSelector(selectAuth);
-  const {
-    socketDispatch,
-    socketState: {
-      userCount,
-      users,
-      socket,
-      messages,
-      messagePending,
-      conversation: convo,
-    },
-  } = useContext(chatboxSocketContext);
+export function Conversation({ id }) {
+  const { user, token } = useSelector(selectAuth);
+  const convo = useSelector(selectConvoById(id));
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    if (!convo) {
+      const socket: ChatboxSocket = io(
+        `${import.meta.env.VITE_SERVER_URL}/chatbox`,
+        {
+          query: { chatboxId: id },
+          extraHeaders: { Authorization: token },
+        }
+      );
+      socket.on(actions.SOCKET_USER_CONNECTED, (payload) => {
+        socket.off(actions.SOCKET_USER_CONNECTED);
+
+        socket.on(actions.SOCKET_USER_JOINED, (payload) => {
+          socketDispatch({ type: actions.SOCKET_USER_JOINED, payload });
+        });
+
+        socket.on(actions.SOCKET_USER_DISCONNECTED, (payload) => {
+          socketDispatch({
+            type: actions.SOCKET_USER_DISCONNECTED,
+            payload,
+          });
+        });
+        dispatch(userConnected({ chatbox }));
+      });
+
+      return;
+    }
     socket.on(actions.SOCKET_MESSAGE_RECEIVED, (payload) => {
       socketDispatch({ type: actions.SOCKET_MESSAGE_RECEIVED, payload });
       socketDispatch({ type: actions.MESSAGE_PENDING, payload: undefined });
