@@ -10,6 +10,6 @@ export type Joined = {
   userJoinedId: number;
 };
 
-export type Disconneted = {
-  userDisconnectedId: number;
+export type Disconnected = {
+  id: number;
 };

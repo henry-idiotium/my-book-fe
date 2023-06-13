@@ -37,7 +37,7 @@ type PayloadMap = {
   [MESSAGE_PENDING]?: string;
   [SOCKET_USER_JOINED]: UserPayload.Joined;
   [SOCKET_USER_CONNECTED]: UserPayload.Connected;
-  [SOCKET_USER_DISCONNECTED]: UserPayload.Disconneted;
+  [SOCKET_USER_DISCONNECTED]: UserPayload.Disconnected;
   [SOCKET_MESSAGE_SENT]: MessagePayload.Sent;
   [SOCKET_MESSAGE_RECEIVED]: MessageEntity;
   [SOCKET_MESSAGE_DELETED]: MessagePayload.Deleted;
@@ -72,14 +72,18 @@ export const chatboxSocketZod = z.object({
 export type ChatboxSocket = z.infer<typeof chatboxSocketZod>;
 export const initialChatboxSocket = getZodDefault(chatboxSocketZod);
 
-// reducer
-type ChatboxActions = typeof ChatboxEvents.actions;
-export type ChatboxSocketDispatch = {
-  [Key in keyof ChatboxActions]: {
-    type: ChatboxActions[Key];
-    payload: PayloadMapWithId[ChatboxActions[Key]];
-  };
-}[keyof ChatboxActions];
+// // reducer
+// type ChatboxActions = typeof ChatboxEvents.actions;
+// export type ChatboxSocketDispatch = {
+//   [Key in keyof ChatboxActions]: {
+//     type: ChatboxActions[Key];
+//     payload: PayloadMapWithId[ChatboxActions[Key]];
+//   };
+// }[keyof ChatboxActions];
 
-export type ChatboxSocketState = Record<string, Nullable<ChatboxSocket>>;
-export type ChatboxReducer = Reducer<ChatboxSocketState, ChatboxSocketDispatch>;
+// export const initialChatboxSocketState = new Map<
+//   string,
+//   Nullable<ChatboxSocket>
+// >();
+// export type ChatboxSocketState = typeof initialChatboxSocketState;
+// export type ChatboxReducer = Reducer<ChatboxSocketState, ChatboxSocketDispatch>;

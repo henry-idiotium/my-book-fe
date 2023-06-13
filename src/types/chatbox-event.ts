@@ -1,21 +1,64 @@
+import { MessagePayload, UserPayload } from './socket-event-payload';
+
 export const socketEmitEvents = {
-  SOCKET_MESSAGE_SENT: 'socket_message_sent',
-  SOCKET_MESSAGE_UPDATING: 'socket_message_updating',
-  SOCKET_MESSAGE_DELETING: 'socket_message_deleting',
+  messageSent: {
+    name: 'socket_message_sent',
+    type: {} as MessagePayload.Sent,
+  },
+  messageUpdating: {
+    name: 'socket_message_updating',
+    type: {} as MessagePayload.Updating,
+  },
+  messageDeleting: {
+    name: 'socket_message_deleting',
+    type: {} as MessagePayload.Deleting,
+  },
 } as const;
 
 export const socketListenEvents = {
-  SOCKET_MESSAGE_RECEIVED: 'socket_message_received',
-  SOCKET_USER_JOINED: 'socket_user_joined',
-  SOCKET_USER_CONNECTED: 'socket_user_connected',
-  SOCKET_USER_DISCONNECTED: 'socket_user_disconnected',
-  SOCKET_MESSAGE_UPDATED: 'socket_message_updated',
-  SOCKET_MESSAGE_DELETED: 'socket_message_deleted',
+  messageReceived: {
+    name: 'socket_message_received',
+    type: {} as MessagePayload.Received,
+  },
+  userJoined: {
+    name: 'socket_user_joined',
+    type: {} as UserPayload.Joined,
+  },
+  userConnected: {
+    name: 'socket_user_connected',
+    type: {} as UserPayload.Connected,
+  },
+  userDisconnected: {
+    name: 'socket_user_disconnected',
+    type: {} as UserPayload.Disconnected,
+  },
+  messageUpdated: {
+    name: 'socket_message_updated',
+    type: {} as MessagePayload.Updated,
+  },
+  messageDeleted: {
+    name: 'socket_message_deleted',
+    type: {} as MessagePayload.Deleted,
+  },
 } as const;
 
-const actions = {
+export const chatboxEvents = {
   ...socketEmitEvents,
   ...socketListenEvents,
 } as const;
 
-export default actions;
+type EventUnion = typeof socketEmitEvents | typeof socketListenEvents;
+
+type ExtractValues<T extends EventUnion> = T[keyof T] extends {
+  name: string;
+  type: unknown;
+}
+  ? T[keyof T]
+  : never;
+
+type HandleEvents<T extends EventUnion> = {
+  [Key in ExtractValues<T> as Key['name']]: (payload: Key['type']) => void;
+};
+
+export type ChatboxEmitEvents = HandleEvents<typeof socketEmitEvents>;
+export type ChatboxListenEvents = HandleEvents<typeof socketListenEvents>;
