@@ -12,7 +12,7 @@ import Payload from './chat-socket.slice.types';
 import { ChatSocket, ChatSocketEntity, initialChatSocketEntity } from '@/types';
 import { Convo } from '@/utils';
 
-export const chatSocketRecord: GenericObject<ChatSocket> = {};
+export const chatSocketRecord: GenericObject<ChatSocket | undefined> = {};
 
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
@@ -74,12 +74,6 @@ const chatSlice = createSlice({
 
       activeUser.metadata.isActive = true;
       entity.userActiveCount = userActiveCount;
-
-      // entity.users[userJoinedId] = activeUser;
-      // state.entities[convoId] = {
-      //   ...entity,
-      //   userActiveCount,
-      // };
     },
     messageReceived: (state, action: Payload.Message.Received) => {
       const { convoId, ...message } = action.payload;
@@ -87,7 +81,7 @@ const chatSlice = createSlice({
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      entity.messages = [message, ...entity.messages];
+      entity.messages = [...entity.messages, message];
       entity.messagePending = null;
     },
     messagePending: (state, action: Payload.Message.Pending) => {

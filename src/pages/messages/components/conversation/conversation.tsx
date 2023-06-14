@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 
 import styles from './conversation.module.scss';
@@ -51,7 +51,9 @@ export function Conversation({ id }: ConversationProps) {
         dispatch(actions.userDisconnected({ convoId: id, userId }));
       });
 
-      socket.emit(events.messageSent.name, { content: 'fooo' });
+      socket.on(events.exception.name, (err) => {
+        if (import.meta.env.DEV) console.log(err);
+      });
 
       dispatch(actions.userConnected({ chatbox, userActiveCount }));
     });
@@ -68,19 +70,25 @@ export function Conversation({ id }: ConversationProps) {
     socket.on(events.messageUpdated.name, ({ content, id: msgId }) => {
       dispatch(actions.messageUpdated({ convoId: id, id: msgId, content }));
     });
+
+    return () => {
+      socket.off(); // clear up listeners
+      delete chatSocketRecord[id];
+    };
   }, []);
 
   function sendMessage() {
     const socket = chatSocketRecord[id];
-    if (!socket?.connected) {
-      // note: should add error handding
-      return;
-    }
+    if (!socket?.connected) return;
 
     const index = Math.floor(Math.random() * loadingMessages.length);
     const content = loadingMessages[index];
 
-    socket.emit(events.messageSent.name, { content });
+    socket.emit(events.messageSent.name, {
+      chatboxId: id,
+      isGroup: false,
+      content,
+    });
 
     dispatch(actions.messagePending({ convoId: id, content }));
   }
@@ -88,15 +96,15 @@ export function Conversation({ id }: ConversationProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateMessage = (messageId: string, content: string) => {
     const socket = chatSocketRecord[id];
-    if (!socket?.connected) {
-      // note: should add error handding
-      return;
-    }
+    if (!socket?.connected) return;
 
     socket.emit(events.messageUpdating.name, {
       content: content + 'edited',
       id,
+      chatboxId: id,
+      isGroup: false,
     });
+
     dispatch(
       actions.messageUpdated({
         convoId: id,
@@ -109,12 +117,13 @@ export function Conversation({ id }: ConversationProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const deleteMessage = (messageId: string) => {
     const socket = chatSocketRecord[id];
-    if (!socket?.connected) {
-      // note: should add error handding
-      return;
-    }
+    if (!socket?.connected) return;
 
-    socket.emit(events.messageDeleting.name, { id: messageId });
+    socket.emit(events.messageDeleting.name, {
+      id: messageId,
+      chatboxId: id,
+      isGroup: false,
+    });
   };
 
   if (!chatSocketState) return null;
@@ -174,6 +183,6 @@ export function Conversation({ id }: ConversationProps) {
     </div>
   );
 }
-export default Conversation;
 
+export default Conversation;
 export * from './empty-conversation';

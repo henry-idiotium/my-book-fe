@@ -20,6 +20,10 @@ export const chatSocketEmitEvents = {
 } as const;
 
 export const chatSocketListenEvents = {
+  exception: {
+    name: 'exception',
+    type: {} as { name: string; message: string; stack?: string },
+  },
   messageReceived: {
     name: 'socket_message_received',
     type: {} as Payload.Message.Received,

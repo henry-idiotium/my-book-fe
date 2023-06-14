@@ -28,11 +28,12 @@ export namespace ChatSocketPayload {
       chatboxId: string;
     };
 
-    export type Sent = With<'content'>;
     export type Received = MessageEntity;
-    export type Updating = With<'id' | 'content'>;
+
+    export type Sent = With<'content' | 'isGroup' | 'chatboxId'>;
+    export type Updating = With<'id' | 'content' | 'isGroup' | 'chatboxId'>;
     export type Updated = With<'id' | 'content'>;
-    export type Deleting = With<'id'>;
+    export type Deleting = With<'id' | 'isGroup' | 'chatboxId'>;
     export type Deleted = With<'id'>;
   }
 }
