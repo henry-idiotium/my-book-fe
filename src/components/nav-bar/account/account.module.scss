@@ -2,7 +2,7 @@
   @apply w-full my-3 flex justify-center;
 
   .wrapper {
-    @apply wh-full outline-none items-center p-3 rounded-full hover:bg-base-focus <xl:w-auto;
+    @apply wh-full outline-none items-center p-3 rounded-full hover:bg-base-focus xl-max:w-auto;
 
     &-inner {
       @apply flex overflow-hidden tracking-tight;
@@ -19,7 +19,7 @@
       }
 
       .user-info {
-        @apply h-10 w-[65%] <xl:hidden;
+        @apply h-10 w-[65%] xl-max:hidden;
 
         &-wrapper {
           @apply h-full flex flex-col justify-between mx-3 gap-1 overflow-hidden;
@@ -38,7 +38,7 @@
       }
 
       .more-icon {
-        @apply w-full h-10 flex justify-end items-center <xl:hidden text-color;
+        @apply w-full h-10 flex justify-end items-center xl-max:hidden text-color;
       }
     }
   }

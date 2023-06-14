@@ -1,33 +1,5 @@
 .container {
-  @apply h-full <xl:w-[88px] <sm:w-[72] shrink-0 relative px-2 py-0 mr-0 ml-auto overflow-x-hidden;
-
-  .wrapper {
-    @apply h-full <xl:max-w-[88px] flex flex-col relative justify-between;
-
-    .nav {
-      @apply flex flex-col <xl:items-center gap-1;
-
-      &-main {
-        @apply flex flex-col gap-[10px] <xl:items-center;
-      }
-
-      .logo {
-        @apply wh-[50px] py-2 my-1 rounded-full hover:bg-base-focus;
-
-        &-img {
-          @apply flex items-center justify-center wh-full;
-
-          > img {
-            @apply wh-[34px];
-          }
-        }
-      }
-    }
-
-    .user {
-      @apply w-full;
-    }
-  }
+  @apply h-full xl-max:w-[88px] sm-max:w-[68] shrink-0 relative px-2 py-0 mr-0 ml-auto overflow-x-hidden;
 
   // invisible scrollbar
   -ms-overflow-style: none; /* Edge */
@@ -38,4 +10,32 @@
     width: 0; /* Remove scrollbar space */
     background: transparent; /* Optional: just make scrollbar invisible */
   }
+}
+
+.wrapper {
+  @apply h-full xl-max:max-w-[88px] flex flex-col relative justify-between;
+}
+
+.nav {
+  @apply flex flex-col xl-max:items-center gap-1;
+
+  &-logo {
+    @apply wh-[50px] py-2 my-1 rounded-full hover:bg-base-focus;
+
+    &-img {
+      @apply flex items-center justify-center wh-full;
+
+      > img {
+        @apply wh-[34px];
+      }
+    }
+  }
+
+  &-main {
+    @apply flex flex-col gap-[10px] xl-max:items-center;
+  }
+}
+
+.user {
+  @apply w-full;
 }

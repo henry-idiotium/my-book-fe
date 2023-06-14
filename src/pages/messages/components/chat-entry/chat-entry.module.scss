@@ -7,6 +7,7 @@
 
   .chat-icon {
     @apply mr-3 shrink-0;
+
     &-img {
       @apply max-w-10 wh-10 hover:z-10 focus:z-10;
     }
@@ -16,7 +17,7 @@
     @apply flex flex-col overflow-hidden whitespace-nowrap text-color-accent;
 
     .info {
-      @apply flex items-center w-auto overflow-hidden;
+      @apply flex items-center overflow-hidden;
 
       &_name {
         @apply w-fit max-w-[75%] font-semibold text-color text-ellipsis overflow-hidden pr-1;

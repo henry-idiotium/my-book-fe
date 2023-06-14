@@ -9,17 +9,21 @@ export interface InputProps {
   placeholder?: string;
   startIcon?: JSX.Element;
   endIcon?: JSX.Element;
-  containerClassName?: string;
-  wrapperClassName?: string;
-  inputClassName?: string;
+  containerClass?: string;
+  wrapperClass?: string;
+  inputClass?: string;
+  labelClass?: string;
 }
 
 export function Input({ type = 'text', ...props }: InputProps) {
   return (
-    <div className={classes(styles.container, props.containerClassName)}>
-      <div className={classes(styles.wrapper, props.wrapperClassName)}>
+    <div className={props.containerClass ?? styles.container}>
+      <div className={props.wrapperClass ?? styles.wrapper}>
         {props.label ? (
-          <label htmlFor={props.id} className={styles.label}>
+          <label
+            htmlFor={props.id}
+            className={props.labelClass ?? styles.label}
+          >
             {props.label}
           </label>
         ) : undefined}
@@ -30,7 +34,7 @@ export function Input({ type = 'text', ...props }: InputProps) {
           type={type}
           id={props.label ? props.id : undefined}
           placeholder={props.placeholder}
-          className={classes(styles.input, props.inputClassName)}
+          className={props.inputClass ?? styles.input}
         />
 
         {props.endIcon}

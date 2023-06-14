@@ -21,9 +21,9 @@ export function NavBar(props: NavBarProps) {
     <div className={styles.container}>
       <div className={styles.wrapper}>
         <div className={styles.nav}>
-          <div className={styles.logo}>
+          <div className={styles.navLogo}>
             <Link to="/home">
-              <div className={styles.logoImg}>
+              <div className={styles.navLogoImg}>
                 <Avatar src={LogoSVG} alt="app logo" />
               </div>
             </Link>
@@ -48,7 +48,7 @@ export function NavBar(props: NavBarProps) {
                 <div className="py-1">
                   <HiOutlineDotsCircleHorizontal className="wh-[26.25px]" />
                 </div>
-                <span className="pr-4 capitalize <xl:hidden">More</span>
+                <span className="pr-4 capitalize xl-max:hidden">More</span>
               </div>
             </div>
           </button>
@@ -63,7 +63,7 @@ export function NavBar(props: NavBarProps) {
               <FiFeather className="absolute bottom-[14px] right-3 z-[2] stroke-2 wh-5" />
             </div>
 
-            <span className="font-semibold <xl:hidden">Tweet</span>
+            <span className="font-semibold xl-max:hidden">Tweet</span>
           </button>
         </div>
 

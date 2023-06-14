@@ -131,54 +131,56 @@ export function Conversation({ id }: ConversationProps) {
 
   return (
     <div className={styles.container}>
-      <div>
-        <div className="border-sky-500 border p-4">
-          <span className="flex items-center">
-            <h1>Between:({convo.conversationBetween?.length ?? 0}): </h1>
-            {convo.conversationBetween?.map((member, index) => (
-              <span
-                key={index}
-                className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
-              >
-                {member.alias}
-              </span>
-            ))}
-          </span>
-        </div>
-        <div className="border border-red-500 p-4">
-          <h1>Currently online: {chatSocketState.userActiveCount}</h1>
-          {Object.values(chatSocketState.users).map((user, index) => (
+      <div className="border-sky-500 border p-4">
+        <span className="flex items-center">
+          <h1>Between:({convo.conversationBetween?.length ?? 0}): </h1>
+          {convo.conversationBetween?.map((member, index) => (
             <span
               key={index}
               className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
             >
-              {user.alias}
+              {member.alias}
             </span>
           ))}
-        </div>
-        <div className="border border-green-500 p-4">
-          <h1>Your info</h1>
-          <p>id - name - email - role</p>
-          <p>
-            {user.id} - {`${user.firstName} ${user.lastName}`} - {user.email} -{' '}
-            {user.role.name}
-          </p>
-        </div>
-        <button
-          className="rounded border border-blue-500 bg-transparent px-4 py-2 font-semibold text-blue-700 hover:border-transparent hover:bg-blue-500 hover:text-white"
-          onClick={sendMessage}
-        >
-          Send message
-        </button>
-        <div>
-          {chatSocketState.messages.map((e) => (
-            <div key={e.id} color={e.from === user.id ? 'blue' : 'black'}>
-              {e.content} by {e.from !== user.id ? e.from : 'you'} (at{' '}
-              {new Date(e.at).toDateString()})
-            </div>
-          ))}
-          <div color="blue">{chatSocketState.messagePending}</div>
-        </div>
+        </span>
+      </div>
+
+      <div className="border border-red-500 p-4">
+        <h1>Currently online: {chatSocketState.userActiveCount}</h1>
+        {Object.values(chatSocketState.users).map((user, index) => (
+          <span
+            key={index}
+            className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
+          >
+            {user.alias}
+          </span>
+        ))}
+      </div>
+
+      <div className="border border-green-500 p-4">
+        <h1>Your info</h1>
+        <p>id - name - email - role</p>
+        <p>
+          {user.id} - {`${user.firstName} ${user.lastName}`} - {user.email} -{' '}
+          {user.role.name}
+        </p>
+      </div>
+
+      <button
+        className="rounded border border-blue-500 bg-transparent px-4 py-2 font-semibold text-blue-700 hover:border-transparent hover:bg-blue-500 hover:text-white"
+        onClick={sendMessage}
+      >
+        Send message
+      </button>
+
+      <div>
+        {chatSocketState.messages.map((e) => (
+          <div key={e.id} color={e.from === user.id ? 'blue' : 'black'}>
+            {e.content} by {e.from !== user.id ? e.from : 'you'} (at{' '}
+            {new Date(e.at).toDateString()})
+          </div>
+        ))}
+        <div color="blue">{chatSocketState.messagePending}</div>
       </div>
     </div>
   );

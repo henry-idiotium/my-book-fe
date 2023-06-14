@@ -1,5 +1,7 @@
 import { NavLink } from 'react-router-dom';
 
+import styles from './nav-item.module.scss';
+
 import { DynamicComponent } from '@/components';
 import { classes } from '@/utils';
 
@@ -22,29 +24,27 @@ export function NavItem({
   const linkPath = to ?? (name ? name.replace('-', ' ') : '');
 
   return (
-    <NavLink to={linkPath} className="text-color">
+    <NavLink to={linkPath} className={styles.container}>
       {({ isActive }) => (
-        <div className="w-fit rounded-full py-2 hover:bg-base-focus">
-          <div className="flex w-fit items-center gap-4 px-3 text-xl">
-            <div className="py-1">
-              <DynamicComponent
-                cond={!isActive}
-                as={Icon}
-                asAlt={ActiveIcon}
-                className="wh-[26.25px]"
-              />
-            </div>
-
-            {!hideContent ? (
-              <span
-                className={classes('pr-4 capitalize <xl:hidden', {
-                  'font-bold': isActive,
-                })}
-              >
-                {name}
-              </span>
-            ) : undefined}
+        <div className={styles.wrapper}>
+          <div className={styles.icon}>
+            <DynamicComponent
+              cond={!isActive}
+              as={Icon}
+              asAlt={ActiveIcon}
+              className={styles.iconImg}
+            />
           </div>
+
+          {!hideContent ? (
+            <div
+              className={classes(styles.content, {
+                [styles.contentRouteActive]: isActive,
+              })}
+            >
+              <span>{name}</span>
+            </div>
+          ) : undefined}
         </div>
       )}
     </NavLink>

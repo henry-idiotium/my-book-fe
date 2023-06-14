@@ -1,0 +1,23 @@
+.container {
+  @apply py-2 rounded-full text-color w-fit hover:bg-base-focus;
+}
+
+.wrapper {
+  @apply flex items-center gap-4 px-3 text-xl w-fit;
+}
+
+.icon {
+  @apply py-1;
+
+  &-img {
+    @apply wh-[26.25px];
+  }
+}
+
+.content {
+  @apply pr-4 capitalize xl-max:hidden;
+
+  &-route-active {
+    @apply font-bold;
+  }
+}

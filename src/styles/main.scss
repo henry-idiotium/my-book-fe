@@ -21,14 +21,26 @@ html {
 }
 
 body {
-  @apply box-border p-0 m-0 wh-full;
+  @apply box-border p-0 m-0 wh-full bg-base;
 }
 
 li {
-  list-style: none;
+  @apply list-none;
 }
 a {
   text-decoration: none;
+}
+input {
+  @apply outline-none;
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 ::-webkit-scrollbar {

@@ -1,7 +1,12 @@
 import { IconBaseProps } from 'react-icons';
 import { AiFillHome, AiOutlineHome } from 'react-icons/ai';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import { HiOutlineUser, HiUser } from 'react-icons/hi';
+import {
+  HiOutlineUser,
+  HiUser,
+  HiOutlineUsers,
+  HiUsers,
+} from 'react-icons/hi2';
 import { LuHash } from 'react-icons/lu';
 import {
   RiFileListFill,
@@ -22,17 +27,19 @@ export function Root() {
   const navItems = getNavItems();
 
   return (
-    <div className={styles.container}>
-      <nav className={styles.nav}>
-        <div className={styles.navWrapper}>
-          <NavBar scheme={navItems} />
-        </div>
-      </nav>
+    <section className={styles.container}>
+      <div className={styles.wrapper}>
+        <nav className={styles.nav}>
+          <div className={styles.navWrapper}>
+            <NavBar scheme={navItems} />
+          </div>
+        </nav>
 
-      <main className={styles.main}>
-        <Outlet />
-      </main>
-    </div>
+        <main className={styles.main}>
+          <Outlet />
+        </main>
+      </div>
+    </section>
   );
 }
 export default Root;
@@ -51,6 +58,7 @@ function getNavItems() {
       ),
     },
     { name: 'notifications', icon: TbBell, activeIcon: TbBellFilled },
+    { name: 'friends', icon: HiOutlineUsers, activeIcon: HiUsers },
     { name: 'messages', icon: RiMessage3Line, activeIcon: RiMessage3Fill },
     { name: 'lists', icon: RiFileListLine, activeIcon: RiFileListFill },
     { name: 'bookmarks', icon: FaRegBookmark, activeIcon: FaBookmark },

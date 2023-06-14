@@ -33,18 +33,28 @@ const config = {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
       },
       screens: {
-        '<2xl': { max: '1535px' },
-        '<xl': { max: '1279px' },
-        '<lg': { max: '1023px' },
-        '<md': { max: '767px' },
-        '<sm': { max: '639px' },
-        '<xs': { max: '319px' },
-        '@2xl': { min: '1536px' },
-        '@xl': { min: '1280px', max: '1535px' },
-        '@lg': { min: '1024px', max: '1279px' },
-        '@md': { min: '768px', max: '1023px' },
-        '@sm': { min: '640px', max: '767px' },
-        '@xs': { min: '320px', max: '639px' },
+        '2xl': '1536px',
+        xl: '1280px',
+        lg: '1024px',
+        md: '768px',
+        sm: '640px',
+        xs: '320px',
+        '2xl-max': { max: '1535px' },
+        'xl-max': { max: '1279px' },
+        'lg-max': { max: '1023px' },
+        'md-max': { max: '767px' },
+        'sm-max': { max: '639px' },
+        'xs-max': { max: '319px' },
+
+        // --------------------
+        // custom
+        // --------------------
+        // Right Section Hidden
+        rsh: '1000px',
+        'rsh-max': { max: '999px' },
+        // Phone Media Transformation
+        pmt: '500px',
+        'pmt-max': { max: '499px' },
       },
       lineHeight: {
         3: '12px',

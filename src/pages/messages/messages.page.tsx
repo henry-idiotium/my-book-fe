@@ -34,55 +34,49 @@ export function Messages() {
   if (fetchError.length) return <div className="text-lg">Fetch Error</div>;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.wrapper}>
-        <header className={styles.chatboxesPane}>
-          <div className={styles.chatbox}>
-            <div className={styles.chatboxHeader}>
-              <h2>Messages</h2>
+    <section className={styles.container}>
+      <section className={styles.chatEntry}>
+        <div className={styles.chatEntryHeader}>
+          <h2>Messages</h2>
 
-              <div className={styles.chatboxHeaderOption}>
-                {headerOptions.map(({ icon: Icon }, index) => (
-                  <div key={index} className={styles.chatboxHeaderOptionItem}>
-                    <Icon className={styles.chatboxHeaderOptionItemIcon} />
-                  </div>
-                ))}
+          <div className={styles.chatEntryHeaderOption}>
+            {headerOptions.map(({ icon: Icon }, index) => (
+              <div key={index} className={styles.chatEntryHeaderOptionItem}>
+                <Icon className={styles.chatEntryHeaderOptionItemIcon} />
               </div>
-            </div>
-
-            <div className={styles.chatboxSearch}>
-              <Input
-                placeholder="Search Messages"
-                inputClassName={styles.chatboxSearchInput}
-                startIcon={
-                  <FiSearch className="absolute left-3 top-[14px] text-color-accent wh-4" />
-                }
-              />
-            </div>
-
-            <div className={styles.chatboxContent}>
-              {chatEntries.map((entry, index) => (
-                <ChatEntry
-                  key={index}
-                  entry={entry}
-                  onClick={() => handleSelectChatEntry(entry.id)}
-                />
-              ))}
-            </div>
+            ))}
           </div>
-        </header>
+        </div>
 
-        <main className={styles.messagingPane}>
-          <div className={styles.messagingWrapper}>
-            {activeChatId ? (
-              <Conversation id={activeChatId} />
-            ) : (
-              <EmptyConversation />
-            )}
-          </div>
-        </main>
-      </div>
-    </div>
+        <div className={styles.chatEntrySearch}>
+          <Input
+            placeholder="Search Messages"
+            inputClass={styles.chatEntrySearchInput}
+            startIcon={
+              <FiSearch className="absolute left-3 top-[12px] text-color-accent wh-4" />
+            }
+          />
+        </div>
+
+        <div className={styles.chatEntryContent}>
+          {chatEntries.map((entry, index) => (
+            <ChatEntry
+              key={index}
+              entry={entry}
+              onClick={() => handleSelectChatEntry(entry.id)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.conversation}>
+        {activeChatId ? (
+          <Conversation id={activeChatId} />
+        ) : (
+          <EmptyConversation />
+        )}
+      </section>
+    </section>
   );
 }
 
