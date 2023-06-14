@@ -1,40 +1,40 @@
 .container {
   @apply w-full hover:bg-base-hover;
+}
 
-  .wrapper {
-    @apply flex p-4 transition-colors wh-full;
+.wrapper {
+  @apply flex p-4 transition-colors wh-full;
+}
+
+.chat-icon {
+  @apply mr-3 shrink-0;
+
+  &-img {
+    @apply max-w-10 wh-10 hover:z-10 focus:z-10;
+  }
+}
+
+.content {
+  @apply flex flex-col overflow-hidden whitespace-nowrap text-color-accent;
+
+  .info {
+    @apply flex items-center overflow-hidden;
+
+    &_name {
+      @apply w-fit max-w-[75%] font-semibold text-color text-ellipsis overflow-hidden pr-1;
+    }
+    &_id {
+      @apply overflow-hidden text-sm text-ellipsis;
+    }
+    &_time-last-message {
+      @apply overflow-hidden text-sm text-ellipsis shrink-0;
+    }
+    &-sep {
+      @apply px-1 font-semibold;
+    }
   }
 
-  .chat-icon {
-    @apply mr-3 shrink-0;
-
-    &-img {
-      @apply max-w-10 wh-10 hover:z-10 focus:z-10;
-    }
-  }
-
-  .content {
-    @apply flex flex-col overflow-hidden whitespace-nowrap text-color-accent;
-
-    .info {
-      @apply flex items-center overflow-hidden;
-
-      &_name {
-        @apply w-fit max-w-[75%] font-semibold text-color text-ellipsis overflow-hidden pr-1;
-      }
-      &_id {
-        @apply overflow-hidden text-sm text-ellipsis;
-      }
-      &_time-last-message {
-        @apply overflow-hidden text-sm text-ellipsis shrink-0;
-      }
-      &-sep {
-        @apply px-1 font-semibold;
-      }
-    }
-
-    .last-message {
-      @apply overflow-hidden text-sm text-color-accent text-ellipsis pr-7;
-    }
+  .last-message {
+    @apply overflow-hidden text-sm text-color-accent text-ellipsis pr-7;
   }
 }

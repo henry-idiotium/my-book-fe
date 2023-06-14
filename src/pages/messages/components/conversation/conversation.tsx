@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 import styles from './conversation.module.scss';
@@ -13,11 +14,15 @@ import {
 } from '@/stores';
 import { ChatSocket, chatSocketEvents as events } from '@/types';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ConversationProps {
-  id: string;
+  // id: string;
 }
 
-export function Conversation({ id }: ConversationProps) {
+// eslint-disable-next-line no-empty-pattern
+export function Conversation({}: ConversationProps) {
+  const { convoId: id = '' } = useParams();
+
   const { user, token } = useSelector(selectAuth);
   const chatSocketState = useSelector(selectChatSocketById(id));
   const dispatch = useDispatch();
@@ -126,8 +131,17 @@ export function Conversation({ id }: ConversationProps) {
     });
   };
 
-  if (!chatSocketState) return null;
+  // note: this is can be either loading or error
+  if (!chatSocketState)
+    return <>Something went wrong!!! or maybe it's loading...!</>;
+
   const convo = chatSocketState.conversation;
+
+  /**
+   * todo: add styles to:
+   * - the error "state not exists" above
+   * - laoding into conversation
+   */
 
   return (
     <div className={styles.container}>

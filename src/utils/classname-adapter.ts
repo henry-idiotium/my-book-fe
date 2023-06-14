@@ -1,4 +1,4 @@
-type ElementScheme = GenericObject<boolean>;
+type ElementScheme = GenericObject;
 type Props = (ElementScheme | string | undefined)[];
 
 export function classes(...props: Props) {

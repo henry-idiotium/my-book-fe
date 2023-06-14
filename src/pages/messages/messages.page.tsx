@@ -1,27 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
+import { useNavigate, useParams, useRoutes } from 'react-router-dom';
 
 import { ChatEntry, Conversation, EmptyConversation } from './components';
 import { useFetchConversations } from './hooks/fetch-convo';
 import styles from './messages.page.module.scss';
 
-import { Input, LoadingScreen } from '@/components';
+import { Input } from '@/components';
+import { classes } from '@/utils';
 
 export function Messages() {
-  const [
-    { data: chatEntries, errors: fetchError, loadings: fetchLoading },
-    refetch,
-  ] = useFetchConversations();
+  const navigate = useNavigate();
+  const params = useParams();
 
-  const [activeChatId, setActiveChatId] = useState<string>();
-
+  const routesOutlets = useConvoPaneRouteOutlet();
   const headerOptions = getHeaderOptionScheme();
 
-  function handleSelectChatEntry(convoId: string) {
-    setActiveChatId(convoId);
-    // more...
+  const [{ data: chatEntries }, refetch] = useFetchConversations();
+
+  const [activeConvoId, setActiveConvoId] = useState<string>();
+
+  // watch current acitve convo
+  useEffect(() => {
+    // not a spread obj 'cause it match * as a parent rather as a child route
+    const activeURLConvoId = params['*'];
+
+    setActiveConvoId(activeURLConvoId);
+  }, [params]);
+
+  function handleSelectChatEntry(id: string) {
+    return () => {
+      if (activeConvoId && activeConvoId === id) return;
+
+      navigate(id);
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,13 +43,16 @@ export function Messages() {
     refetch();
   }
 
-  if (fetchLoading) return <LoadingScreen />;
-
-  if (fetchError.length) return <div className="text-lg">Fetch Error</div>;
+  // todo: on fetch loading, render loading skeleton or a loading animation
+  // todo: on fetch error, render a reload/refetch button
 
   return (
     <section className={styles.container}>
-      <section className={styles.chatEntry}>
+      <section
+        className={classes(styles.chatEntry, {
+          [styles.hideOnRshMax]: activeConvoId,
+        })}
+      >
         <div className={styles.chatEntryHeader}>
           <h2>Messages</h2>
 
@@ -49,6 +66,7 @@ export function Messages() {
         </div>
 
         <div className={styles.chatEntrySearch}>
+          {/* todo: some how make this better */}
           <Input
             placeholder="Search Messages"
             inputClass={styles.chatEntrySearchInput}
@@ -63,18 +81,18 @@ export function Messages() {
             <ChatEntry
               key={index}
               entry={entry}
-              onClick={() => handleSelectChatEntry(entry.id)}
+              onClick={handleSelectChatEntry(entry.id)}
             />
           ))}
         </div>
       </section>
 
-      <section className={styles.conversation}>
-        {activeChatId ? (
-          <Conversation id={activeChatId} />
-        ) : (
-          <EmptyConversation />
-        )}
+      <section
+        className={classes(styles.conversation, {
+          [styles.hideOnRshMax]: !activeConvoId,
+        })}
+      >
+        {routesOutlets}
       </section>
     </section>
   );
@@ -85,3 +103,12 @@ export default Messages;
 function getHeaderOptionScheme() {
   return [{ icon: HiOutlineCog }, { icon: LuMailPlus }];
 }
+
+function useConvoPaneRouteOutlet() {
+  return useRoutes([
+    { path: '', Component: EmptyConversation },
+    { path: '/:convoId', Component: Conversation },
+  ]);
+}
+
+// function classes

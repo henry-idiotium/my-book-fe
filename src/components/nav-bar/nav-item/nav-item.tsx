@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 
 import styles from './nav-item.module.scss';
 
-import { DynamicComponent } from '@/components';
+import { DynFrag } from '@/components';
 import { classes } from '@/utils';
 
 type NavItemIcon = (props: GenericObject) => JSX.Element;
@@ -28,10 +28,10 @@ export function NavItem({
       {({ isActive }) => (
         <div className={styles.wrapper}>
           <div className={styles.icon}>
-            <DynamicComponent
+            <DynFrag
               cond={!isActive}
-              as={Icon}
-              asAlt={ActiveIcon}
+              expected={Icon}
+              alternative={ActiveIcon}
               className={styles.iconImg}
             />
           </div>

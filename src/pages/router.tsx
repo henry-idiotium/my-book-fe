@@ -11,7 +11,7 @@ import RouteWrapper from '@/layouts/route-wrapper/route-wrapper.layout';
 export const privateRoutes: RouteObject[] = [
   { path: '/', element: <>this is private!!!</> },
   { path: '/home', Component: Home },
-  { path: '/messages', Component: Messages },
+  { path: '/messages/*', Component: Messages },
   { path: '/friends', Component: Friends },
 
   // Note: Mock pages
