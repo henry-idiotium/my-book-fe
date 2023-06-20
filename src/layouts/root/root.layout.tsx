@@ -17,12 +17,15 @@ import {
 import { TbBell, TbBellFilled } from 'react-icons/tb';
 import { Outlet } from 'react-router-dom';
 
+import { NavBar } from './nav-bar/nav-bar';
+import { NavItemProps } from './nav-bar/nav-item/nav-item';
 import styles from './root.layout.module.scss';
 
-import { NavBar } from '@/components';
-import { NavItemProps } from '@/components/nav-bar/nav-item/nav-item';
+import { usePageMeta } from '@/hooks';
 
 export function Root() {
+  usePageMeta();
+
   const navItems = getNavItems();
 
   return (

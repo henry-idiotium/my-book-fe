@@ -9,15 +9,14 @@ import { RootState } from '../app-store';
 
 import Payload from './chat-socket.slice.types';
 
-import { ChatSocket, ChatSocketEntity, initialChatSocketEntity } from '@/types';
-import { Convo } from '@/utils';
-
-export const chatSocketRecord: GenericObject<ChatSocket | undefined> = {};
+import { ChatSocketEntity, chatSocketEntityZod } from '@/types';
+import { Convo, getZodDefault } from '@/utils';
 
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
 const adapter = createEntityAdapter<ChatSocketEntity>();
 const initialState: EntityState<ChatSocketEntity> = adapter.getInitialState();
+const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);
 
 // note: debug to see if this works or not
 // also, remember to delete all unecessary comments
@@ -25,19 +24,20 @@ const chatSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
   reducers: {
-    userConnected: (state, action: Payload.User.Connected) => {
+    connectUser: (state, action: Payload.User.Connected) => {
       const { chatbox, userActiveCount } = action.payload;
 
-      // clear messages in chatbox, and let the opened socket to store it
+      // clear messages in chatbox, and put it at base-level-props in the store.
       const messages = structuredClone(chatbox.messages ?? []);
       delete chatbox.messages;
 
-      // pair/group filters
+      // extract users from pair or group conversations
       const users = Object.fromEntries(
         !Convo.isGroup(chatbox)
           ? chatbox.conversationBetween.map((user) => [user.id, user])
           : chatbox.members?.map((user) => [user.id, user]) ?? []
       );
+      // extract convo obj from pair or group conversations
       const convo: Partial<ChatSocketEntity> = Convo.isGroup(chatbox)
         ? { conversationGroup: chatbox }
         : { conversation: chatbox };
@@ -128,3 +128,5 @@ export const selectChatSockets = createSelector(stateSelector, selectAll);
 export const selectChatSocketTotal = createSelector(stateSelector, selectTotal);
 export const selectChatSocketById = (id: ChatSocketEntity['convoId']) =>
   createSelector(stateSelector, (state) => selectById(state, id));
+
+export * from './chat-socket.record';

@@ -1,0 +1,28 @@
+.container {
+  @apply text-color py-1 outline-none;
+}
+
+.wrapper {
+  @apply flex items-center gap-4
+    w-fit p-3 m-0
+    text-xl font-light
+    rounded-full
+    bg-base hover:bg-base-focus
+    shadow-none hover:shadow-color-base-hover;
+}
+
+.icon {
+  @apply wh-[26.25px];
+
+  &-img {
+    @apply wh-[26.25px] text-color;
+  }
+}
+
+.content {
+  @apply pr-4 capitalize xl-max:hidden h-6 leading-6 text-color;
+
+  &-route-active {
+    @apply font-bold;
+  }
+}

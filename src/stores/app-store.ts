@@ -20,7 +20,7 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import { authApi } from './auth/auth-api';
+import { authApi } from './auth/auth.api';
 import { AUTH_FEATURE_KEY, authReducer } from './auth/auth.slice';
 import {
   CHAT_SOCKET_FEATURE_KEY,

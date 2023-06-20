@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 
 import { ChatboxEntry } from '../components';
 
-import { useAltAxios } from '@/hooks/use-alt-axios';
+import { useAxios } from '@/hooks/axios/axios';
 import { ConversationEntity, ConversationGroupEntity } from '@/types';
 
 type Result = [
@@ -15,13 +15,13 @@ export function useFetchConversations(): Result {
   const [
     { data: convoData = [], loading: convoLoading, error: convoError },
     fetchConvos,
-  ] = useAltAxios<ConversationEntity[]>(`/conversations`);
+  ] = useAxios<ConversationEntity[]>(`/conversations`);
 
   // chats between multiple, or group
   const [
     { data: groupData = [], loading: groupLoading, error: groupError },
     fetchConvoGroups,
-  ] = useAltAxios<ConversationGroupEntity[]>(`/chatboxes`);
+  ] = useAxios<ConversationGroupEntity[]>(`/chatboxes`);
 
   const response: Result['0'] = {
     data: [...convoData, ...groupData],
@@ -38,3 +38,5 @@ export function useFetchConversations(): Result {
 
   return [response, refetch];
 }
+
+export default useFetchConversations;

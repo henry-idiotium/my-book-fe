@@ -1,38 +1,42 @@
-import {
-  Popover as MTPopover,
-  PopoverHandler as MTPopoverHandler,
-  PopoverContent as MTPopoverContent,
-  PopoverProps as MTPopoverProps,
-} from '@material-tailwind/react';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { forwardRef } from 'react';
 
-import { classes } from '@/utils';
+import styles from './popover.module.scss';
 
-export interface PopoverProps
-  extends Omit<MTPopoverProps, 'children'>,
-    React.PropsWithChildren {
-  trigger: React.ReactNode;
-  className?: string;
-}
+import { classnames } from '@/utils';
 
-export function Popover({
-  children,
-  trigger,
-  className,
-  ...rest
-}: PopoverProps) {
-  return (
-    <MTPopover {...rest}>
-      <MTPopoverHandler>{trigger}</MTPopoverHandler>
-      <MTPopoverContent
-        className={classes(
-          'shadow-color-base p-0 shadow-[0_0_5px_rgba(0,0,0,.3)]',
-          className
-        )}
-      >
-        {children}
-      </MTPopoverContent>
-    </MTPopover>
-  );
-}
+export type PopoverProps = React.PropsWithChildren &
+  PopoverPrimitive.PopperContentProps & {
+    usePadding?: boolean;
+    disableBaseStyles?: boolean;
+  };
 
-export default Popover;
+export const PopoverContent = forwardRef<HTMLDivElement, PopoverProps>(
+  (_props, forwardedRef) => {
+    const { children, className, usePadding, disableBaseStyles, ...props } =
+      _props;
+
+    const contentClassnames = classnames(styles.content, className, {
+      [styles.contentPadding]: usePadding,
+      [styles.contentBase]: !disableBaseStyles,
+    });
+
+    // note: the position of {...props} is important for default values
+    return (
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          sideOffset={5}
+          {...props}
+          ref={forwardedRef}
+          className={contentClassnames}
+        >
+          {children}
+          <PopoverPrimitive.Arrow />
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
+    );
+  }
+);
+
+export const Popover = PopoverPrimitive.Root;
+export const PopoverTrigger = PopoverPrimitive.Trigger;

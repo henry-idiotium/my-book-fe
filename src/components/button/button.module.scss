@@ -1,0 +1,24 @@
+.required {
+  @apply select-none transition-all cursor-pointer;
+}
+
+.base {
+  @apply py-3 px-6
+    font-sans font-bold text-center text-xs text-color
+    bg-base-focus
+    rounded-lg
+    shadow-md shadow-color-base-hover;
+
+  &:disabled {
+    @apply opacity-50 shadow-none pointer-events-none;
+  }
+  &:hover {
+    @apply shadow-lg shadow-color-base-focus;
+  }
+  &:focus {
+    @apply opacity-[0.85] shadow-none;
+  }
+  &:active {
+    @apply opacity-[0.85] shadow-none;
+  }
+}

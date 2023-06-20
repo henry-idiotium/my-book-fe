@@ -17,11 +17,11 @@
 }
 
 html {
-  @apply overflow-auto overflow-overlay;
+  @apply wh-full box-border;
 }
 
 body {
-  @apply box-border p-0 m-0 wh-full bg-base;
+  @apply box-border p-0 m-0 wh-full bg-base z-0 overflow-hidden;
 }
 
 li {
@@ -32,6 +32,10 @@ a {
 }
 input {
   @apply outline-none;
+
+  &::placeholder {
+    @apply select-none;
+  }
 }
 button {
   -webkit-tap-highlight-color: transparent;
@@ -43,20 +47,27 @@ button {
   user-select: none;
 }
 
+// prettier-ignore
 ::-webkit-scrollbar {
   @apply wh-[10px];
 
-  &-track {
-    @apply border-[4px_solid_tranparent];
-  }
-  &-corner {
-    @apply bg-transparent;
-  }
+  @screen xl { @apply wh-[13px]; }
+  @screen rsh-max { @apply wh-[7px]; }
+  @screen md-max { @apply wh-[5px]; }
+  @screen pmt-max { @apply wh-[3px]; }
+
+  &-track { @apply border-[4px_solid_tranparent]; }
+  &-corner { @apply bg-transparent; }
   &-thumb {
-    @apply border-[4px_solid_tranparent] shadow-[inset_0_0_10px_10px_rgba(106,104,110,0.5)] rounded-full;
+    @apply border-[4px_solid_tranparent]
+      shadow-[inset_0_0_10px_10px_rgba(106,104,110,0.5)]
+      rounded-full;
   }
 }
 
 #root {
-  @apply box-border relative w-full h-auto min-h-screen text-base;
+  @apply box-border relative
+    w-full h-auto min-h-screen
+    text-base 
+    overflow-hidden;
 }

@@ -1,0 +1,56 @@
+.content {
+  box-shadow: rgb(var(--c-text-accent) / 0.8) 0 0 6px 1px;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+
+  &-padding {
+    @apply p-5;
+  }
+
+  &-base {
+    @apply w-full rounded-base bg-base;
+  }
+
+  //#region setup popup animation
+  // prettier-ignore
+  $sides: (
+    top: (name: slideDownAndFade,
+      from: translateY(-2px),
+      to: translateY(0),
+    ),
+    right: (name: slideLeftAndFade,
+      from: translateX(2px),
+      to: translateX(0),
+    ),
+    bottom: (name: slideUpAndFade,
+      from: translateY(2px),
+      to: translateY(0),
+    ),
+    left: (name: slideRightAndFade,
+      from: translateX(-2px),
+      to: translateX(0),
+    ),
+  );
+
+  // prettier-ignore
+  @mixin add-animation($from-transform, $to-transform) {
+    @keyframes slideUpAndFade {
+      from { opacity: 0; transform: #{$from-transform}; }
+      to { opacity: 1; transform: #{$to-transform}; }
+    }
+  }
+
+  @each $side, $schema in $sides {
+    $animation-name: map-get($schema, 'name');
+    $from-translate: map-get($schema, 'from');
+    $to-translate: map-get($schema, 'to');
+
+    &[data-state='open'][data-side='#{$side}'] {
+      animation-name: #{$animation-name};
+    }
+
+    @include add-animation($from-translate, $to-translate);
+  }
+  //#endregion
+}

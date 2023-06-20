@@ -8,3 +8,5 @@ export * from './get-app-url';
 export * from './format-time-readable';
 export * as User from './user-helpers';
 export * as Convo from './conversation-helpers';
+export * from './set-document-title';
+export * from './material-ripple-effect';

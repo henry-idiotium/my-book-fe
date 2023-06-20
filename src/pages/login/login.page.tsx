@@ -3,31 +3,27 @@ import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useSelector } from '@/hooks';
-import { useLoginMutation, useLogoutMutation } from '@/stores/auth/auth-api';
+import { usePageMeta, useSelector } from '@/hooks';
+import { useLoginMutation, useLogoutMutation } from '@/stores/auth/auth.api';
 import { selectAuth } from '@/stores/auth/auth.slice';
 import { LoginForm, loginFormZod } from '@/types';
 
-/* eslint-disable-next-line */
-export interface LoginProps {}
+export function Login() {
+  usePageMeta({ title: 'Login', auth: { type: 'public' } });
 
-export function Login(props: LoginProps) {
-  const { user, token } = useSelector(selectAuth);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user, token } = useSelector(selectAuth);
+
+  const [login, { isSuccess, isError, isLoading }] = useLoginMutation();
+  const [logout] = useLogoutMutation();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(loginFormZod) });
-
-  const [login, { isSuccess, isError, isLoading }] = useLoginMutation();
-  const [logout] = useLogoutMutation();
-
-  const onSubmit: SubmitHandler<LoginForm> = async (data, event) => {
-    event?.preventDefault();
-    await login(data);
-  };
 
   useEffect(() => {
     if (!isSuccess || !token) return;
@@ -35,6 +31,11 @@ export function Login(props: LoginProps) {
     const from = String(location.state?.from?.pathname ?? '/');
     navigate(from, { replace: true });
   }, [isSuccess, token, isError, isLoading]);
+
+  const onSubmit: SubmitHandler<LoginForm> = async (data, event) => {
+    event?.preventDefault();
+    await login(data);
+  };
 
   return (
     <>

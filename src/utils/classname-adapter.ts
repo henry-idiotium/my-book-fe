@@ -1,7 +1,7 @@
 type ElementScheme = GenericObject;
 type Props = (ElementScheme | string | undefined)[];
 
-export function classes(...props: Props) {
+export function classnames(...props: Props) {
   return props
     .map((className) => {
       const name =
@@ -21,4 +21,4 @@ function extractClassScheme(obj: ElementScheme) {
   }, '');
 }
 
-export default classes;
+export default classnames;

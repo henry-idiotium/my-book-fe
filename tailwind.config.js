@@ -4,7 +4,6 @@ const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const { join } = require('path');
 const plugins = require('./src/utils/tailwind-plugins');
 const defaultTheme = require('tailwindcss/defaultTheme');
-const withMT = require('@material-tailwind/react/utils/withMT');
 
 const spacingTheme = getTheme('spacing');
 
@@ -25,9 +24,7 @@ const config = {
       minWidth: spacingTheme,
       borderWidth: { 3: '3px', 5: '5px', 6: '6px', 7: '7px' },
       borderRadius: {
-        primary: '16px',
-        secondary: '8px',
-        tertiary: '12px',
+        base: '16px',
       },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
@@ -132,4 +129,4 @@ function getTheme(type) {
   return ({ theme }) => ({ ...theme(type) });
 }
 
-module.exports = withMT(config);
+module.exports = config;

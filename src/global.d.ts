@@ -7,8 +7,8 @@ declare global {
     ? { [Key in keyof Type]?: DeepPartial<Type[Key]> }
     : Type;
   type Mutable<Type> = { -readonly [Key in keyof Type]-?: Type[Key] };
-  type PartialStrict<T extends string, M = string> = T | Omit<M, T>;
   type PartialPick<T, O extends keyof T> = Partial<Pick<T, O>> & Omit<T, O>;
+  type RequiredPick<T, O extends keyof T> = Omit<T, O> & Required<Pick<T, O>>;
   type HasNullable<T, TLeft, TRight = never> = Extract<
     T,
     undefined | null

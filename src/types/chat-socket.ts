@@ -6,8 +6,8 @@ import {
   messageZod,
   minimalUserZod,
 } from '@/types';
-import { getZodDefault } from '@/utils';
 
+export type ChatSocketEntity = z.infer<typeof chatSocketEntityZod>;
 export const chatSocketEntityZod = z.object({
   convoId: z.string(), // note: conversation id
   messages: z.array(messageZod),
@@ -17,5 +17,3 @@ export const chatSocketEntityZod = z.object({
   users: z.record(z.number(), minimalUserZod).default({}),
   userActiveCount: z.number(),
 });
-export type ChatSocketEntity = z.infer<typeof chatSocketEntityZod>;
-export const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);

@@ -1,0 +1,8 @@
+.container {
+  @apply w-full my-3 flex justify-center;
+}
+
+.popover {
+  @apply py-3;
+  @apply w-[300px] #{!important};
+}

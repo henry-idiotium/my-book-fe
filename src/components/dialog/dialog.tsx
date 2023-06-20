@@ -1,40 +1,50 @@
-import {
-  Dialog as MTDialog,
-  DialogBody as MTDialogBody,
-  DialogHeader as MTDialogHeader,
-} from '@material-tailwind/react';
-import { Fragment } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { forwardRef } from 'react';
 
-export interface DialogTriggerArgs
-  extends Pick<DialogProps, 'open' | 'handleOpen'> {
-  toggle: () => void;
-}
-export interface DialogProps extends React.PropsWithChildren {
-  open: boolean;
-  handleOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  trigger: (args: DialogTriggerArgs) => React.ReactNode;
-  header?: string;
-}
+import styles from './dialog.module.scss';
 
-export function Dialog({
-  children,
-  header,
-  trigger,
-  open,
-  handleOpen,
-}: DialogProps) {
-  const toggle = () => handleOpen(!open);
+import { classnames } from '@/utils';
 
-  return (
-    <Fragment>
-      {trigger({ open, handleOpen, toggle })}
+export type DialogProps = React.PropsWithChildren &
+  Omit<React.HTMLAttributes<unknown>, 'className'> & {
+    disablePadding?: boolean;
+    classNames?: {
+      container?: string;
+      overlay?: string;
+      content?: string;
+    };
+  };
 
-      <MTDialog open={open} handler={handleOpen}>
-        {header ? <MTDialogHeader>{header}</MTDialogHeader> : undefined}
-        <MTDialogBody>{children}</MTDialogBody>
-      </MTDialog>
-    </Fragment>
-  );
-}
+export const DialogContent = forwardRef<HTMLDivElement, DialogProps>(
+  (_props, forwardedRef) => {
+    const { children, classNames, disablePadding, ...props } = _props;
 
-export default Dialog;
+    const portalClassnames = classnames(
+      styles.container,
+      classNames?.container
+    );
+    const overlayClassnames = classnames(styles.overlay, classNames?.overlay);
+    const contentClassnames = classnames(styles.content, classNames?.content, {
+      [styles.contentPadding]: !disablePadding,
+    });
+
+    return (
+      <DialogPrimitive.Portal className={portalClassnames}>
+        <DialogPrimitive.Overlay className={overlayClassnames}>
+          <DialogPrimitive.Content
+            {...props}
+            ref={forwardedRef}
+            className={contentClassnames}
+          >
+            {children}
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Overlay>
+      </DialogPrimitive.Portal>
+    );
+  }
+);
+
+export const Dialog = DialogPrimitive.Root;
+export const DialogTrigger = DialogPrimitive.Trigger;
+export const DialogTitle = DialogPrimitive.Title;
+// export const DialogDescription = DialogPrimitive.Description;

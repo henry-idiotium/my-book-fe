@@ -1,10 +1,11 @@
-import { Avatar } from '@material-tailwind/react';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import styles from './chat-entry.module.scss';
 
 import UserImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
-import { selectAuth } from '@/stores';
+import { selectAuth, selectChatSocketById } from '@/stores';
 import {
   ConversationEntity,
   ConversationGroupEntity,
@@ -21,26 +22,44 @@ export type ChatboxEntry = PartialPick<
 
 export type ChatEntryProps = {
   entry: ChatboxEntry;
-  onClick?: () => void;
+  handleOpenConversation?: () => void;
 };
 
-export function ChatEntry({ entry, onClick }: ChatEntryProps) {
+export function ChatEntry(props: ChatEntryProps) {
+  const { entry, handleOpenConversation } = props;
+
+  const param = useParams();
+
   const { user: mainUser } = useSelector(selectAuth);
+  const chatSocketState = useSelector(selectChatSocketById(entry.id));
+
+  const [latestMessage, setLatestMessage] = useState(
+    getLatestMessage(entry.messages)
+  );
+
+  // update to latest message on socket state change
+  useEffect(() => {
+    // for now only update the one that currently open
+    if (!chatSocketState) return;
+
+    const newlyGetLatestMessage = getLatestMessage(chatSocketState.messages);
+
+    setLatestMessage(newlyGetLatestMessage);
+  }, [param, chatSocketState?.messages]);
 
   const members = filterMembers(entry, mainUser.id);
   const entryName = getEntryName(entry, members);
-  const latestMessage = getLatestMessage(entry.messages);
   const oppositeTalker = members?.at(0);
 
   return (
-    <button className={styles.container} type="button" onClick={onClick}>
+    <button
+      className={styles.container}
+      type="button"
+      onClick={handleOpenConversation}
+    >
       <div className={styles.wrapper}>
         <div className={styles.chatIcon}>
-          <Avatar
-            className={styles.chatIconImg}
-            variant="circular"
-            src={UserImage}
-          />
+          <img src={UserImage} alt="chat profile" />
         </div>
 
         <div className={styles.content}>
@@ -88,16 +107,8 @@ function filterMembers(entry: ChatboxEntry, mainUserId: number) {
   );
 }
 
-function getLatestMessage(messages?: MessageEntity[], showTime = false) {
-  if (!messages) {
-    return {
-      id: '68f1fc63-3151-5ac0-8aed-7fe8c709ef20',
-      at: formatTimeReadable(new Date('2023-06-09T07:25:05')),
-      content: 'Voluptatem vel consequatur facere rerum quidem et consequatur.',
-      from: 11,
-      isEdited: false,
-    };
-  }
+function getLatestMessage(messages?: MessageEntity[]) {
+  if (!messages || !messages.length) return;
 
   const latestMsg = messages.reduce((former, latter) =>
     former.at > latter.at ? former : latter

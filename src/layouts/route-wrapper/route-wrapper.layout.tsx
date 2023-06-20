@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
   Navigate,
   Outlet,
@@ -6,14 +9,14 @@ import {
 } from 'react-router-dom';
 
 import { useSelector } from '@/hooks';
-import router, { publicRoutes } from '@/pages/router';
+import router from '@/pages/router';
 import { selectAuth } from '@/stores';
 
 export interface RouteWrapperProps {
   type?: 'public' | 'private' | 'custom';
 }
 
-// Todo: refac to use hook instead
+// DEPRECATED: currently using the usePageMeta hook
 export function RouteWrapper({ type = 'custom' }: RouteWrapperProps) {
   const location = useLocation();
 
@@ -23,9 +26,9 @@ export function RouteWrapper({ type = 'custom' }: RouteWrapperProps) {
 
   switch (type) {
     case 'public': {
-      const from: string | undefined = location.state?.from?.pathname;
+      const from = String(location.state?.from?.pathname ?? '/home');
 
-      return token ? <Navigate to={from ?? '/home'} /> : <Outlet />;
+      return token ? <Navigate to={from} /> : <Outlet />;
     }
 
     case 'private': {
@@ -41,6 +44,7 @@ export function RouteWrapper({ type = 'custom' }: RouteWrapperProps) {
           (ar) => ar.route.path
         );
 
+        //@ts-ignore
         const isMatchPublicRoute = publicRoutes.some((pr) =>
           matchedPaths?.includes(pr.path)
         );

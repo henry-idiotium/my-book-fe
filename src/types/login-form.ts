@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { getZodDefault } from '@/utils';
-
+export type LoginForm = z.infer<typeof loginFormZod>;
 export const loginFormZod = z.object({
   email: z.string().min(1, { message: 'Email is required' }).email({
     message: 'Must be a valid email',
@@ -10,6 +9,3 @@ export const loginFormZod = z.object({
     .string()
     .min(6, { message: 'Password must be at least 6 characters' }),
 });
-
-export const defaultLoginForm = getZodDefault(loginFormZod);
-export type LoginForm = z.infer<typeof loginFormZod>;

@@ -1,51 +1,47 @@
 import { z } from 'zod';
 
-import { getZodDefault } from '@/utils';
-
 // role
+export type UserRoleEntity = z.infer<typeof userRoleZod>;
 export const userRoleZod = z.object({
   id: z.number(),
   name: z.string(),
 });
-export const defaultUserRole = getZodDefault(userRoleZod);
-export type UserRoleEntity = z.infer<typeof userRoleZod>;
 
-//status
+// status
+export type UserStatusEntity = z.infer<typeof userStatusZod>;
 export const userStatusZod = z.object({
   id: z.number(),
   name: z.string(),
 });
-export const defaultUserStatus = getZodDefault(userStatusZod);
-export type UserStatusEntity = z.infer<typeof userStatusZod>;
 
-//user
-export const userZod = z.object({
+// base user
+const baseUserZod = z.object({
   id: z.number(),
   alias: z.string(),
   email: z.string(),
-  provider: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
   socialId: z.union([z.number(), z.string()]).optional(),
-  firstName: z.string(),
-  lastName: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date(),
-  photo: z.string(),
-  role: z.object(userRoleZod.shape),
-  status: z.object(userStatusZod.shape),
+  photo: z.string().optional(),
 });
-export const defaultUser = getZodDefault(userZod);
+
+// full
 export type UserEntity = z.infer<typeof userZod>;
+export const userZod = baseUserZod.merge(
+  z.object({
+    provider: z.string(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    deletedAt: z.date(),
+    role: z.object(userRoleZod.shape),
+    status: z.object(userStatusZod.shape),
+  })
+);
 
-// minimal user
-export const minimalUserZod = z.object({
-  id: z.number(),
-  alias: z.string(),
-  email: z.string().email(),
-  firstName: z.string(),
-  lastName: z.string(),
-  socialId: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
-});
-
+// partial
 export type MinimalUserEntity = z.infer<typeof minimalUserZod>;
+export const minimalUserZod = baseUserZod.merge(
+  z.object({
+    metadata: z.record(z.any()).optional(),
+  })
+);

@@ -1,4 +1,8 @@
-//#region helpers
+//#region --- helpers ---
+@function toRGB($color) {
+  @return red($color) + ' ' + green($color) + ' ' + blue($color);
+}
+
 @mixin set-vars($name, $color) {
   --c-#{$name}: #{$color};
 }
@@ -19,28 +23,23 @@
         // prettier-ignore
         @if ($sub-theme-name == 'default') { $name: $base-var-name; }
 
-        @include set-attr-theme($attr-key, $theme-name, $name, $color);
+        @include set-attr-theme($attr-key, $theme-name, $name, toRGB($color));
       }
     } @else {
       @include set-attr-theme(
         $attr-key,
         $theme-name,
         $base-var-name,
-        $scheme-color
+        toRGB($scheme-color)
       );
     }
   }
 }
 
-@function get-default-scheme($color) {
-  @return ('default': $color, 'focus': lighten($color, 5%));
-}
 //#endregion
-// -------------------------------------------------------
 
+//--- status, no theme config relate
 :root {
-  // --------------------
-  // STAUS COLOR, no theme config relate
   // prettier-ignore
   @each $key, $color in (
     'neutral': #393c3f,
@@ -49,9 +48,10 @@
     'warning': #fbbd23,
     'error': #f87272,
   ) { @include set-vars($key, $color); }
+}
 
-  // --------------------
-  // BASE
+//--- base
+:root {
   @include set-theme-vars(
     $attr-key: base,
     $base-var-name: base,
@@ -60,22 +60,33 @@
         'default': white,
         'focus': darken(white, 9%),
         'hover': #f7f9f9,
+        'invert': #16181c,
       ),
       'dim': (
         'default': #15202b,
         'focus': lighten(#15202b, 7%),
         'hover': #1e2732,
+        'invert': #f7f9f9,
       ),
       'dark': (
         'default': black,
         'focus': lighten(black, 11%),
         'hover': #16181c,
+        'invert': #f7f9f9,
       ),
     )
   );
+}
 
-  // --------------------
-  // ACCENT
+//--- accent
+:root {
+  @function get-default-scheme($color) {
+    @return (
+      'default': $color,
+      'hover': lighten($color, 13%),
+      'focus': darken($color, 15%)
+    );
+  }
   @include set-theme-vars(
     $attr-key: accent,
     $base-var-name: accent,
@@ -88,9 +99,10 @@
       'green': get-default-scheme(#00ba7c),
     )
   );
+}
 
-  // --------------------
-  // TEXT COLOR, correspond to `base` config
+//--- text
+:root {
   @include set-theme-vars(
     $attr-key: base,
     $base-var-name: text,
@@ -98,20 +110,24 @@
       'default': (
         'default': #131416,
         'accent': lighten(#0f1419, 35%),
+        'invert': #e7e9ea,
       ),
       'dim': (
         'default': #f1f3f3,
         'accent': #8b98a5,
+        'invert': #131416,
       ),
       'dark': (
         'default': #e7e9ea,
         'accent': #71767b,
+        'invert': #131416,
       ),
     )
   );
+}
 
-  // --------------------
-  // BORDER COLOR, correspond to `base` config
+//--- border
+:root {
   @include set-theme-vars(
     $attr-key: base,
     $base-var-name: border,
@@ -125,9 +141,22 @@
         'accent': lighten(#38444d, 5%),
       ),
       'dark': (
-        'default': #2f3336,
-        'accent': #333639,
+        'default': #36393b,
+        'accent': #2f3336,
       ),
+    )
+  );
+}
+
+//--- overlay
+:root {
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: overlay,
+    $scheme: (
+      'default': #000,
+      'dim': #5b7083,
+      'dark': #5b7083,
     )
   );
 }

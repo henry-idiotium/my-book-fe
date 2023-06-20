@@ -5,3 +5,7 @@
 .wrapper {
   @apply flex items-center justify-center bg-base text-color wh-full;
 }
+
+.img {
+  @apply wh-20;
+}

@@ -1,16 +1,16 @@
 .container {
-  @apply wh-full;
+  @apply wh-full overflow-hidden;
 }
 
 .wrapper {
-  @apply relative w-full min-h-screen mx-auto;
-  @apply grid overflow-hidden;
+  @apply w-full min-h-screen mx-auto
+    grid overflow-hidden;
 
   @screen pmt {
     @apply grid grid-cols-[30fr_600px_36fr];
   }
   @screen xl-max {
-    @apply grid-cols-[minmax(88px,180px)_600px_minmax(310px,800px)];
+    @apply grid-cols-[minmax(88px,150px)_600px_minmax(410px,900px)];
   }
   @screen rsh-max {
     @apply grid-cols-[minmax(88px,200px)_minmax(560px,620px)_minmax(70px,200px)];
@@ -30,13 +30,13 @@
 }
 
 .nav {
-  @apply overflow-hidden border-color;
+  @apply overflow-hidden border-color z-0 wh-full;
 
   @screen pmt {
-    @apply sticky top-0 max-h-screen border-r;
+    @apply border-r;
   }
   @screen pmt-max {
-    @apply fixed bottom-0 max-h-[50.5px] border-t wh-full;
+    @apply border-t fixed bottom-0 max-h-[52.5px];
   }
   @screen md {
     @apply flex justify-end;
@@ -48,5 +48,8 @@
 }
 
 .main {
-  @apply min-h-screen overflow-hidden wh-full sm:col-span-2;
+  @apply max-h-screen w-full h-fit sm:col-span-2;
+
+  overflow-y: auto; // fallback
+  overflow-y: overlay;
 }

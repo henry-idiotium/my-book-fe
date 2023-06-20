@@ -4,27 +4,38 @@
     "plugin:@nx/react",
     "plugin:import/typescript",
     "plugin:import/recommended",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "eslint:recommended",
+    "prettier"
   ],
+  "parserOptions": { "project": "./tsconfig.*" },
   "ignorePatterns": ["!**/*"],
   "overrides": [
     { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
   ],
-  "plugins": ["@nx", "react", "import"],
+  "plugins": ["@nx", "react", "@typescript-eslint", "import"],
   "rules": {
     "react/jsx-no-undef": "off",
     "react/no-children-prop": "off",
     "react/react-in-jsx-scope": "off",
     "react-hooks/exhaustive-deps": "off",
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      { "checksVoidReturn": false }
+    ],
+    "react/display-name": "off",
     "import/default": "off",
     "import/no-named-as-default": "off",
     "import/no-unresolved": "off",
     "import/newline-after-import": "warn",
-    "tailwindcss/no-custom-classname": "off",
     "import/order": [
       "warn",
       { "alphabetize": { "order": "asc" }, "newlines-between": "always" }

@@ -1,52 +1,90 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 const plugin = require('tailwindcss/plugin');
 
-const commonColors = getColor([
-  'accent',
-  'neutral',
-  'info',
-  'success',
-  'warning',
-  'error',
-]);
+const CSS_PREFIX = '--c';
+
+const { common, bg, border, shadow, text } = InitTailwindColorSchema();
 
 module.exports = plugin(() => {}, {
   theme: {
     extend: {
-      backgroundColor: {
-        ...commonColors,
-        base: 'var(--c-base)',
-        'base-focus': 'var(--c-base-focus)',
-        'base-hover': 'var(--c-base-hover)',
-      },
-      textColor: {
-        ...commonColors,
-        color: 'var(--c-text)',
-        'color-accent': 'var(--c-text-accent)',
-      },
-      borderColor: {
-        ...commonColors,
-        color: 'var(--c-border)',
-        'color-accent': 'var(--c-border-accent)',
-      },
-      boxShadowColor: { 'color-base': 'var(--c-base-focus)' },
+      backgroundColor: { ...common, ...bg },
+      textColor: { ...common, ...text },
+      borderColor: { ...common, ...border },
+      boxShadowColor: shadow,
     },
   },
 });
 
-function getColor(names = [''], prefix = '--c-', suffix = '-focus') {
-  const scheme = {};
-  const getValue = (name, suffix) => wrapVar(name, prefix, suffix);
+// init color function
+function InitTailwindColorSchema() {
+  return {
+    common: getTailwindSchema({
+      accent: 'accent',
+      neutral: 'neutral',
+      info: 'info',
+      success: 'success',
+      warning: 'warning',
+      error: 'error',
+      'accent-hover': 'accent-hover',
+      'neutral-hover': 'neutral-hover',
+      'info-hover': 'info-hover',
+      'success-hover': 'success-hover',
+      'warning-hover': 'warning-hover',
+      'error-hover': 'error-hover',
+      'accent-focus': 'accent-focus',
+      'neutral-focus': 'neutral-focus',
+      'info-focus': 'info-focus',
+      'success-focus': 'success-focus',
+      'warning-focus': 'warning-focus',
+      'error-focus': 'error-focus',
+    }),
+    bg: getTailwindSchema({
+      base: 'base',
+      'base-focus': 'base-focus',
+      'base-hover': 'base-hover',
+      'base-invert': 'base-invert',
 
-  names.forEach((name) => {
-    scheme[name] = getValue(name);
-
-    if (suffix) scheme[name + suffix] = getValue(name + suffix);
-  });
-
-  return scheme;
+      // overlay
+      overlay: 'overlay',
+    }),
+    text: getTailwindSchema({
+      color: 'text',
+      'color-accent': 'text-accent',
+      'color-invert': 'text-invert',
+    }),
+    border: getTailwindSchema({
+      color: 'border',
+      'color-accent': 'border-accent',
+    }),
+    shadow: getTailwindSchema({
+      'color-base': 'base-focus',
+      'color-base-focus': 'base-focus',
+      'color-base-hover': 'base-hover',
+    }),
+  };
 }
 
-function wrapVar(name, prefix = '', suffix = '') {
-  const cssVar = prefix + name + suffix;
-  return `var(${cssVar})`;
+// helpers
+/**
+ * @param {object} schema
+ * @returns {object}
+ */
+function getTailwindSchema(schema) {
+  const tailwindSchema = {};
+
+  const getValue = (name) => wrapVar(name);
+
+  for (const [key, value] of Object.entries(schema)) {
+    tailwindSchema[key] = getValue(value);
+  }
+
+  return tailwindSchema;
+}
+function wrapVar(name) {
+  const cssVar = join(CSS_PREFIX, name);
+  return `rgb(var(${cssVar}) / <alpha-value>)`;
+}
+function join(...arr) {
+  return arr.filter(Boolean).join('-');
 }

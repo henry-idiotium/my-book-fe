@@ -1,0 +1,41 @@
+.container {
+  @apply wh-full outline-none items-center p-3 rounded-full hover:bg-base-focus xl-max:w-auto;
+}
+
+.wrapper {
+  @apply flex overflow-hidden tracking-tight;
+}
+
+.avatar {
+  @apply wh-10 shrink-0;
+
+  &-wrapper {
+    @apply w-auto;
+  }
+  &-img {
+    @apply w-10 h-10 rounded-full;
+  }
+}
+
+.info {
+  @apply h-10 w-[65%] xl-max:hidden;
+
+  &-wrapper {
+    @apply h-full flex flex-col justify-between mx-3 gap-1 overflow-hidden;
+
+    span {
+      @apply w-[100%] inline-block overflow-hidden text-ellipsis whitespace-nowrap;
+    }
+  }
+
+  &-name {
+    @apply font-bold text-color leading-none;
+  }
+  &-id {
+    @apply text-color-accent leading-none text-start;
+  }
+}
+
+.more {
+  @apply w-full h-10 flex justify-end items-center xl-max:hidden text-color;
+}

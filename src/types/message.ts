@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { getZodDefault } from '@/utils';
-
+export type MessageEntity = z.infer<typeof messageZod>;
 export const messageZod = z.object({
   id: z.string(),
   content: z.string().nullable(),
@@ -9,6 +8,3 @@ export const messageZod = z.object({
   isEdited: z.boolean(),
   at: z.date(),
 });
-
-export const defaultMessage = getZodDefault(messageZod);
-export type MessageEntity = z.infer<typeof messageZod>;

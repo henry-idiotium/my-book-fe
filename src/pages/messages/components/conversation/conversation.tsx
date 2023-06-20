@@ -1,46 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
 
 import styles from './conversation.module.scss';
+import { useConvoEventHandlers } from './event-handlers';
 
-import loadingMessages from '@/components/loading-screen/loading-messages';
 import { useDispatch, useSelector } from '@/hooks';
 import {
   chatSocketActions as actions,
-  chatSocketRecord,
+  ChatSocketRecord as SocketRecord,
   selectAuth,
   selectChatSocketById,
 } from '@/stores';
-import { ChatSocket, chatSocketEvents as events } from '@/types';
+import { chatSocketEvents as events } from '@/types';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ConversationProps {
-  // id: string;
-}
-
-// eslint-disable-next-line no-empty-pattern
-export function Conversation({}: ConversationProps) {
-  const { convoId: id = '' } = useParams();
-
-  const { user, token } = useSelector(selectAuth);
-  const chatSocketState = useSelector(selectChatSocketById(id));
+// note: take a lock into "Wysiwyg Editor", for typing message
+export function Conversation() {
   const dispatch = useDispatch();
 
+  const { convoId: id = '' } = useParams();
+
+  const { sendMessage, updateMessage, deleteMessage } =
+    useConvoEventHandlers(id);
+
+  const { token } = useSelector(selectAuth);
+  const chatSocketState = useSelector(selectChatSocketById(id));
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // init socket
   useEffect(() => {
     if (chatSocketState) return;
 
-    // init socket
-    const socket: ChatSocket = io(
-      `${import.meta.env.VITE_SERVER_URL}/chatbox`,
-      {
-        query: { chatboxId: id },
-        extraHeaders: { Authorization: token },
-      }
-    );
-
-    // add socket to current state holder
-    chatSocketRecord[id] = socket; // add socket object into record
+    const socket = SocketRecord.getOrConnect(id, token);
 
     // init listeners
     socket.on(events.userConnected.name, ({ chatbox, userActiveCount }) => {
@@ -60,7 +51,7 @@ export function Conversation({}: ConversationProps) {
         if (import.meta.env.DEV) console.log(err);
       });
 
-      dispatch(actions.userConnected({ chatbox, userActiveCount }));
+      dispatch(actions.connectUser({ chatbox, userActiveCount }));
     });
 
     socket.on(events.messageReceived.name, (payload) => {
@@ -77,128 +68,85 @@ export function Conversation({}: ConversationProps) {
     });
 
     return () => {
-      socket.off(); // clear up listeners
-      delete chatSocketRecord[id];
+      socket.off();
+      SocketRecord.remove(id);
     };
   }, []);
 
-  function sendMessage() {
-    const socket = chatSocketRecord[id];
-    if (!socket?.connected) return;
+  useEffect(() => {
+    if (!chatSocketState) {
+      setTimeout(() => setIsLoading(false), 5000);
+    } else {
+      setIsLoading(false);
+    }
+  }, [chatSocketState]);
 
-    const index = Math.floor(Math.random() * loadingMessages.length);
-    const content = loadingMessages[index];
+  if (isLoading) return <div>loading...</div>;
 
-    socket.emit(events.messageSent.name, {
-      chatboxId: id,
-      isGroup: false,
-      content,
-    });
+  const convo = chatSocketState?.conversation;
 
-    dispatch(actions.messagePending({ convoId: id, content }));
-  }
+  return <div className={styles.container}></div>;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const updateMessage = (messageId: string, content: string) => {
-    const socket = chatSocketRecord[id];
-    if (!socket?.connected) return;
+  // return (
+  //   <div className={styles.container}>
+  //     {/* all users */}
+  //     <div className="border-sky-500 border p-4">
+  //       <span className="flex items-center">
+  //         <h1>Between:({convo.conversationBetween?.length ?? 0}): </h1>
+  //         {convo.conversationBetween?.map((member, index) => (
+  //           <span
+  //             key={index}
+  //             className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
+  //           >
+  //             {member.alias}
+  //           </span>
+  //         ))}
+  //       </span>
+  //     </div>
 
-    socket.emit(events.messageUpdating.name, {
-      content: content + 'edited',
-      id,
-      chatboxId: id,
-      isGroup: false,
-    });
+  //     {/* currently online count  */}
+  //     <div className="border border-red-500 p-4">
+  //       <h1>Currently online: {chatSocketState.userActiveCount}</h1>
+  //       {Object.values(chatSocketState.users).map((user, index) => (
+  //         <span
+  //           key={index}
+  //           className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
+  //         >
+  //           {user.alias}
+  //         </span>
+  //       ))}
+  //     </div>
 
-    dispatch(
-      actions.messageUpdated({
-        convoId: id,
-        content: content + 'edited',
-        id: messageId,
-      })
-    );
-  };
+  //     {/* user info (optional) */}
+  //     <div className="border border-green-500 p-4">
+  //       <h1>Your info</h1>
+  //       <p>id - name - email - role</p>
+  //       <p>
+  //         {user.id} - {`${user.firstName} ${user.lastName}`} - {user.email} -{' '}
+  //         {user.role.name}
+  //       </p>
+  //     </div>
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const deleteMessage = (messageId: string) => {
-    const socket = chatSocketRecord[id];
-    if (!socket?.connected) return;
+  //     {/* send message button */}
+  //     <button
+  //       className="rounded border border-blue-500 bg-transparent px-4 py-2 font-semibold text-blue-700 hover:border-transparent hover:bg-blue-500 hover:text-white"
+  //       onClick={sendMessage}
+  //     >
+  //       Send message
+  //     </button>
 
-    socket.emit(events.messageDeleting.name, {
-      id: messageId,
-      chatboxId: id,
-      isGroup: false,
-    });
-  };
-
-  // note: this is can be either loading or error
-  if (!chatSocketState)
-    return <>Something went wrong!!! or maybe it's loading...!</>;
-
-  const convo = chatSocketState.conversation;
-
-  /**
-   * todo: add styles to:
-   * - the error "state not exists" above
-   * - laoding into conversation
-   */
-
-  return (
-    <div className={styles.container}>
-      <div className="border-sky-500 border p-4">
-        <span className="flex items-center">
-          <h1>Between:({convo.conversationBetween?.length ?? 0}): </h1>
-          {convo.conversationBetween?.map((member, index) => (
-            <span
-              key={index}
-              className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
-            >
-              {member.alias}
-            </span>
-          ))}
-        </span>
-      </div>
-
-      <div className="border border-red-500 p-4">
-        <h1>Currently online: {chatSocketState.userActiveCount}</h1>
-        {Object.values(chatSocketState.users).map((user, index) => (
-          <span
-            key={index}
-            className="border-violet-300 bg-violet-600 border-2 bg-clip-border p-1"
-          >
-            {user.alias}
-          </span>
-        ))}
-      </div>
-
-      <div className="border border-green-500 p-4">
-        <h1>Your info</h1>
-        <p>id - name - email - role</p>
-        <p>
-          {user.id} - {`${user.firstName} ${user.lastName}`} - {user.email} -{' '}
-          {user.role.name}
-        </p>
-      </div>
-
-      <button
-        className="rounded border border-blue-500 bg-transparent px-4 py-2 font-semibold text-blue-700 hover:border-transparent hover:bg-blue-500 hover:text-white"
-        onClick={sendMessage}
-      >
-        Send message
-      </button>
-
-      <div>
-        {chatSocketState.messages.map((e) => (
-          <div key={e.id} color={e.from === user.id ? 'blue' : 'black'}>
-            {e.content} by {e.from !== user.id ? e.from : 'you'} (at{' '}
-            {new Date(e.at).toDateString()})
-          </div>
-        ))}
-        <div color="blue">{chatSocketState.messagePending}</div>
-      </div>
-    </div>
-  );
+  //     {/* messsage display */}
+  //     <div>
+  //       {chatSocketState.messages.map((e) => (
+  //         <div key={e.id} color={e.from === user.id ? 'blue' : 'black'}>
+  //           {e.content} by {e.from !== user.id ? e.from : 'you'} (at{' '}
+  //           {new Date(e.at).toDateString()})
+  //         </div>
+  //       ))}
+  //       <div color="blue">{chatSocketState.messagePending}</div>
+  //     </div>
+  //   </div>
+  // );
 }
 
 export default Conversation;
-export * from './empty-conversation';
