@@ -1,6 +1,9 @@
 /* eslint-disable
   padding-line-between-statements,
-  @typescript-eslint/no-explicit-any
+  @typescript-eslint/no-explicit-any,
+  @typescript-eslint/no-unsafe-return,
+  @typescript-eslint/no-unsafe-argument,
+  @typescript-eslint/no-unsafe-member-access,
 */
 
 import { z } from 'zod';
@@ -11,8 +14,9 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
   // is it a ZodEffect?
   if (schema instanceof z.ZodEffects) {
     // is it a recursive ZodEffect?
-    if (schema.innerType() instanceof z.ZodEffects)
+    if (schema.innerType() instanceof z.ZodEffects) {
       return getZodDefault(schema.innerType());
+    }
 
     // return schema inner shape as a fresh zodObject
     return getZodDefault(z.ZodObject.create(schema.innerType().shape));

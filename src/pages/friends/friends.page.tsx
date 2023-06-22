@@ -1,8 +1,10 @@
-import { usePageMeta } from '@/hooks';
+import { PageMeta } from '@/components';
 
 export function Friends() {
-  usePageMeta({ title: 'Friends', auth: { type: 'private' } });
-
-  return <>This is Friends page!!</>;
+  return (
+    <PageMeta title="Friends" auth={{ type: 'private' }}>
+      <div>This is Friends page!!</div>
+    </PageMeta>
+  );
 }
 export default Friends;

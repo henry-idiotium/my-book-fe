@@ -9,9 +9,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import App from './app';
 
 import { setupStore } from '@/stores';
-import { setDocumentTitle } from '@/utils';
-
-setDocumentTitle();
 
 const store = setupStore();
 const persistor = persistStore(store);

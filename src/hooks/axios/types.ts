@@ -18,7 +18,7 @@ type HTTPMethod = Extract<keyof AxiosInstance, Method>;
 export type UseAxiosRequestConfig<
   TBody = unknown,
   TRequestMethod extends keyof AxiosInstance = HTTPMethod
-> = AxiosRequestConfig<TBody> & { method: TRequestMethod };
+> = AxiosRequestConfig<TBody> & { method?: TRequestMethod };
 
 /**
  * Used in useAxios parameters for config.

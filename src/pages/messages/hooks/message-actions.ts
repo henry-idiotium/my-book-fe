@@ -1,17 +1,14 @@
 import loadingMessages from '@/components/loading-screen/loading-messages';
 import { useDispatch } from '@/hooks';
-import {
-  chatSocketActions as actions,
-  ChatSocketRecord as SocketRecord,
-} from '@/stores';
+import { chatSocketActions as actions, chatSocketMap } from '@/stores';
 import { chatSocketEvents as events } from '@/types';
 
-export function useConvoEventHandlers(id: string) {
+export function useMessageActions(id: string) {
   const dispatch = useDispatch();
 
   return {
     sendMessage() {
-      const socket = SocketRecord.get(id);
+      const socket = chatSocketMap.get(id);
       if (!socket?.connected) return;
 
       const index = Math.floor(Math.random() * loadingMessages.length);
@@ -27,7 +24,7 @@ export function useConvoEventHandlers(id: string) {
     },
 
     updateMessage(messageId: string, content: string) {
-      const socket = SocketRecord.get(id);
+      const socket = chatSocketMap.get(id);
       if (!socket?.connected) return;
 
       socket.emit(events.messageUpdating.name, {
@@ -47,7 +44,7 @@ export function useConvoEventHandlers(id: string) {
     },
 
     deleteMessage(messageId: string) {
-      const socket = SocketRecord.get(id);
+      const socket = chatSocketMap.get(id);
       if (!socket?.connected) return;
 
       socket.emit(events.messageDeleting.name, {

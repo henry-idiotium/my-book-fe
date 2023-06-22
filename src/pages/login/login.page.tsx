@@ -1,29 +1,31 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import { usePageMeta, useSelector } from '@/hooks';
-import { useLoginMutation, useLogoutMutation } from '@/stores/auth/auth.api';
+import styles from './login.page.module.scss';
+
+import { Button, PageMeta } from '@/components';
+import { useLocation, useSelector } from '@/hooks';
+import { useLoginMutation } from '@/stores/auth/auth.api';
 import { selectAuth } from '@/stores/auth/auth.slice';
 import { LoginForm, loginFormZod } from '@/types';
 
 export function Login() {
-  usePageMeta({ title: 'Login', auth: { type: 'public' } });
-
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, token } = useSelector(selectAuth);
+  const { token } = useSelector(selectAuth);
 
   const [login, { isSuccess, isError, isLoading }] = useLoginMutation();
-  const [logout] = useLogoutMutation();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({ resolver: zodResolver(loginFormZod) });
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginFormZod),
+  });
 
   useEffect(() => {
     if (!isSuccess || !token) return;
@@ -33,53 +35,92 @@ export function Login() {
   }, [isSuccess, token, isError, isLoading]);
 
   const onSubmit: SubmitHandler<LoginForm> = async (data, event) => {
-    event?.preventDefault();
     await login(data);
   };
 
+  // return (
+  //   <PageMeta title="Login" auth={{ type: 'public' }}>
+  //     <Form.Root className="w-64" onSubmit={handleSubmit(onSubmit)}>
+  //       <Form.Field name="email" className="mb-[10px] grid">
+  //         <div className="flex items-baseline justify-between">
+  //           <Form.Label className={styles.formInputLabel}>Email</Form.Label>
+
+  //           {errors.email ? (
+  //             <div className={styles.formInputMessage}>
+  //               {errors.email.message}
+  //             </div>
+  //           ) : null}
+  //         </div>
+
+  //         <Form.Control asChild>
+  //           <input
+  //             {...register('email')}
+  //             required
+  //             type="email"
+  //             className={styles.formInput}
+  //           />
+  //         </Form.Control>
+  //       </Form.Field>
+
+  //       <Form.Submit asChild>
+  //         <Button type="submit" className="h-12 w-32">
+  //           Submit
+  //         </Button>
+  //       </Form.Submit>
+  //     </Form.Root>
+  //   </PageMeta>
+  // );
+
   return (
-    <>
-      <button onClick={() => console.log(user)}>clg user|</button>
-      <button onClick={() => logout(undefined)}>logout</button>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <PageMeta title="Login" auth={{ type: 'public' }}>
+      <form className="w-64" onSubmit={handleSubmit(onSubmit)}>
         <div>
-          <label htmlFor="email">Email</label>
+          <div>
+            <label htmlFor="email" className={styles.formInputLabel}>
+              Email
+            </label>
+
+            {errors.email && (
+              <p className={styles.formInputMessage}>{errors.email.message}</p>
+            )}
+          </div>
+
           <input
             id="email"
             placeholder="Email"
             type="email"
             {...register('email')}
+            className={styles.formInput}
           />
-          {errors.email && (
-            <p className="mt-2 text-xs italic text-red-500">
-              {errors.email.message}
-            </p>
-          )}
         </div>
+
         <div>
-          <label htmlFor="password">Password</label>
+          <div>
+            <label htmlFor="password" className={styles.formInputLabel}>
+              Password
+            </label>
+
+            {errors.password && (
+              <p className={styles.formInputMessage}>
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
           <input
             id="password"
             placeholder="Password"
             type="password"
             {...register('password')}
+            className={styles.formInput}
           />
-          {errors.password && (
-            <p className="mt-2 text-xs italic text-red-500">
-              {errors.password.message}
-            </p>
-          )}
         </div>
 
-        <div>
-          <button type="submit">Login</button>
-        </div>
-        <hr />
-        <div>
-          <a href="/">Forgot Password?</a>
-        </div>
+        <Button type="submit" className="my-6 w-32">
+          Login
+        </Button>
       </form>
-    </>
+    </PageMeta>
   );
 }
 

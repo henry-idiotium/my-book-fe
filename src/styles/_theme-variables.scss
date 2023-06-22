@@ -135,14 +135,17 @@
       'default': (
         'default': #fff,
         'accent': darken(#fff, 10%),
+        'emphasis': #cfd9de,
       ),
       'dim': (
         'default': #38444d,
         'accent': lighten(#38444d, 5%),
+        'emphasis': #536471,
       ),
       'dark': (
         'default': #36393b,
         'accent': #2f3336,
+        'emphasis': #536471,
       ),
     )
   );

@@ -1,0 +1,26 @@
+.container {
+  @apply flex flex-col items-center justify-center
+    wh-full;
+}
+
+.wrapper {
+  @apply flex max-w-[330px] flex-col gap-1;
+}
+
+.indicator {
+  @apply w-auto;
+
+  &-title {
+    @apply text-3xl font-bold;
+  }
+  &-description {
+    @apply text-sm text-color-accent;
+  }
+}
+
+.new-msg {
+  @apply h-[54px] w-44 mt-7
+    rounded-full
+    text-base normal-case tracking-wide
+    bg-accent;
+}

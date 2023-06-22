@@ -5,3 +5,4 @@ export * from './popover/popover';
 export * from './dialog/dialog';
 export * from './button/button';
 export * from './avatar/avatar';
+export * from './page-meta/page-meta';

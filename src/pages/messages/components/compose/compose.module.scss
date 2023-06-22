@@ -1,26 +1,107 @@
 .container {
-  @apply flex flex-col items-center justify-center
-    wh-full;
+  @apply w-[600px] h-[650px] flex flex-col;
 }
 
-.wrapper {
-  @apply flex max-w-[330px] flex-col gap-1;
-}
+.top-section {
+  @apply flex items-center shrink-0
+    pl-2 pr-4 h-14;
 
-.indicator {
-  @apply w-auto;
+  &-back {
+    @apply wh-9 mr-8 rounded-full
+      flex items-center justify-center
+      hover:bg-base-hover;
+
+    > svg {
+      @apply text-color wh-[18px] stroke-[.6];
+    }
+  }
 
   &-title {
-    @apply text-3xl font-bold;
+    @apply flex flex-col leading-[22px];
+
+    &-primary {
+      @apply text-xl font-bold;
+    }
+    &-seconday {
+      @apply text-[13px] text-color-accent tracking-wide;
+    }
   }
-  &-description {
-    @apply text-sm text-color-accent;
+
+  &-next {
+    @apply mr-0 ml-auto px-4 py-[10px]
+      flex items-center justify-center
+      text-sm font-bold text-color-invert leading-3
+      bg-base-invert rounded-full;
+
+    &:disabled {
+      @apply bg-base-invert/50 cursor-default;
+    }
   }
 }
 
-.new-msg {
-  @apply h-[54px] w-44 mt-7
-    rounded-full
-    text-base normal-case tracking-wide
-    bg-accent;
+.bottom-section {
+  @apply w-full h-[calc(100%-64px)] flex flex-col;
+
+  &-search {
+    @apply w-full h-11 px-5 mb-1
+      flex items-center gap-[10px];
+
+    &:focus-within {
+      .bottom-section-search-icon {
+        @apply text-accent-focus;
+      }
+    }
+
+    &-icon {
+      @apply wh-5 text-color-accent
+        transition;
+    }
+
+    &-input {
+      @apply wh-full bg-base p-3
+        text-color;
+
+      &::placeholder {
+        @apply text-color-accent;
+      }
+    }
+  }
+
+  &-group {
+    @apply w-full px-3 py-4
+      flex items-center
+      bg-base hover:bg-base-hover/70 focus:bg-base-hover
+      border-y border-color-accent
+      transition-all;
+
+    &-icon {
+      @apply wh-11 text-accent
+        flex items-center justify-center
+        rounded-full border border-color-emphasis;
+      > svg {
+        @apply wh-6 rounded-full;
+      }
+    }
+
+    &-content {
+      @apply text-accent font-bold
+        px-4;
+    }
+  }
+
+  &-chosen-friends {
+    @apply w-full px-2 py-2
+      flex flex-wrap gap-2
+      border-b border-color-accent;
+  }
+
+  &-current-friends {
+    @apply wh-full overflow-auto;
+
+    &-load-more {
+      @apply w-full h-14 my-4
+        text-accent
+        border-y border-accent;
+    }
+  }
 }

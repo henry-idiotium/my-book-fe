@@ -56,6 +56,7 @@ function InitTailwindColorSchema() {
     border: getTailwindSchema({
       color: 'border',
       'color-accent': 'border-accent',
+      'color-emphasis': 'border-emphasis',
     }),
     shadow: getTailwindSchema({
       'color-base': 'base-focus',

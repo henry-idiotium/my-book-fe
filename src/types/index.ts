@@ -1,5 +1,6 @@
 export * from './conversations';
 export * from './login-form';
+export * from './register-form';
 export * from './message';
 export * from './product';
 export * from './redux';

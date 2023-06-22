@@ -1,5 +1,4 @@
 import {
-  EntityState,
   createEntityAdapter,
   createSelector,
   createSlice,
@@ -15,11 +14,9 @@ import { Convo, getZodDefault } from '@/utils';
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
 const adapter = createEntityAdapter<ChatSocketEntity>();
-const initialState: EntityState<ChatSocketEntity> = adapter.getInitialState();
+const initialState = adapter.getInitialState();
 const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);
 
-// note: debug to see if this works or not
-// also, remember to delete all unecessary comments
 const chatSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
@@ -27,20 +24,23 @@ const chatSlice = createSlice({
     connectUser: (state, action: Payload.User.Connected) => {
       const { chatbox, userActiveCount } = action.payload;
 
-      // clear messages in chatbox, and put it at base-level-props in the store.
+      const isGroup = Convo.isGroup(chatbox);
+
+      // clear messages in chatbox, and put it at base-level-props in the store
       const messages = structuredClone(chatbox.messages ?? []);
       delete chatbox.messages;
 
-      // extract users from pair or group conversations
+      // extract users
       const users = Object.fromEntries(
-        !Convo.isGroup(chatbox)
-          ? chatbox.conversationBetween.map((user) => [user.id, user])
-          : chatbox.members?.map((user) => [user.id, user]) ?? []
+        (!isGroup ? chatbox.conversationBetween : chatbox.members ?? []).map(
+          (user) => [user.id, user]
+        )
       );
-      // extract convo obj from pair or group conversations
-      const convo: Partial<ChatSocketEntity> = Convo.isGroup(chatbox)
-        ? { conversationGroup: chatbox }
-        : { conversation: chatbox };
+
+      // extract conversation
+      const convo = {
+        [isGroup ? 'conversationGroup' : 'conversation']: chatbox,
+      };
 
       state.entities[chatbox.id] = {
         ...initialChatSocketEntity,
@@ -50,19 +50,17 @@ const chatSlice = createSlice({
         userActiveCount,
       };
     },
+
     userDisconnected: (state, action: Payload.User.Disconnected) => {
       const { userId, convoId } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      // remove user
       delete entity.users[userId];
       entity.userActiveCount -= 1;
-
-      // update state
-      state.entities[convoId] = entity;
     },
+
     userJoined: (state, action: Payload.User.Joined) => {
       const { userActiveCount, userJoinedId, convoId } = action.payload;
 
@@ -75,6 +73,7 @@ const chatSlice = createSlice({
       activeUser.metadata.isActive = true;
       entity.userActiveCount = userActiveCount;
     },
+
     messageReceived: (state, action: Payload.Message.Received) => {
       const { convoId, ...message } = action.payload;
 
@@ -84,6 +83,7 @@ const chatSlice = createSlice({
       entity.messages = [...entity.messages, message];
       entity.messagePending = null;
     },
+
     messagePending: (state, action: Payload.Message.Pending) => {
       const { convoId, content } = action.payload;
 
@@ -92,26 +92,36 @@ const chatSlice = createSlice({
 
       entity.messagePending = content;
     },
+
     messageDeleted: (state, action: Payload.Message.Deleted) => {
       const { convoId, id } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      entity.messages = entity.messages.map((msg) =>
-        msg.id === id ? { ...msg, content: null } : msg
-      );
+      const messageId = entity.messages.findIndex((m) => m.id === id);
+      if (messageId === -1) return;
+
+      entity.messages[messageId] = {
+        ...entity.messages[messageId],
+        content: null,
+      };
     },
+
     messageUpdated: (state, action: Payload.Message.Updated) => {
       const { convoId, id, content } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      entity.messages = entity.messages.map((e) => {
-        if (e.id === id) return { ...e, content: content, isEdited: true };
-        return e;
-      });
+      const messageId = entity.messages.findIndex((m) => m.id === id);
+      if (messageId === -1) return;
+
+      entity.messages[messageId] = {
+        ...entity.messages[messageId],
+        isEdited: true,
+        content,
+      };
     },
   },
 });
@@ -129,4 +139,4 @@ export const selectChatSocketTotal = createSelector(stateSelector, selectTotal);
 export const selectChatSocketById = (id: ChatSocketEntity['convoId']) =>
   createSelector(stateSelector, (state) => selectById(state, id));
 
-export * from './chat-socket.record';
+export * from './chat-socket.map';

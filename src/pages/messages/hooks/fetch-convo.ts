@@ -1,42 +1,30 @@
-import { AxiosError } from 'axios';
-
-import { ChatboxEntry } from '../components';
-
 import { useAxios } from '@/hooks/axios/axios';
 import { ConversationEntity, ConversationGroupEntity } from '@/types';
+import { nonNullable } from '@/utils';
 
-type Result = [
-  { data: ChatboxEntry[]; loadings: boolean; errors: AxiosError[] },
-  () => Promise<void>
-];
-
-export function useFetchConversations(): Result {
-  // chats between two
+export function useFetchChats() {
   const [
-    { data: convoData = [], loading: convoLoading, error: convoError },
-    fetchConvos,
+    { data: chats = [], loading: chatLoading, error: chatError },
+    fetchChats,
   ] = useAxios<ConversationEntity[]>(`/conversations`);
 
-  // chats between multiple, or group
   const [
-    { data: groupData = [], loading: groupLoading, error: groupError },
-    fetchConvoGroups,
+    { data: groupChats = [], loading: groupChatLoading, error: groupChatError },
+    fetchGroupChats,
   ] = useAxios<ConversationGroupEntity[]>(`/chatboxes`);
 
-  const response: Result['0'] = {
-    data: [...convoData, ...groupData],
-    loadings: convoLoading || groupLoading,
-    errors: [convoError, groupError].filter(
-      (e): e is AxiosError => e !== undefined
-    ),
+  const response = {
+    chatEntries: [...chats, ...groupChats],
+    chatEntriesLoading: chatLoading || groupChatLoading,
+    chatEntriesErrors: [chatError, groupChatError].filter(nonNullable),
   };
 
   async function refetch() {
-    await fetchConvos();
-    await fetchConvoGroups();
+    await fetchGroupChats();
+    await fetchChats();
   }
 
-  return [response, refetch];
+  return [response, refetch] as const;
 }
 
-export default useFetchConversations;
+export default useFetchChats;

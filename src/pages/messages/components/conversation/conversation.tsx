@@ -1,91 +1,71 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import styles from './conversation.module.scss';
-import { useConvoEventHandlers } from './event-handlers';
+import { useChatSocketConnection, useMessageActions } from '../../hooks';
 
+import styles from './conversation.module.scss';
+
+import UserImg from '@/assets/account-image.jpg';
 import { useDispatch, useSelector } from '@/hooks';
 import {
   chatSocketActions as actions,
-  ChatSocketRecord as SocketRecord,
+  chatSocketMap,
+  getOrConnectChatSocket,
   selectAuth,
   selectChatSocketById,
 } from '@/stores';
-import { chatSocketEvents as events } from '@/types';
+import {
+  chatSocketEvents as events,
+  Conversation as ConvoUnionType,
+  MinimalUserEntity,
+  ChatSocketEntity,
+} from '@/types';
+import { Convo, User } from '@/utils';
 
 // note: take a lock into "Wysiwyg Editor", for typing message
 export function Conversation() {
   const dispatch = useDispatch();
 
-  const { convoId: id = '' } = useParams();
+  const { id = '' } = useParams();
 
-  const { sendMessage, updateMessage, deleteMessage } =
-    useConvoEventHandlers(id);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { sendMessage, updateMessage, deleteMessage } = useMessageActions(id);
 
-  const { token } = useSelector(selectAuth);
-  const chatSocketState = useSelector(selectChatSocketById(id));
+  const { user: mainUser, token } = useSelector(selectAuth);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const { state: socketState, loading: socketLoading } =
+    useChatSocketConnection(id);
 
-  // init socket
-  useEffect(() => {
-    if (chatSocketState) return;
+  if (socketLoading) return <div>loading...</div>;
 
-    const socket = SocketRecord.getOrConnect(id, token);
+  const convo = extractUnionConvo(socketState);
+  const titleName = extractTitleName(convo);
+  const members = filterMembers(convo, mainUser.id);
 
-    // init listeners
-    socket.on(events.userConnected.name, ({ chatbox, userActiveCount }) => {
-      socket.off(events.userConnected.name);
+  return (
+    <div className={styles.container}>
+      <div className={styles.topbar}>
+        <div className={styles.topbarConvoImg}>
+          <img src={UserImg} alt="conversation display" />
+        </div>
 
-      socket.on(events.userJoined.name, ({ userActiveCount, userJoinedId }) => {
-        dispatch(
-          actions.userJoined({ convoId: id, userActiveCount, userJoinedId })
-        );
-      });
+        <div className={styles.topbarConvoTitle}>
+          <span>{titleName}</span>
+        </div>
+        {/* action options */}
+      </div>
 
-      socket.on(events.userDisconnected.name, ({ id: userId }) => {
-        dispatch(actions.userDisconnected({ convoId: id, userId }));
-      });
+      <div className={styles.content}>
+        {/* content: the big one
+        - RENDER startup if not past limit of 15 messages
+        - but scroll up to the first message will prompt it to RENDER
+      */}
+      </div>
 
-      socket.on(events.exception.name, (err) => {
-        if (import.meta.env.DEV) console.log(err);
-      });
-
-      dispatch(actions.connectUser({ chatbox, userActiveCount }));
-    });
-
-    socket.on(events.messageReceived.name, (payload) => {
-      dispatch(actions.messageReceived({ ...payload, convoId: id }));
-      dispatch(actions.messagePending({ convoId: id, content: null }));
-    });
-
-    socket.on(events.messageDeleted.name, ({ id: msgId }) => {
-      dispatch(actions.messageDeleted({ convoId: id, id: msgId }));
-    });
-
-    socket.on(events.messageUpdated.name, ({ content, id: msgId }) => {
-      dispatch(actions.messageUpdated({ convoId: id, id: msgId, content }));
-    });
-
-    return () => {
-      socket.off();
-      SocketRecord.remove(id);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!chatSocketState) {
-      setTimeout(() => setIsLoading(false), 5000);
-    } else {
-      setIsLoading(false);
-    }
-  }, [chatSocketState]);
-
-  if (isLoading) return <div>loading...</div>;
-
-  const convo = chatSocketState?.conversation;
-
-  return <div className={styles.container}></div>;
+      <div className={styles.compose}></div>
+      {/* compose editor */}
+    </div>
+  );
 
   // return (
   //   <div className={styles.container}>
@@ -150,3 +130,56 @@ export function Conversation() {
 }
 
 export default Conversation;
+
+// todo: chat socket redux state, merge convo and convoGroup then flat
+//      them to the base props level
+
+//#region hooks
+// function use
+//#endregion
+
+//#region utils
+// todo: refactor, duplicate logic with chat entry
+function extractUnionConvo(state: ChatSocketEntity) {
+  const { convoId, conversation, conversationGroup } = state;
+  const convo = {
+    id: convoId,
+    ...conversation,
+    ...conversationGroup,
+  } satisfies ConvoUnionType;
+
+  return convo;
+}
+
+function extractTitleName(
+  convo: ConvoUnionType,
+  members?: MinimalUserEntity[]
+) {
+  if (!Convo.isGroup(convo)) {
+    const interculator = members?.at(0);
+    return interculator ? User.getFullName(interculator) : '[interlocutor]';
+  }
+  return convo.name;
+}
+
+function filterMembers(convo: ConvoUnionType, mainUserId: number) {
+  const unfiltedMembers = !Convo.isGroup(convo)
+    ? convo.conversationBetween
+    : convo.members;
+
+  return unfiltedMembers?.filter((m) => m.id !== mainUserId);
+}
+
+/* function getLatestMessage(messages?: MessageEntity[]) {
+  if (!messages || !messages.length) return;
+
+  const latestMsg = messages.reduce((former, latter) =>
+    former.at > latter.at ? former : latter
+  );
+
+  return {
+    ...latestMsg,
+    at: formatTimeReadable(latestMsg.at),
+  };
+} */
+//#endregion

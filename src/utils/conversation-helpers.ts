@@ -1,8 +1,5 @@
-import { ChatboxEntry } from '@/pages/messages/components';
-import { ConversationGroupEntity } from '@/types';
+import { Conversation, ConversationGroupEntity } from '@/types';
 
-export function isGroup(
-  chatbox: ChatboxEntry
-): chatbox is ConversationGroupEntity {
-  return 'admin' in chatbox;
+export function isGroup(convo: Conversation): convo is ConversationGroupEntity {
+  return 'admin' in convo && !!convo.admin;
 }

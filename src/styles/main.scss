@@ -48,13 +48,14 @@ button {
 }
 
 // prettier-ignore
-::-webkit-scrollbar {
+*::-webkit-scrollbar {
   @apply wh-[10px];
 
-  @screen xl { @apply wh-[13px]; }
-  @screen rsh-max { @apply wh-[7px]; }
-  @screen md-max { @apply wh-[5px]; }
-  @screen pmt-max { @apply wh-[3px]; }
+  @screen 2xl-max { @apply wh-[8px]; }
+  @screen xl-max { @apply wh-[7px]; }
+  @screen rsh-max { @apply wh-[5px]; }
+  @screen md-max { @apply wh-[4px]; }
+  @screen pmt-max { @apply wh-[2px]; }
 
   &-track { @apply border-[4px_solid_tranparent]; }
   &-corner { @apply bg-transparent; }

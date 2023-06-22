@@ -21,27 +21,27 @@ import { NavBar } from './nav-bar/nav-bar';
 import { NavItemProps } from './nav-bar/nav-item/nav-item';
 import styles from './root.layout.module.scss';
 
-import { usePageMeta } from '@/hooks';
+import { PageMeta } from '@/components';
 
 export function Root() {
-  usePageMeta();
-
   const navItems = getNavItems();
 
   return (
-    <div className={styles.container}>
-      <div className={styles.wrapper}>
-        <nav className={styles.nav}>
-          <div className={styles.navWrapper}>
-            <NavBar scheme={navItems} />
-          </div>
-        </nav>
+    <PageMeta title="" auth={{ type: 'custom' }}>
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <nav className={styles.nav}>
+            <div className={styles.navWrapper}>
+              <NavBar scheme={navItems} />
+            </div>
+          </nav>
 
-        <main className={styles.main}>
-          <Outlet />
-        </main>
+          <main className={styles.main}>
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+    </PageMeta>
   );
 }
 export default Root;

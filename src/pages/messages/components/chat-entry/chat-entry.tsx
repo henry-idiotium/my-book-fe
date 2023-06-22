@@ -1,34 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import styles from './chat-entry.module.scss';
 
 import UserImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
 import { selectAuth, selectChatSocketById } from '@/stores';
-import {
-  ConversationEntity,
-  ConversationGroupEntity,
-  MessageEntity,
-  MinimalUserEntity,
-} from '@/types';
-import { User, formatTimeReadable } from '@/utils';
-
-export type ChatboxEntry = PartialPick<
-  ConversationEntity,
-  'conversationBetween'
-> &
-  PartialPick<ConversationGroupEntity, 'admin' | 'name'>;
+import { Conversation, MessageEntity, MinimalUserEntity } from '@/types';
+import { Convo, User, formatTimeReadable } from '@/utils';
 
 export type ChatEntryProps = {
-  entry: ChatboxEntry;
-  handleOpenConversation?: () => void;
+  entry: Conversation;
+  openConvo?: () => void;
 };
 
 export function ChatEntry(props: ChatEntryProps) {
-  const { entry, handleOpenConversation } = props;
-
-  const param = useParams();
+  const { entry, openConvo } = props;
 
   const { user: mainUser } = useSelector(selectAuth);
   const chatSocketState = useSelector(selectChatSocketById(entry.id));
@@ -45,18 +31,14 @@ export function ChatEntry(props: ChatEntryProps) {
     const newlyGetLatestMessage = getLatestMessage(chatSocketState.messages);
 
     setLatestMessage(newlyGetLatestMessage);
-  }, [param, chatSocketState?.messages]);
+  }, [chatSocketState?.messages]);
 
   const members = filterMembers(entry, mainUser.id);
   const entryName = getEntryName(entry, members);
   const oppositeTalker = members?.at(0);
 
   return (
-    <button
-      className={styles.container}
-      type="button"
-      onClick={handleOpenConversation}
-    >
+    <button className={styles.container} type="button" onClick={openConvo}>
       <div className={styles.wrapper}>
         <div className={styles.chatIcon}>
           <img src={UserImage} alt="chat profile" />
@@ -95,13 +77,16 @@ export function ChatEntry(props: ChatEntryProps) {
 
 export default ChatEntry;
 
-function getEntryName(entry: ChatboxEntry, members?: MinimalUserEntity[]) {
-  return !entry.admin
-    ? User.extractFullName(members?.at(0))
-    : members?.map((m) => User.extractFullName(m)).join(', ') ?? '';
+// todo: refactor, duplicate logic with conversation
+function getEntryName(entry: Conversation, members?: MinimalUserEntity[]) {
+  if (!Convo.isGroup(entry)) {
+    const interculator = members?.at(0);
+    return interculator ? User.getFullName(interculator) : '[interlocutor]';
+  }
+  return entry.name;
 }
 
-function filterMembers(entry: ChatboxEntry, mainUserId: number) {
+function filterMembers(entry: Conversation, mainUserId: number) {
   return (entry.admin ? entry.members : entry.conversationBetween)?.filter(
     (m) => m.id !== mainUserId
   );

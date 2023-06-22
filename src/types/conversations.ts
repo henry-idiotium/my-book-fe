@@ -11,19 +11,28 @@ const convoZod = z.object({
   messages: z.array(messageZod).optional(),
 });
 
-// pair conversation
+// pair
 export type ConversationEntity = z.infer<typeof conversationZod>;
 export const conversationZod = convoZod.merge(
   z.object({ conversationBetween: z.array(minimalUserZod) })
 );
 
-// group conversation
+// group
 export type ConversationGroupEntity = z.infer<typeof conversationGroupZod>;
 export const conversationGroupZod = convoZod.merge(
   z.object({
-    name: z.string().optional(),
+    name: z.string(),
     admin: z.number(),
     members: z.array(minimalUserZod).optional(),
     photo: z.string().optional(),
   })
 );
+
+/**
+ * An union bettwen pair and group chat; or conversation
+ * and conversation group.
+ */
+export type Conversation = RequiredPick<
+  Partial<ConversationEntity & ConversationGroupEntity>,
+  'id'
+>;

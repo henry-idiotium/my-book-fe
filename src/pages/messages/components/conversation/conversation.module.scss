@@ -1,3 +1,28 @@
 .container {
-  @apply wh-full;
+  @apply wh-full relative;
+}
+
+.topbar {
+  @apply w-full h-14 bg-base opacity-50
+    flex;
+
+  &-convo-img {
+    @apply wh-4;
+    > img {
+      @apply wh-full rounded-full;
+    }
+  }
+
+  &-convo-title {
+    @apply text-lg text-color font-bold
+      px-4;
+  }
+}
+
+.content {
+  @apply wh-full overflow-x-hidden;
+}
+
+.compose {
+  @apply w-full;
 }

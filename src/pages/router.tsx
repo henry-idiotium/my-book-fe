@@ -5,7 +5,7 @@ import Home from './home/home.page';
 import Login from './login/login.page';
 import Messages from './messages/messages.page';
 
-import { usePageMeta } from '@/hooks';
+import { PageMeta } from '@/components';
 import Root from '@/layouts/root/root.layout';
 
 export const router = createBrowserRouter([
@@ -36,17 +36,15 @@ function eps(...ns: string[]) {
   return ns.map<RouteObject>((n) => ({ path: '/' + n, Component: ep(n) }));
 }
 
-function ep(n: string) {
-  return () => {
-    usePageMeta({ title: n, auth: { type: 'private' } });
-
-    return (
+function ep(name: string) {
+  return () => (
+    <PageMeta title={name} auth={{ type: 'private' }}>
       <div className="m-10">
-        <span className="text-2xl font-bold capitalize">{n} page</span>
+        <span className="text-2xl font-bold capitalize">{name} page</span>
         <br />
         <span className="text-base font-bold text-red-400">Not Implemted</span>
       </div>
-    );
-  };
+    </PageMeta>
+  );
 }
 //#endregion

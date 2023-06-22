@@ -5,24 +5,23 @@ import { LuMailPlus } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ChatEntry } from './components';
-import { useConvoPaneRouteOutlet, useFetchConversations } from './hooks';
+import { useConversationRouteOutlet, useFetchChats } from './hooks';
 import styles from './messages.page.module.scss';
 
-import { usePageMeta } from '@/hooks';
+import { PageMeta } from '@/components';
 import { classnames } from '@/utils';
 
 const EMPTY_CHAT_ENTRIES_MSG = "It's empty! Let's start a new conversation.";
 
 export function Messages() {
-  usePageMeta({ title: 'Messages', auth: { type: 'private' } });
-
   const navigate = useNavigate();
   const params = useParams();
 
-  const routesOutlets = useConvoPaneRouteOutlet();
+  const routesOutlets = useConversationRouteOutlet();
   const headerOptions = getHeaderOptionScheme();
 
-  const [{ data: chatEntries }, refetch] = useFetchConversations();
+  const [{ chatEntries, chatEntriesLoading, chatEntriesErrors }, refetch] =
+    useFetchChats();
 
   const [activeConvoId, setActiveConvoId] = useState<string>();
 
@@ -55,51 +54,57 @@ export function Messages() {
 
   // todo: on fetch loading, render loading skeleton or a loading animation
   // todo: on fetch error, render a reload/refetch button
+  // todo: create a layout cmp for division of two panel
+
+  if (chatEntriesLoading) return <div>loading ...</div>;
+  if (chatEntriesErrors.length) return <div>something went wrong!!</div>;
 
   return (
-    <section className={styles.container}>
-      <section className={toggleOnRshMax(styles.chatEntry, true)}>
-        <div className={styles.chatEntryHeader}>
-          <h2>Messages</h2>
+    <PageMeta title="Messages" auth={{ type: 'private' }}>
+      <div className={styles.container}>
+        <section className={toggleOnRshMax(styles.chatEntry, true)}>
+          <div className={styles.chatEntryHeader}>
+            <h2>Messages</h2>
 
-          <div className={styles.chatEntryHeaderOption}>
-            {headerOptions.map(({ icon: Icon }, index) => (
-              <div key={index} className={styles.chatEntryHeaderOptionItem}>
-                <Icon className={styles.chatEntryHeaderOptionItemIcon} />
-              </div>
-            ))}
+            <div className={styles.chatEntryHeaderOption}>
+              {headerOptions.map(({ icon: Icon }, index) => (
+                <div key={index} className={styles.chatEntryHeaderOptionItem}>
+                  <Icon className={styles.chatEntryHeaderOptionItemIcon} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className={styles.chatEntrySearch}>
-          <FiSearch className={styles.chatEntrySearchIcon} />
-          <input
-            placeholder="Search Messages"
-            className={styles.chatEntrySearchInput}
-          />
-        </div>
+          <div className={styles.chatEntrySearch}>
+            <FiSearch className={styles.chatEntrySearchIcon} />
+            <input
+              placeholder="Search Messages"
+              className={styles.chatEntrySearchInput}
+            />
+          </div>
 
-        <div className={styles.chatEntryContent}>
-          {chatEntries.length ? (
-            chatEntries.map((entry, index) => (
-              <ChatEntry
-                key={index}
-                entry={entry}
-                handleOpenConversation={handleSelectChatEntry(entry.id)}
-              />
-            ))
-          ) : (
-            <span className={styles.emptyChatEntriesMsg}>
-              {EMPTY_CHAT_ENTRIES_MSG}
-            </span>
-          )}
-        </div>
-      </section>
+          <div className={styles.chatEntryContent}>
+            {chatEntries.length ? (
+              chatEntries.map((entry, index) => (
+                <ChatEntry
+                  key={index}
+                  entry={entry}
+                  openConvo={handleSelectChatEntry(entry.id)}
+                />
+              ))
+            ) : (
+              <span className={styles.emptyChatEntriesMsg}>
+                {EMPTY_CHAT_ENTRIES_MSG}
+              </span>
+            )}
+          </div>
+        </section>
 
-      <section className={toggleOnRshMax(styles.conversation)}>
-        {routesOutlets}
-      </section>
-    </section>
+        <section className={toggleOnRshMax(styles.conversation)}>
+          {routesOutlets}
+        </section>
+      </div>
+    </PageMeta>
   );
 }
 
