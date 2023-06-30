@@ -6,7 +6,7 @@ declare global {
   type DeepPartial<Type> = Type extends object
     ? { [Key in keyof Type]?: DeepPartial<Type[Key]> }
     : Type;
-  type Mutable<Type> = { -readonly [Key in keyof Type]-?: Type[Key] };
+  // type Mutable<Type> = { -readonly [Key in keyof Type]-?: Type[Key] };
   type PartialPick<T, O extends keyof T> = Partial<Pick<T, O>> & Omit<T, O>;
   type RequiredPick<T, O extends keyof T> = Omit<T, O> & Required<Pick<T, O>>;
   type HasNullable<T, TLeft, TRight = never> = Extract<
@@ -16,11 +16,7 @@ declare global {
     ? TLeft
     : TRight;
 
-  namespace NodeJS {
-    interface ProcessEnv {
-      NODE_ENV: 'development' | 'production';
-    }
-  }
+  type RequireNonOptional<T> = { [P in keyof T]-?: NonNullable<T[P]> };
 }
 
 export {};

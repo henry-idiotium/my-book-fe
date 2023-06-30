@@ -26,13 +26,11 @@ import {
   CHAT_SOCKET_FEATURE_KEY,
   chatSocketReducer,
 } from './chat-socket/chat-socket.slice';
-import { PRODUCT_FEATURE_KEY, productReducer } from './product/product.slice';
 import { THEME_FEATURE_KEY, themeReducer } from './theme/theme.slice';
 
 // Configurations
 const reducer = combineReducers({
   [CHAT_SOCKET_FEATURE_KEY]: chatSocketReducer,
-  [PRODUCT_FEATURE_KEY]: productReducer,
   [THEME_FEATURE_KEY]: themeReducer,
   [AUTH_FEATURE_KEY]: authReducer,
   [authApi.reducerPath]: authApi.reducer,
@@ -50,7 +48,7 @@ const persistConfig: PersistConfig<RootState> = {
 // store factory, for testing
 export function setupStore(preloadedState?: PreloadedState<RootState>) {
   return configureStore({
-    devTools: process.env.NODE_ENV === 'development',
+    devTools: import.meta.env.DEV,
     reducer: persistReducer(persistConfig, reducer),
     enhancers,
     preloadedState,

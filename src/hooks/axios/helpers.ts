@@ -1,5 +1,6 @@
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUpdateEffect } from 'usehooks-ts';
 
 import { axiosClient, useSelector } from '..';
 
@@ -93,6 +94,10 @@ export function useAuthGuard() {
       error: refreshError,
     },
   ] = useRefreshMutation();
+
+  useUpdateEffect(() => {
+    console.log('✨✨🔒 Auth Changes 🔒✨✨\n', auth);
+  }, [auth]);
 
   return [
     { ...auth, refreshUninit, isRefreshing, refreshError },

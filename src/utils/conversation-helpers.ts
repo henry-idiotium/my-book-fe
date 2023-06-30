@@ -1,5 +1,7 @@
-import { Conversation, ConversationGroupEntity } from '@/types';
+import { ConversationEntity, GroupConversation } from '@/types';
 
-export function isGroup(convo: Conversation): convo is ConversationGroupEntity {
-  return 'admin' in convo && !!convo.admin;
+export function isGroup(
+  convo: Partial<ConversationEntity>
+): convo is GroupConversation {
+  return !!convo?.admin;
 }

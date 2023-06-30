@@ -5,7 +5,7 @@ import styles from './dialog.module.scss';
 
 import { classnames } from '@/utils';
 
-export type DialogProps = React.PropsWithChildren &
+type ContentProps = React.PropsWithChildren &
   Omit<React.HTMLAttributes<unknown>, 'className'> & {
     disablePadding?: boolean;
     classNames?: {
@@ -15,7 +15,7 @@ export type DialogProps = React.PropsWithChildren &
     };
   };
 
-export const DialogContent = forwardRef<HTMLDivElement, DialogProps>(
+const Content = forwardRef<HTMLDivElement, ContentProps>(
   (_props, forwardedRef) => {
     const { children, classNames, disablePadding, ...props } = _props;
 
@@ -44,7 +44,9 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogProps>(
   }
 );
 
-export const Dialog = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
-export const DialogTitle = DialogPrimitive.Title;
-// export const DialogDescription = DialogPrimitive.Description;
+export const Dialog = Object.assign(DialogPrimitive.Root, {
+  Trigger: DialogPrimitive.Trigger,
+  // Description: DialogPrimitive.Description,
+  Title: DialogPrimitive.Title,
+  Content,
+});

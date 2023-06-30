@@ -1,9 +1,6 @@
 .container {
   @apply h-full max-h-screen px-2
-    shrink-0 
-    bg-base
-    overflow-x-hidden
-    z-0;
+    shrink-0 bg-base overflow-x-hidden z-0;
 
   @screen pmt {
     @apply fixed top-0;

@@ -20,7 +20,7 @@ export function useMessageActions(id: string) {
         content,
       });
 
-      dispatch(actions.messagePending({ convoId: id, content }));
+      dispatch(actions.messagePending({ conversationId: id, content }));
     },
 
     updateMessage(messageId: string, content: string) {
@@ -36,7 +36,7 @@ export function useMessageActions(id: string) {
 
       dispatch(
         actions.messageUpdated({
-          convoId: id,
+          conversationId: id,
           content: content + 'edited',
           id: messageId,
         })

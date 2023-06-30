@@ -25,18 +25,10 @@
   "files": [],
   "include": [],
   "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    },
-    {
-      "path": "./.storybook/tsconfig.json"
-    },
-    {
-      "path": "./e2e/tsconfig.json"
-    }
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.spec.json" },
+    { "path": "./.storybook/tsconfig.json" },
+    { "path": "./e2e/tsconfig.json" }
   ],
   "compileOnSave": false,
   "exclude": ["node_modules", "tmp"],

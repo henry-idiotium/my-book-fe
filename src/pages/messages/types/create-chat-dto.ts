@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { z } from 'zod';
 
-import { ConversationEntity } from '@/types';
+import { PairedConversation } from '@/types';
 
 export namespace CreateChat {
   export namespace Pair {
-    export type Response = ConversationEntity;
+    export type Response = PairedConversation;
   }
 
   export namespace Group {

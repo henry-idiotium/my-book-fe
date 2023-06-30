@@ -5,13 +5,13 @@ import styles from './popover.module.scss';
 
 import { classnames } from '@/utils';
 
-export type PopoverProps = React.PropsWithChildren &
-  PopoverPrimitive.PopperContentProps & {
+type PopoverContentProps = PopoverPrimitive.PopperContentProps &
+  React.PropsWithChildren & {
     usePadding?: boolean;
     disableBaseStyles?: boolean;
   };
 
-export const PopoverContent = forwardRef<HTMLDivElement, PopoverProps>(
+const Content = forwardRef<HTMLDivElement, PopoverContentProps>(
   (_props, forwardedRef) => {
     const { children, className, usePadding, disableBaseStyles, ...props } =
       _props;
@@ -38,5 +38,8 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverProps>(
   }
 );
 
-export const Popover = PopoverPrimitive.Root;
-export const PopoverTrigger = PopoverPrimitive.Trigger;
+export const Popover = Object.assign(PopoverPrimitive.Root, {
+  Content,
+  Trigger: PopoverPrimitive.Trigger,
+});
+export default Popover;

@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
-import { useBoolean } from 'usehooks-ts';
+import { useBoolean, useEffectOnce } from 'usehooks-ts';
 
 import { useDispatch, useSelector } from '@/hooks';
 import {
   chatSocketActions as actions,
-  chatSocketMap,
-  getOrConnectChatSocket,
+  ChatSocketMap,
   selectAuth,
-  selectChatSocketById,
+  chatSocketSelectors,
 } from '@/stores';
-import { ChatSocketEntity, chatSocketEvents as events } from '@/types';
+import { ChatSocketEntity } from '@/stores/chat-socket/types';
+import { ChatSocketListener as Listener } from '@/types';
 
 const CONNECT_TIMEOUT_LIMIT = 5000;
 
@@ -17,74 +17,79 @@ export function useChatSocketConnection(convoId: string): Result {
   const dispatch = useDispatch();
 
   const { token } = useSelector(selectAuth);
-  const chatSocketState = useSelector(selectChatSocketById(convoId));
+  const chatSocketState = useSelector(chatSocketSelectors.getById(convoId));
 
   const connectFailed = useBoolean(false);
 
   // Initialize socket event listeners
-  useEffect(() => {
+  useEffectOnce(() => {
     if (chatSocketState) return;
 
-    const socket = getOrConnectChatSocket(convoId, token);
+    const socket = ChatSocketMap.getOrConnect(convoId, token);
 
     // connected
-    socket.on(events.userConnected.name, ({ chatbox, userActiveCount }) => {
-      socket.off(events.userConnected.name);
+    socket.on(Listener.User.CONNECT, (payload) => {
+      dispatch(actions.addConversation(payload));
 
-      // user joined
-      socket.on(events.userJoined.name, ({ userActiveCount, userJoinedId }) => {
+      // terminate listener
+      socket.off(Listener.User.CONNECT);
+
+      // user joins
+      socket.on(Listener.User.JOIN_CHAT, ({ id: userId }) => {
         dispatch(
-          actions.userJoined({ convoId, userActiveCount, userJoinedId })
+          actions.addActiveUser({
+            conversationId: convoId,
+            id: userId,
+          })
         );
       });
 
-      // user disconnect
-      socket.on(events.userDisconnected.name, ({ id: userId }) => {
-        dispatch(actions.userDisconnected({ convoId, userId }));
+      // user leaves
+      socket.on(Listener.User.LEAVE_CHAT, ({ id: userId }) => {
+        dispatch(
+          actions.removeActiveUser({
+            conversationId: convoId,
+            id: userId,
+          })
+        );
       });
-
-      // server exception
-      socket.on(events.exception.name, (err) => {
-        if (import.meta.env.DEV) console.log(err);
-      });
-
-      dispatch(actions.connectUser({ chatbox, userActiveCount }));
     });
 
     // message received
-    socket.on(events.messageReceived.name, (payload) => {
-      dispatch(actions.messageReceived({ ...payload, convoId }));
-      dispatch(actions.messagePending({ convoId, content: null }));
+    socket.on(Listener.Message.RECEIVE, (payload) => {
+      dispatch(actions.addMessage({ conversationId: convoId, ...payload }));
+    });
+
+    // message updated
+    socket.on(Listener.Message.UPDATE_NOTIFY, (payload) => {
+      dispatch(actions.updateMessage({ conversationId: convoId, ...payload }));
     });
 
     // message deleted
-    socket.on(events.messageDeleted.name, ({ id }) => {
-      dispatch(actions.messageDeleted({ convoId, id }));
+    socket.on(Listener.Message.DELETE_NOTIFY, ({ id }) => {
+      dispatch(actions.deleteMessage({ conversationId: convoId, id }));
     });
 
-    // message updatedd
-    socket.on(events.messageUpdated.name, ({ content, id }) => {
-      dispatch(actions.messageUpdated({ convoId, id, content }));
+    // server exception
+    socket.on(Listener.EXCEPTION, (err) => {
+      if (import.meta.env.DEV) console.error(err);
     });
 
     return () => {
       socket.off();
-      chatSocketMap.delete(convoId);
+      ChatSocketMap.store.delete(convoId);
     };
-  }, []);
+  });
 
   // Connect failed watcher
   useEffect(() => {
-    if (!chatSocketState) {
-      // Set timmer in case if unable to connect.
-      // Use the state value for boolean, in case where
-      // the connection is success.
-      setTimeout(
-        () => connectFailed.setValue(!!chatSocketState),
-        CONNECT_TIMEOUT_LIMIT
-      );
-      return;
-    }
+    if (chatSocketState) return;
+
+    setTimeout(
+      () => connectFailed.setValue(!!chatSocketState),
+      CONNECT_TIMEOUT_LIMIT
+    );
+    return;
   }, [chatSocketState]);
 
   const socketLoadingAssert: SocketLoadingAssert = chatSocketState

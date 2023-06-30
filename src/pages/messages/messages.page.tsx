@@ -22,6 +22,7 @@ export function Messages() {
 
   const [{ chatEntries, chatEntriesLoading, chatEntriesErrors }, refetch] =
     useFetchChats();
+  // const chatEntries: MessageEntity[] = [];
 
   const [activeConvoId, setActiveConvoId] = useState<string>();
 
@@ -46,10 +47,11 @@ export function Messages() {
     refetch();
   }
 
-  function toggleOnRshMax(className?: string, invert?: boolean) {
-    const showConvo = activeConvoId && chatEntries.length;
-    const condition = invert || showConvo;
-    return classnames(className, { [styles.hideOnRshMax]: condition });
+  function toggleOnRshMaxClassNames(className?: string, isEntryPane = true) {
+    const entryShouldHide = !chatEntries.length || activeConvoId;
+    const shouldAdd = isEntryPane ? entryShouldHide : !entryShouldHide;
+
+    return classnames(className, { [styles.hideOnRshMax]: shouldAdd });
   }
 
   // todo: on fetch loading, render loading skeleton or a loading animation
@@ -62,7 +64,7 @@ export function Messages() {
   return (
     <PageMeta title="Messages" auth={{ type: 'private' }}>
       <div className={styles.container}>
-        <section className={toggleOnRshMax(styles.chatEntry, true)}>
+        <section className={toggleOnRshMaxClassNames(styles.chatEntry)}>
           <div className={styles.chatEntryHeader}>
             <h2>Messages</h2>
 
@@ -100,7 +102,9 @@ export function Messages() {
           </div>
         </section>
 
-        <section className={toggleOnRshMax(styles.conversation)}>
+        <section
+          className={toggleOnRshMaxClassNames(styles.conversation, false)}
+        >
           {routesOutlets}
         </section>
       </div>

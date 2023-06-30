@@ -5,11 +5,11 @@ import styles from './chat-entry.module.scss';
 import UserImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
 import { selectAuth, selectChatSocketById } from '@/stores';
-import { Conversation, MessageEntity, MinimalUserEntity } from '@/types';
+import { ConversationEntity, MessageEntity, MinimalUserEntity } from '@/types';
 import { Convo, User, formatTimeReadable } from '@/utils';
 
 export type ChatEntryProps = {
-  entry: Conversation;
+  entry: ConversationEntity;
   openConvo?: () => void;
 };
 
@@ -78,7 +78,10 @@ export function ChatEntry(props: ChatEntryProps) {
 export default ChatEntry;
 
 // todo: refactor, duplicate logic with conversation
-function getEntryName(entry: Conversation, members?: MinimalUserEntity[]) {
+function getEntryName(
+  entry: ConversationEntity,
+  members?: MinimalUserEntity[]
+) {
   if (!Convo.isGroup(entry)) {
     const interculator = members?.at(0);
     return interculator ? User.getFullName(interculator) : '[interlocutor]';
@@ -86,14 +89,21 @@ function getEntryName(entry: Conversation, members?: MinimalUserEntity[]) {
   return entry.name;
 }
 
-function filterMembers(entry: Conversation, mainUserId: number) {
+function filterMembers(entry: ConversationEntity, mainUserId: number) {
   return (entry.admin ? entry.members : entry.conversationBetween)?.filter(
     (m) => m.id !== mainUserId
   );
 }
 
-function getLatestMessage(messages?: MessageEntity[]) {
-  if (!messages || !messages.length) return;
+type LatestMessage = Omit<MessageEntity, 'at'> & { at?: string };
+function getLatestMessage(messages?: MessageEntity[]): LatestMessage {
+  if (!messages || !messages.length)
+    return {
+      content: '[ Start new message ]',
+      isEdited: false,
+      from: -1,
+      id: '',
+    };
 
   const latestMsg = messages.reduce((former, latter) =>
     former.at > latter.at ? former : latter

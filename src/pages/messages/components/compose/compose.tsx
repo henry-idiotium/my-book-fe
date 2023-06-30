@@ -11,13 +11,7 @@ import styles from './compose.module.scss';
 import FriendChosen from './friend-chosen';
 import FriendOption from './friend-option';
 
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DynamicFragment,
-  PageMeta,
-} from '@/components';
+import { Button, Dialog, DynamicFragment, PageMeta } from '@/components';
 import { MinimalUserEntity } from '@/types';
 import { User } from '@/utils';
 
@@ -111,7 +105,7 @@ export function Compose() {
   return (
     <PageMeta title="Compose" auth={{ type: 'private' }}>
       <Dialog defaultOpen onOpenChange={handleOpenChange}>
-        <DialogContent
+        <Dialog.Content
           disablePadding
           classNames={{ content: styles.container }}
         >
@@ -216,7 +210,7 @@ export function Compose() {
               ) : null}
             </div>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
     </PageMeta>
   );

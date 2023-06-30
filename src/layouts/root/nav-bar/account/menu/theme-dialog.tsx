@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Dialog, DialogContent, DialogTrigger } from '@/components';
+import { Dialog } from '@/components';
 import { useDispatch, useSelector } from '@/hooks';
 import { themeConfig, selectTheme, themeActions } from '@/stores';
 
@@ -28,9 +28,9 @@ export function ThemeDialog({ children }: ThemeDialogProps) {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
 
-      <DialogContent>
+      <Dialog.Content>
         <div className="">
           <div className="">
             <button
@@ -58,7 +58,7 @@ export function ThemeDialog({ children }: ThemeDialogProps) {
             </button>
           </div>
         </div>
-      </DialogContent>
+      </Dialog.Content>
     </Dialog>
   );
 }

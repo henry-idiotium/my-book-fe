@@ -1,33 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import jwt_decode, { JwtPayload } from 'jwt-decode';
+import { z } from 'zod';
 
 import { RootState } from '..';
 
 import { authApi } from './auth.api';
 import { AuthValidResponse } from './types';
 
-import { UserEntity, userZod } from '@/types';
+import { userZod } from '@/types';
 import { getZodDefault } from '@/utils';
 
 export const AUTH_FEATURE_KEY = 'auth';
 
-export interface AuthState {
-  token: string;
-  expires: number | undefined;
-  user: UserEntity;
-}
+export type AuthState = z.infer<typeof authStateZod>;
+const authStateZod = z.object({
+  token: z.string(),
+  expires: z.number().optional(),
+  user: userZod.default(getZodDefault(userZod)),
+});
 
-const defaultUser = getZodDefault(userZod);
-export const initialAuthState: AuthState = {
-  token: '',
-  expires: undefined,
-  user: defaultUser,
-};
-
+const initialState = getZodDefault(authStateZod);
 export const authSlice = createSlice({
   name: AUTH_FEATURE_KEY,
-  initialState: initialAuthState,
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -38,6 +34,7 @@ export const authSlice = createSlice({
         state.user = action.payload.user;
       }
     );
+
     builder.addMatcher(
       authApi.endpoints.refresh.matchFulfilled,
       (state, action: PayloadAction<AuthValidResponse>) => {
@@ -46,13 +43,10 @@ export const authSlice = createSlice({
         state.user = action.payload.user;
       }
     );
-    builder.addMatcher(
-      authApi.endpoints.logout.matchFulfilled,
-      (state, action) => {
-        state.token = initialAuthState.token;
-        state.user = initialAuthState.user;
-      }
-    );
+
+    builder.addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+      state = { ...initialState, expires: state.expires };
+    });
   },
 });
 

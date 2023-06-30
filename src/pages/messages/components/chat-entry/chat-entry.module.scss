@@ -16,7 +16,9 @@
 }
 
 .content {
-  @apply flex flex-col overflow-hidden whitespace-nowrap text-color-accent gap-1;
+  @apply flex flex-col whitespace-nowrap gap-1
+    text-color-accent
+    overflow-hidden;
 
   .info {
     @apply flex items-center overflow-hidden;
@@ -36,6 +38,8 @@
   }
 
   .last-message {
-    @apply overflow-hidden text-sm text-color-accent text-ellipsis pr-7 text-start;
+    @apply overflow-hidden pr-7
+      text-sm text-color-accent text-ellipsis
+      leading-4 text-start;
   }
 }

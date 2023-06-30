@@ -6,137 +6,129 @@ import {
 
 import { RootState } from '../app-store';
 
-import Payload from './chat-socket.slice.types';
+import { ChatSocketEntity, chatSocketEntityZod, Payload } from './types';
 
-import { ChatSocketEntity, chatSocketEntityZod } from '@/types';
+import { messageZod } from '@/types';
 import { Convo, getZodDefault } from '@/utils';
+
+export * from './chat-socket.map';
 
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
 const adapter = createEntityAdapter<ChatSocketEntity>();
 const initialState = adapter.getInitialState();
 const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);
+const initialMessage = getZodDefault(messageZod);
 
-const chatSlice = createSlice({
+const chatSocketSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
   reducers: {
-    connectUser: (state, action: Payload.User.Connected) => {
-      const { chatbox, userActiveCount } = action.payload;
+    addConversation: (state, action: Payload.Connect) => {
+      const { activeUserIds, conversation: convo } = action.payload;
 
-      const isGroup = Convo.isGroup(chatbox);
-
-      // clear messages in chatbox, and put it at base-level-props in the store
-      const messages = structuredClone(chatbox.messages ?? []);
-      delete chatbox.messages;
-
-      // extract users
-      const users = Object.fromEntries(
-        (!isGroup ? chatbox.conversationBetween : chatbox.members ?? []).map(
-          (user) => [user.id, user]
-        )
+      const isGroup = Convo.isGroup(convo);
+      const participants = Object.fromEntries(
+        convo.participants.map((user) => [user.id, user])
       );
 
-      // extract conversation
-      const convo = {
-        [isGroup ? 'conversationGroup' : 'conversation']: chatbox,
-      };
-
-      state.entities[chatbox.id] = {
-        ...initialChatSocketEntity,
+      state.entities[convo.id] = {
         ...convo,
-        messages,
-        users,
-        userActiveCount,
+        ...initialChatSocketEntity,
+        activeUserIds,
+        participants,
+        isGroup,
       };
     },
 
-    userDisconnected: (state, action: Payload.User.Disconnected) => {
-      const { userId, convoId } = action.payload;
+    addActiveUser: (state, action: Payload.JoinChat) => {
+      const { id: userId, conversationId: convoId } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      delete entity.users[userId];
-      entity.userActiveCount -= 1;
+      entity.activeUserIds = [...entity.activeUserIds, userId];
     },
 
-    userJoined: (state, action: Payload.User.Joined) => {
-      const { userActiveCount, userJoinedId, convoId } = action.payload;
+    removeActiveUser: (state, action: Payload.LeaveChat) => {
+      const { id: userId, conversationId: convoId } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      const activeUser = entity.users[userJoinedId];
-      if (!activeUser || !activeUser.metadata) return;
-
-      activeUser.metadata.isActive = true;
-      entity.userActiveCount = userActiveCount;
+      entity.activeUserIds = entity.activeUserIds.filter((id) => id !== userId);
     },
 
-    messageReceived: (state, action: Payload.Message.Received) => {
-      const { convoId, ...message } = action.payload;
+    pendMessage: (state, action: Payload.Message.Pending) => {
+      const { conversationId: convoId, content, at } = action.payload;
+
+      const entity = state.entities[convoId];
+      if (!entity) return;
+
+      entity.messages = [
+        ...entity.messages,
+        { ...initialMessage, content, at },
+      ];
+    },
+
+    unpendMessage: (state, action: Payload.Message.SendSuccess) => {
+      const { conversationId: convoId, ...updatedMessage } = action.payload;
+
+      const entity = state.entities[convoId];
+      if (!entity) return;
+
+      // update pending message
+      entity.messages = entity.messages.filter(
+        (msg) => msg.id !== updatedMessage.id
+      );
+    },
+
+    addMessage: (state, action: Payload.Message.Receive) => {
+      const { conversationId: convoId, ...message } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
       entity.messages = [...entity.messages, message];
-      entity.messagePending = null;
     },
 
-    messagePending: (state, action: Payload.Message.Pending) => {
-      const { convoId, content } = action.payload;
+    deleteMessage: (state, action: Payload.Message.DeleteNotify) => {
+      const { conversationId: convoId, id: messageId } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      entity.messagePending = content;
+      entity.messages = entity.messages.filter((msg) => msg.id !== messageId);
     },
 
-    messageDeleted: (state, action: Payload.Message.Deleted) => {
-      const { convoId, id } = action.payload;
+    updateMessage: (state, action: Payload.Message.UpdateNotify) => {
+      const { conversationId: convoId, ...message } = action.payload;
 
       const entity = state.entities[convoId];
       if (!entity) return;
 
-      const messageId = entity.messages.findIndex((m) => m.id === id);
+      const messageId = entity.messages.findIndex((m) => m.id === message.id);
       if (messageId === -1) return;
 
-      entity.messages[messageId] = {
-        ...entity.messages[messageId],
-        content: null,
-      };
-    },
-
-    messageUpdated: (state, action: Payload.Message.Updated) => {
-      const { convoId, id, content } = action.payload;
-
-      const entity = state.entities[convoId];
-      if (!entity) return;
-
-      const messageId = entity.messages.findIndex((m) => m.id === id);
-      if (messageId === -1) return;
-
-      entity.messages[messageId] = {
-        ...entity.messages[messageId],
-        isEdited: true,
-        content,
-      };
+      entity.messages[messageId] = message;
     },
   },
 });
 
-export const chatSocketReducer = chatSlice.reducer;
-export const chatSocketActions = chatSlice.actions;
+export const chatSocketReducer = chatSocketSlice.reducer;
+export const chatSocketActions = chatSocketSlice.actions;
 
 // selector
 const stateSelector = (state: RootState) => state[CHAT_SOCKET_FEATURE_KEY];
 
-const { selectAll, selectById, selectTotal } = adapter.getSelectors();
+const entitySelectors = adapter.getSelectors();
 
-export const selectChatSockets = createSelector(stateSelector, selectAll);
-export const selectChatSocketTotal = createSelector(stateSelector, selectTotal);
-export const selectChatSocketById = (id: ChatSocketEntity['convoId']) =>
-  createSelector(stateSelector, (state) => selectById(state, id));
-
-export * from './chat-socket.map';
+export const chatSocketSelectors = {
+  getAll: createSelector(stateSelector, entitySelectors.selectAll),
+  getSize: createSelector(stateSelector, entitySelectors.selectTotal),
+  getById: (id: ChatSocketEntity['id']) => {
+    return createSelector(stateSelector, (state) => {
+      return entitySelectors.selectById(state, id);
+    });
+  },
+};
