@@ -1,57 +1,52 @@
 import loadingMessages from '@/components/loading-screen/loading-messages';
 import { useDispatch } from '@/hooks';
-import { chatSocketActions as actions, chatSocketMap } from '@/stores';
-import { chatSocketEvents as events } from '@/types';
+import { chatSocketActions as actions, ChatSocketMap } from '@/stores';
+import { ChatSocketEmitter as Emitter, messageZod } from '@/types';
+import { getZodDefault } from '@/utils';
+
+const initialMessage = getZodDefault(messageZod);
 
 export function useMessageActions(id: string) {
   const dispatch = useDispatch();
 
   return {
     sendMessage() {
-      const socket = chatSocketMap.get(id);
+      const socket = ChatSocketMap.store.get(id);
       if (!socket?.connected) return;
 
       const index = Math.floor(Math.random() * loadingMessages.length);
       const content = loadingMessages[index];
 
-      socket.emit(events.messageSent.name, {
-        chatboxId: id,
-        isGroup: false,
-        content,
-      });
+      const createAt = new Date(); // identifier for pending state
 
-      dispatch(actions.messagePending({ conversationId: id, content }));
+      socket.emit(Emitter.Message.Events.SEND, { content, at: createAt });
+
+      dispatch(
+        actions.pendMessage({ conversationId: id, content, at: createAt })
+      );
     },
 
     updateMessage(messageId: string, content: string) {
-      const socket = chatSocketMap.get(id);
+      const socket = ChatSocketMap.store.get(id);
       if (!socket?.connected) return;
 
-      socket.emit(events.messageUpdating.name, {
-        content: content + 'edited',
-        id,
-        chatboxId: id,
-        isGroup: false,
-      });
-
+      socket.emit(Emitter.Message.Events.UPDATE, { id, content });
       dispatch(
-        actions.messageUpdated({
+        actions.updateMessage({
+          ...initialMessage,
           conversationId: id,
-          content: content + 'edited',
           id: messageId,
+          content,
+          isEdited: true,
         })
       );
     },
 
     deleteMessage(messageId: string) {
-      const socket = chatSocketMap.get(id);
+      const socket = ChatSocketMap.store.get(id);
       if (!socket?.connected) return;
 
-      socket.emit(events.messageDeleting.name, {
-        id: messageId,
-        chatboxId: id,
-        isGroup: false,
-      });
+      socket.emit(Emitter.Message.Events.DELETE, { id: messageId });
     },
   };
 }

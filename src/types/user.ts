@@ -30,11 +30,13 @@ export type UserEntity = z.infer<typeof userZod>;
 export const userZod = baseUserZod.merge(
   z.object({
     provider: z.string(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    deletedAt: z.date(),
     role: z.object(userRoleZod.shape),
     status: z.object(userStatusZod.shape),
+
+    // remarks: non-serializable, consider remove this logic
+    // createdAt: z.date(),
+    // updatedAt: z.date(),
+    // deletedAt: z.date(),
   })
 );
 

@@ -1,0 +1,8 @@
+/** When the client sends a new message. */
+export const SEND = 'message_send';
+/** When the client updates a message. */
+export const UPDATE = 'message_update';
+/** When the client deletes a message. */
+export const DELETE = 'message_delete';
+/** When the client sees a message. */
+export const SEEN = 'message_seen';

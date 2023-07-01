@@ -35,7 +35,7 @@ const reducer = combineReducers({
   [AUTH_FEATURE_KEY]: authReducer,
   [authApi.reducerPath]: authApi.reducer,
 });
-const middlewares: Middleware[] = [authApi.middleware];
+const middleware: Middleware[] = [authApi.middleware];
 const enhancers: StoreEnhancer[] = [];
 
 // Persistence
@@ -57,7 +57,7 @@ export function setupStore(preloadedState?: PreloadedState<RootState>) {
         serializableCheck: {
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
-      }).concat(middlewares);
+      }).concat(middleware);
     },
   });
 }

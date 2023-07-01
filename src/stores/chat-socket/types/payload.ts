@@ -3,8 +3,8 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import {
-  ChatSocketListener as LPayload,
-  ChatSocketEmitter as EPayload,
+  ChatSocketListenEvents as LPayload,
+  ChatSocketEmitEvents as EPayload,
 } from '@/types';
 
 type Wrap<T> = PayloadAction<T>;

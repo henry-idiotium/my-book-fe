@@ -28,14 +28,14 @@ export function useChatSocketConnection(convoId: string): Result {
     const socket = ChatSocketMap.getOrConnect(convoId, token);
 
     // connected
-    socket.on(Listener.User.CONNECT, (payload) => {
+    socket.on(Listener.User.Events.CONNECT, (payload) => {
       dispatch(actions.addConversation(payload));
 
       // terminate listener
-      socket.off(Listener.User.CONNECT);
+      socket.off(Listener.User.Events.CONNECT);
 
       // user joins
-      socket.on(Listener.User.JOIN_CHAT, ({ id: userId }) => {
+      socket.on(Listener.User.Events.JOIN_CHAT, ({ id: userId }) => {
         dispatch(
           actions.addActiveUser({
             conversationId: convoId,
@@ -45,7 +45,7 @@ export function useChatSocketConnection(convoId: string): Result {
       });
 
       // user leaves
-      socket.on(Listener.User.LEAVE_CHAT, ({ id: userId }) => {
+      socket.on(Listener.User.Events.LEAVE_CHAT, ({ id: userId }) => {
         dispatch(
           actions.removeActiveUser({
             conversationId: convoId,
@@ -56,17 +56,17 @@ export function useChatSocketConnection(convoId: string): Result {
     });
 
     // message received
-    socket.on(Listener.Message.RECEIVE, (payload) => {
+    socket.on(Listener.Message.Events.RECEIVE, (payload) => {
       dispatch(actions.addMessage({ conversationId: convoId, ...payload }));
     });
 
     // message updated
-    socket.on(Listener.Message.UPDATE_NOTIFY, (payload) => {
+    socket.on(Listener.Message.Events.UPDATE_NOTIFY, (payload) => {
       dispatch(actions.updateMessage({ conversationId: convoId, ...payload }));
     });
 
     // message deleted
-    socket.on(Listener.Message.DELETE_NOTIFY, ({ id }) => {
+    socket.on(Listener.Message.Events.DELETE_NOTIFY, ({ id }) => {
       dispatch(actions.deleteMessage({ conversationId: convoId, id }));
     });
 

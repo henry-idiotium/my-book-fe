@@ -4,7 +4,7 @@ import styles from './chat-entry.module.scss';
 
 import UserImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
-import { selectAuth, selectChatSocketById } from '@/stores';
+import { selectAuth, chatSocketSelectors } from '@/stores';
 import { ConversationEntity, MessageEntity, MinimalUserEntity } from '@/types';
 import { Convo, User, formatTimeReadable } from '@/utils';
 
@@ -17,7 +17,7 @@ export function ChatEntry(props: ChatEntryProps) {
   const { entry, openConvo } = props;
 
   const { user: mainUser } = useSelector(selectAuth);
-  const chatSocketState = useSelector(selectChatSocketById(entry.id));
+  const chatSocketState = useSelector(chatSocketSelectors.getById(entry.id));
 
   const [latestMessage, setLatestMessage] = useState(
     getLatestMessage(entry.messages)
@@ -90,20 +90,19 @@ function getEntryName(
 }
 
 function filterMembers(entry: ConversationEntity, mainUserId: number) {
-  return (entry.admin ? entry.members : entry.conversationBetween)?.filter(
-    (m) => m.id !== mainUserId
-  );
+  return entry.participants?.filter((p) => p.id !== mainUserId);
 }
 
 type LatestMessage = Omit<MessageEntity, 'at'> & { at?: string };
 function getLatestMessage(messages?: MessageEntity[]): LatestMessage {
-  if (!messages || !messages.length)
+  if (!messages || !messages.length) {
     return {
       content: '[ Start new message ]',
       isEdited: false,
       from: -1,
       id: '',
     };
+  }
 
   const latestMsg = messages.reduce((former, latter) =>
     former.at > latter.at ? former : latter

@@ -10,10 +10,8 @@ const socketAddress = `${import.meta.env.VITE_SERVER_URL}/conversations`;
 export namespace ChatSocketMap {
   export const store = new Map<string, ChatSocket>();
 
-  type ConnectArgs = [id: string, token: string];
-
   /** Connect socket to the backend then immediately add to the Map. */
-  export function connect(...[id, token]: ConnectArgs) {
+  export function connect(id: string, token: string) {
     const socket = io(socketAddress, {
       query: handshakeQueryZod.parse({ conversationId: id }),
       extraHeaders: { Authorization: token },
@@ -23,7 +21,7 @@ export namespace ChatSocketMap {
   }
 
   /** Get current chat socket. Create new if not found. */
-  export function getOrConnect(...[id, token]: ConnectArgs) {
+  export function getOrConnect(id: string, token: string) {
     const existsSocket = store.get(id);
     const socket = existsSocket ?? connect(id, token);
     if (!existsSocket) store.set(id, socket);
