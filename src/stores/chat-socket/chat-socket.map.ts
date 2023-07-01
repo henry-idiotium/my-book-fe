@@ -5,7 +5,7 @@ import { handshakeQueryZod } from './types/handshake-query';
 
 import { ChatSocket } from '@/types';
 
-const socketAddress = `${import.meta.env.VITE_SERVER_URL}/conversations`;
+const socketAddress = `${import.meta.env.VITE_SERVER_CHAT_URL}/conversations`;
 
 export namespace ChatSocketMap {
   export const store = new Map<string, ChatSocket>();

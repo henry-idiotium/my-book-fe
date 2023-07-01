@@ -9,14 +9,14 @@ export function useComposeConversation() {
   const navigate = useNavigate();
 
   const [chatRes, chatQuery] = useAxios<CreateChat.Pair.Response>(
-    '/conversations',
+    '/paired-conversations',
     { manual: true }
   );
 
   const [groupChatRes, groupChatQuery] = useAxios<
     CreateChat.Group.Response,
     CreateChat.Group.Request
-  >('/chatboxes', { manual: true });
+  >('/group-conversations', { manual: true });
 
   // Redirect to the newly created conversation when the
   // API request completes successfully.

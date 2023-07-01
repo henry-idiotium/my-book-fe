@@ -1,17 +1,17 @@
 import { useAxios } from '@/hooks/axios/axios';
-import { PairedConversation, GroupConversation } from '@/types';
+import { GroupConversation, PairedConversation } from '@/types';
 import { nonNullable } from '@/utils';
 
 export function useFetchChats() {
   const [
     { data: chats = [], loading: chatLoading, error: chatError },
     fetchChats,
-  ] = useAxios<PairedConversation[]>(`/conversations`);
+  ] = useAxios<PairedConversation[]>(`/paired-conversations`);
 
   const [
     { data: groupChats = [], loading: groupChatLoading, error: groupChatError },
     fetchGroupChats,
-  ] = useAxios<GroupConversation[]>(`/chatboxes`);
+  ] = useAxios<GroupConversation[]>(`/group-conversations`);
 
   const response = {
     chatEntries: [...chats, ...groupChats],

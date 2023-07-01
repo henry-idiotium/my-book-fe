@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_PORT: string;
   readonly VITE_SERVER_URL: string;
+  readonly VITE_SERVER_CHAT_URL: string;
   readonly VITE_APP_NAME: string;
 }
 
