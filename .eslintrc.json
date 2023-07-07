@@ -38,10 +38,24 @@
       "error",
       { "checksVoidReturn": false }
     ],
+    "import/no-named-as-default": "off",
     "import/default": "off",
     "import/order": [
       "warn",
-      { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
+      {
+        "alphabetize": { "order": "asc" },
+        "newlines-between": "always",
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "index",
+          "parent",
+          "sibling",
+          "object",
+          "type"
+        ]
+      }
     ],
     "tailwindcss/no-custom-classname": "off"
   },
