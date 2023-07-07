@@ -58,20 +58,23 @@
     $scheme: (
       'default': (
         'default': white,
-        'focus': darken(white, 9%),
         'hover': #f7f9f9,
+        'hover-lt': #f7f9f9,
+        'focus': darken(white, 9%),
         'invert': #16181c,
       ),
       'dim': (
         'default': #15202b,
-        'focus': lighten(#15202b, 7%),
         'hover': #1e2732,
+        'hover-lt': #26313f,
+        'focus': lighten(#15202b, 7%),
         'invert': #f7f9f9,
       ),
       'dark': (
         'default': black,
-        'focus': lighten(black, 11%),
         'hover': #16181c,
+        'hover-lt': #23262e,
+        'focus': lighten(black, 11%),
         'invert': #f7f9f9,
       ),
     )
