@@ -1,19 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useBoolean, useEffectOnce } from 'usehooks-ts';
 
-import { useDispatch, useSelector } from '@/hooks';
 import {
-  chatSocketActions as actions,
+  useDeepCompareMemoize as deepCompareMemo,
+  useDispatch,
+  useSelector,
+} from '@/hooks';
+import {
+  chatSocketStoreActions as actions,
   ChatSocketMap,
   selectAuth,
   chatSocketSelectors,
 } from '@/stores';
 import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { ChatSocketListener as Listener } from '@/types';
+import { Logger } from '@/utils';
 
 const CONNECT_TIMEOUT_LIMIT = 5000;
 
-export function useChatSocketConnection(convoId: string): Result {
+export function useChatSocketConnection(convoId: string) {
   const dispatch = useDispatch();
 
   const { token } = useSelector(selectAuth);
@@ -35,23 +40,15 @@ export function useChatSocketConnection(convoId: string): Result {
       socket.off(Listener.User.Events.CONNECT);
 
       // user joins
-      socket.on(Listener.User.Events.JOIN_CHAT, ({ id: userId }) => {
-        dispatch(
-          actions.addActiveUser({
-            conversationId: convoId,
-            id: userId,
-          })
-        );
+      socket.on(Listener.User.Events.JOIN_CHAT, ({ activeUserIds, id }) => {
+        const payload = { conversationId: convoId, activeUserIds, id };
+        dispatch(actions.addActiveUser(payload));
       });
 
       // user leaves
-      socket.on(Listener.User.Events.LEAVE_CHAT, ({ id: userId }) => {
-        dispatch(
-          actions.removeActiveUser({
-            conversationId: convoId,
-            id: userId,
-          })
-        );
+      socket.on(Listener.User.Events.LEAVE_CHAT, ({ activeUserIds, id }) => {
+        const payload = { conversationId: convoId, activeUserIds, id };
+        dispatch(actions.removeActiveUser(payload));
       });
     });
 
@@ -71,9 +68,7 @@ export function useChatSocketConnection(convoId: string): Result {
     });
 
     // server exception
-    socket.on(Listener.EXCEPTION, (err) => {
-      if (import.meta.env.DEV) console.error(err);
-    });
+    socket.on(Listener.EXCEPTION, (err) => Logger.error(err));
 
     return () => {
       socket.off();
@@ -81,20 +76,21 @@ export function useChatSocketConnection(convoId: string): Result {
     };
   });
 
-  // Connect failed watcher
+  // Connect failed timeout
   useEffect(() => {
     if (chatSocketState) return;
 
     setTimeout(
       () => connectFailed.setValue(!!chatSocketState),
-      CONNECT_TIMEOUT_LIMIT
+      CONNECT_TIMEOUT_LIMIT,
     );
-    return;
   }, [chatSocketState]);
 
-  const socketLoadingAssert: SocketLoadingAssert = chatSocketState
-    ? { loading: false, state: chatSocketState }
-    : { loading: true };
+  const socketLoadingAssert = useMemo<SocketLoadingAssert>(() => {
+    return chatSocketState
+      ? { loading: false, state: chatSocketState }
+      : { loading: true };
+  }, deepCompareMemo(chatSocketState));
 
   return {
     ...socketLoadingAssert,
@@ -107,6 +103,3 @@ export default useChatSocketConnection;
 type SocketLoadingAssert =
   | { loading: true; state?: ChatSocketEntity }
   | { loading: false; state: ChatSocketEntity };
-type Result = SocketLoadingAssert & {
-  connectFailed: boolean;
-};

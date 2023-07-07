@@ -1,32 +1,42 @@
 import { RouteObject, createBrowserRouter } from 'react-router-dom';
 
+import { GuardWrapper, Root } from '@/layouts';
+
 import Friends from './friends/friends.page';
 import Home from './home/home.page';
 import Login from './login/login.page';
 import Messages from './messages/messages.page';
 
-import { PageMeta } from '@/components';
-import Root from '@/layouts/root/root.layout';
-
 export const router = createBrowserRouter([
   {
-    path: '/',
     Component: Root,
     children: [
-      { path: '/home', Component: Home },
-      { path: '/messages/*', Component: Messages },
-      { path: '/friends', Component: Friends },
-      { path: '/login', Component: Login },
+      {
+        element: <GuardWrapper type="public" />,
+        children: [
+          { path: '/', element: <>this is public!!!</> },
+          { path: '/foo', element: <>this is public!!! foo</> },
+          { path: '/login', Component: Login },
+        ],
+      },
+      {
+        element: <GuardWrapper type="private" />,
+        children: [
+          { path: '/', element: <>this is private!!!</> },
+          { path: '/home', Component: Home },
+          { path: '/messages/*', Component: Messages },
+          { path: '/friends', Component: Friends },
 
-      // todo: provide a user profile page
-      { path: '/*', element: <>This should be a User Profile page</> },
+          // todo: provide a user (any user) profile page
+          { path: '/*', element: <>This should be a User Profile page</> },
 
-      // Note: Mock pages
-      ...eps('explore', 'lists', 'bookmarks', 'profile', 'notifications'),
+          // Note: Mock pages
+          ...eps('explore', 'lists', 'bookmarks', 'profile', 'notifications'),
+        ],
+      },
     ],
   },
 ]);
-
 export default router;
 
 // ---------------------------------------
@@ -38,13 +48,13 @@ function eps(...ns: string[]) {
 
 function ep(name: string) {
   return () => (
-    <PageMeta title={name} auth={{ type: 'private' }}>
-      <div className="m-10">
-        <span className="text-2xl font-bold capitalize">{name} page</span>
-        <br />
-        <span className="text-base font-bold text-red-400">Not Implemted</span>
-      </div>
-    </PageMeta>
+    <div className="m-10">
+      <span className="text-2xl font-bold capitalize">{name} page</span>
+      <br />
+      <span className="text-base font-bold text-red-400">
+        Not Implemented Yet!!
+      </span>
+    </div>
   );
 }
 //#endregion

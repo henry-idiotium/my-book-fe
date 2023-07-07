@@ -34,14 +34,8 @@ export function NavBar(props: NavBarProps) {
           </div>
 
           <div className={styles.navMain}>
-            {scheme.map(({ to, name, icon, activeIcon }, index) => (
-              <NavItem
-                key={index + 1}
-                icon={icon}
-                activeIcon={activeIcon}
-                name={name}
-                to={to}
-              />
+            {scheme.map((props, index) => (
+              <NavItem key={index + 1} {...props} />
             ))}
           </div>
 

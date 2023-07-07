@@ -3,13 +3,13 @@ import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import styles from './login.page.module.scss';
-
-import { Button, PageMeta } from '@/components';
+import { Button } from '@/components';
 import { useLocation, useSelector } from '@/hooks';
 import { useLoginMutation } from '@/stores/auth/auth.api';
 import { selectAuth } from '@/stores/auth/auth.slice';
 import { LoginForm, loginFormZod } from '@/types';
+
+import styles from './login.page.module.scss';
 
 export function Login() {
   const navigate = useNavigate();
@@ -23,9 +23,7 @@ export function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(loginFormZod),
-  });
+  } = useForm<LoginForm>({ resolver: zodResolver(loginFormZod) });
 
   useEffect(() => {
     if (!isSuccess || !token) return;
@@ -72,55 +70,51 @@ export function Login() {
   // );
 
   return (
-    <PageMeta title="Login" auth={{ type: 'public' }}>
-      <form className="w-64" onSubmit={handleSubmit(onSubmit)}>
+    <form className="w-64" onSubmit={handleSubmit(onSubmit)}>
+      <div>
         <div>
-          <div>
-            <label htmlFor="email" className={styles.formInputLabel}>
-              Email
-            </label>
+          <label htmlFor="email" className={styles.formInputLabel}>
+            Email
+          </label>
 
-            {errors.email && (
-              <p className={styles.formInputMessage}>{errors.email.message}</p>
-            )}
-          </div>
-
-          <input
-            id="email"
-            placeholder="Email"
-            type="email"
-            {...register('email')}
-            className={styles.formInput}
-          />
+          {errors.email && (
+            <p className={styles.formInputMessage}>{errors.email.message}</p>
+          )}
         </div>
 
+        <input
+          id="email"
+          placeholder="Email"
+          type="email"
+          {...register('email')}
+          className={styles.formInput}
+        />
+      </div>
+
+      <div>
         <div>
-          <div>
-            <label htmlFor="password" className={styles.formInputLabel}>
-              Password
-            </label>
+          <label htmlFor="password" className={styles.formInputLabel}>
+            Password
+          </label>
 
-            {errors.password && (
-              <p className={styles.formInputMessage}>
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <input
-            id="password"
-            placeholder="Password"
-            type="password"
-            {...register('password')}
-            className={styles.formInput}
-          />
+          {errors.password && (
+            <p className={styles.formInputMessage}>{errors.password.message}</p>
+          )}
         </div>
 
-        <Button type="submit" className="my-6 w-32">
-          Login
-        </Button>
-      </form>
-    </PageMeta>
+        <input
+          id="password"
+          placeholder="Password"
+          type="password"
+          {...register('password')}
+          className={styles.formInput}
+        />
+      </div>
+
+      <Button type="submit" className="my-6 w-32">
+        Login
+      </Button>
+    </form>
   );
 }
 

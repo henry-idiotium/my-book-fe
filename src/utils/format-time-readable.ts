@@ -25,7 +25,7 @@ type Options = {
 export function formatTimeReadable(
   _formerDate: Date | string,
   _latterDate: Date | string = new Date(),
-  options?: Options
+  options?: Options,
 ) {
   const formerDate = parse(_formerDate, options?.dateStrFormat);
   const latterDate = parse(_latterDate, options?.dateStrFormat);

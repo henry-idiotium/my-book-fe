@@ -9,7 +9,7 @@
 import { z } from 'zod';
 
 export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
-  schema: T
+  schema: T,
 ): z.infer<T> {
   // is it a ZodEffect?
   if (schema instanceof z.ZodEffects) {
@@ -32,8 +32,9 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
     if (schema instanceof z.ZodNumber) return 0;
     if (schema instanceof z.ZodBoolean) return false;
     if (schema instanceof z.ZodDate) return new Date();
+    if (schema instanceof z.ZodFunction) return () => void 0; // undefined
 
-    // return an content of object recursivly
+    // return an content of object recursively
     if (schema instanceof z.ZodObject) return getZodDefault(schema);
 
     if (!('innerType' in schema._def)) return undefined;
@@ -44,7 +45,7 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
   return Object.fromEntries(
     Object.entries(schema.shape).map(([key, value]) => {
       return [key, getDefaultValue(value as z.ZodTypeAny)];
-    })
+    }),
   );
 }
 

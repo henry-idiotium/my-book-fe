@@ -11,11 +11,11 @@ module.exports = plugin(
               ? { width: '100vw', height: '100vh' }
               : { width: `${value}`, height: `${value}` },
         };
-      })
+      }),
     );
     matchUtilities(
       { wh: (value) => ({ width: value, height: value }) },
-      { values: theme('wh') }
+      { values: theme('wh') },
     );
 
     // overflow
@@ -30,5 +30,5 @@ module.exports = plugin(
   },
   {
     variants: { wh: ['responsive', 'hover'] },
-  }
+  },
 );

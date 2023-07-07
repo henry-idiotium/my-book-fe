@@ -1,6 +1,6 @@
 export function objectOmitKeys<TObject extends GenericObject>(
   obj: TObject,
-  keys: string[]
+  keys: string[],
 ) {
   const target: GenericObject = {};
 

@@ -1,13 +1,13 @@
 import { FiMoreHorizontal } from 'react-icons/fi';
 
-import styles from './header.module.scss';
-
 import UserImg from '@/assets/account-image.jpg';
 import { Button } from '@/components';
 import { useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
 import { ConversationEntity, MinimalUserEntity } from '@/types';
 import { Convo, User } from '@/utils';
+
+import styles from './header.module.scss';
 
 type HeaderProps = {
   conversation: ConversationEntity;

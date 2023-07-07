@@ -1,16 +1,20 @@
 import axios, { AxiosError, HttpStatusCode } from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { argsToObject, configToObject, useBaseAxios } from './helpers';
+import { Logger } from '@/utils';
+
+import deepCompareMemo from '../deep-compare-memorize';
+
+import { useBaseAxios, useStateReducer } from './helpers';
 import {
   UseAxiosConfigArgs,
   UseAxiosOptions,
   UseAxiosRefetch,
   UseAxiosRequestConfig,
-  UseAxiosResponseValues,
   UseAxiosResult,
-  UseMultiAxiosArgs,
+  WithCancelTokenFunction,
+  defaultUseAxiosOptions,
 } from './types';
 
 export const axiosClient = axios.create({
@@ -18,133 +22,126 @@ export const axiosClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-const defaultOptions: UseAxiosOptions = { useAuth: true, manual: false };
-
-/**
- * Axios hook adapter that provide a rich response.
- *
- * @param {UseAxiosConfigArgs<TBody>} _config
- *    The request configuration object.
- * @param {UseAxiosOptions} [_opts]
- *    Additional options.
- *
- * @returns {UseAxiosResult<TResponse, TBody, TError>}
- *    A tuple containing the response and a refetch function.
- */
+/** Axios hook adapter that provide a rich response. */
 export function useAxios<
   TResponse = unknown,
   TBody = unknown,
-  TError = unknown
+  TError = unknown,
 >(
   _config: UseAxiosConfigArgs<TBody>,
-  _opts?: UseAxiosOptions
+  _options?: UseAxiosOptions,
 ): UseAxiosResult<TResponse, TBody, TError> {
-  // Convert arguments to actual useable configs
-  const config = configToObject(_config);
-  const options = { ...defaultOptions, ..._opts };
+  // Convert arguments to useable configs.
+  const config = useMemo(
+    () => configToObject(_config),
+    deepCompareMemo(_config),
+  );
+  const options = useMemo(
+    () => ({ ...defaultUseAxiosOptions, ..._options }),
+    deepCompareMemo(_options),
+  );
 
-  // to redirect
+  const cancelSourceRef = useRef<AbortController>();
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [response, setResponse] = useState<
-    UseAxiosResponseValues<TResponse, TBody, TError>
-  >({ loading: true });
+  const [response, dispatch] = useStateReducer<TResponse, TBody, TError>(
+    config,
+    options,
+  );
 
   // get request auth guard logic
-  const [{ refreshUninit, isRefreshing }, executeAuthAwareRequest] =
+  const [{ refreshUninitialized, isRefreshing }, executeAuthAwareRequest] =
     useBaseAxios<TResponse, TBody>();
+
+  /** Cancel Axios request. */
+  const cancelRequest = useCallback(() => {
+    if (!cancelSourceRef.current) return;
+    cancelSourceRef.current.abort();
+  }, []);
+
+  /** Update Axios request config with new cancel token instance. */
+  const withCancelToken = useCallback<WithCancelTokenFunction<TBody>>(
+    (config) => {
+      // Cancel the previous request (if any)
+      if (options.autoCancel) cancelRequest();
+
+      // Create a new cancel source
+      cancelSourceRef.current = new AbortController();
+      // Add the cancel token to the request config
+      config.signal = cancelSourceRef.current.signal;
+
+      return config;
+    },
+    [options.autoCancel],
+  );
 
   // Automatically execute request on component mount and auth state changes.
   useEffect(() => {
-    if (options.manual) return;
-
-    executeRequest(config);
-  }, [refreshUninit, isRefreshing, isRefreshing]);
-
-  // Request execute logic
-  async function executeRequest(config: UseAxiosRequestConfig<TBody>) {
-    try {
-      const res = await executeAuthAwareRequest<TResponse, TBody>(
-        config,
-        options.useAuth
-      );
-
-      setResponse((prev) => ({
-        ...prev,
-        data: res?.data,
-        response: res,
-        loading: false,
-      }));
-    } catch (error) {
-      if (!(error instanceof AxiosError)) return;
-
-      if (options.useAuth && error.status === HttpStatusCode.Unauthorized) {
-        navigate('/login', { state: { from: location } });
-      }
-
-      setResponse((prev) => ({
-        ...prev,
-        loading: false,
-        error: error as AxiosError<TError, TBody>,
-      }));
+    if (!options.manual) {
+      executeRequest(withCancelToken(config));
     }
+
+    return () => {
+      if (options.autoCancel) cancelRequest();
+    };
+  }, [config, options, refreshUninitialized, isRefreshing]);
+
+  /** Request execution logic. */
+  async function executeRequest(config: UseAxiosRequestConfig<TBody>) {
+    dispatch({ type: 'REQUEST_START' });
+
+    await executeAuthAwareRequest<TResponse, TBody>(config, options)
+      .then((res) => {
+        if (!res) return;
+        dispatch({ type: 'REQUEST_END', payload: res });
+      })
+      .catch((error) => {
+        if (!(error instanceof AxiosError)) return Logger.error(error);
+        if (error.code === AxiosError.ERR_CANCELED) return;
+
+        Logger.error(error);
+
+        if (error.response?.status === HttpStatusCode.Unauthorized) {
+          navigate('/login', { state: { from: location } });
+        }
+
+        dispatch({ type: 'REQUEST_ERROR', payload: { error } });
+      });
   }
 
-  // Execute request function for user of useAxxios.
+  // Execute request function for user of useAxios.
   // Perform request execution with overridable config argument.
   const refetch = useCallback<UseAxiosRefetch<TBody>>(
-    (configOverrideArgs) => {
-      let overridedConfig = { ...config };
+    (_overrideConfig) => {
+      let newConfig = { ...config };
 
-      if (configOverrideArgs) {
-        const configOverride = configToObject(configOverrideArgs);
-        overridedConfig = { ...overridedConfig, ...configOverride };
+      if (_overrideConfig) {
+        const { url: overrideUrl, ...overrideConfig } =
+          configToObject(_overrideConfig);
 
-        if (configOverride.url) {
-          overridedConfig.url =
-            (overridedConfig.url ?? '') + configOverride.url;
+        if (overrideUrl) {
+          newConfig.url = (newConfig.url ?? '') + overrideUrl;
         }
+
+        newConfig = { ...newConfig, ...overrideConfig };
       }
 
-      setResponse((prev) => ({ ...prev, loading: true }));
-
-      return executeRequest(overridedConfig);
+      return executeRequest(withCancelToken(newConfig));
     },
-    [config]
+    [config, withCancelToken],
   );
 
-  return [response, refetch];
+  return [response, refetch, cancelRequest];
 }
 
 /**
- * Provide a function to call multiple requests.
- * @deprecated
+ * Convert arguments of string and object into
+ * request config object ({@link UseAxiosRequestConfig}).
  */
-export function useRequest(args: UseMultiAxiosArgs = '') {
-  const { baseUrl = '', useAuth = true } = argsToObject(args);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const [, executeAuthAwareRequest] = useBaseAxios();
-
-  async function executeRequest<TResponse = unknown, TBody = unknown>(
-    _config: string | RequiredPick<UseAxiosRequestConfig<TBody>, 'url'>
-  ) {
-    const config = configToObject(_config);
-    config.url = baseUrl + (config.url ?? '');
-
-    try {
-      return await executeAuthAwareRequest<TResponse, TBody>(config, useAuth);
-    } catch (error) {
-      if (!(error instanceof AxiosError)) return;
-
-      if (useAuth && error.status === HttpStatusCode.Unauthorized) {
-        navigate('/login', { state: { from: location } });
-      }
-    }
-  }
-
-  return executeRequest;
+function configToObject<TBody>(
+  args: UseAxiosConfigArgs<TBody>,
+): UseAxiosRequestConfig<TBody> {
+  return typeof args === 'string' ? { url: args, method: 'get' } : args;
 }

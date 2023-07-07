@@ -1,11 +1,10 @@
 import { useRef } from 'react';
 
-import styles from './content.module.scss';
-
-import { useSelector, useScrollToEnds } from '@/hooks';
+import { useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
-import { ConversationEntity, MinimalUserEntity } from '@/types';
-import { Convo } from '@/utils';
+import { ConversationEntity } from '@/types';
+
+import styles from './content.module.scss';
 
 type ContentProps = {
   conversation: ConversationEntity;
@@ -18,10 +17,6 @@ export function Content(props: ContentProps) {
   const { user: mainUser } = useSelector(selectAuth);
 
   const ref = useRef<HTMLDivElement>(null);
-  const [shouldScrollBack, scrollBack] = useScrollToEnds(ref, {
-    start: 'bottom',
-    passPerc: 0.2,
-  });
 
   return (
     <div ref={ref} className={styles.container}>

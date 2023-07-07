@@ -6,12 +6,12 @@ import { MinimalUserEntity } from '@/types';
 import { User } from '@/utils';
 
 type FriendOptionProps = React.ButtonHTMLAttributes<unknown> & {
-  friendInfo: MinimalUserEntity;
+  friend: MinimalUserEntity;
   chosen?: boolean;
 };
 
 export function FriendOption(_props: FriendOptionProps) {
-  const { friendInfo: friend, chosen, ...props } = _props;
+  const { friend, chosen, ...props } = _props;
   return (
     <Button
       {...props}

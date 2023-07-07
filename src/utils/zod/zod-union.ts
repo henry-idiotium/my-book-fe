@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export function zodUnion<const TLiteral extends ReadonlyArray<string>>(
-  literals: TLiteral
+  literals: TLiteral,
 ) {
   const literalZods = literals.map((l) => z.literal(l));
 

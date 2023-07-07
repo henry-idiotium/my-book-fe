@@ -1,11 +1,11 @@
 import { forwardRef } from 'react';
 import { BsThreeDots } from 'react-icons/bs';
 
-import styles from './profile-button.module.scss';
-
 import accountImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
+
+import styles from './profile-button.module.scss';
 
 interface ProfileButtonProps {
   onClick?: () => void;
@@ -48,6 +48,6 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
         </div>
       </button>
     );
-  }
+  },
 );
 export default ProfileButton;

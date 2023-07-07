@@ -7,7 +7,7 @@
     "plugin:tailwindcss/recommended"
   ],
   "parserOptions": { "project": ["./tsconfig.app.json"] },
-  "ignorePatterns": ["!**/*"],
+  "ignorePatterns": ["!**/*", "**/*.stories.ts", "**/*.stories.tsx"],
   "overrides": [
     { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
   ],

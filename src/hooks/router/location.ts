@@ -8,9 +8,9 @@ export type AppLocation<TState = PreviousLocationState> = {
   state?: TState;
 } & Omit<RouterLocation, 'state'>;
 
-type UseLocation = <TState = PreviousLocationState>() => AppLocation<TState>;
+type UseLocationFn = <TState = PreviousLocationState>() => AppLocation<TState>;
 
-export const useLocation: UseLocation = <TState>() => {
+export const useLocation: UseLocationFn = <TState>() => {
   const location = useRouterLocation();
 
   return {

@@ -1,10 +1,10 @@
 import { forwardRef } from 'react';
 
-import styles from './button.module.scss';
-
 import { useSelector } from '@/hooks';
 import { selectThemeIsDark } from '@/stores';
 import { Ripple, classnames } from '@/utils';
+
+import styles from './button.module.scss';
 
 export type ButtonProps = React.PropsWithChildren &
   React.ButtonHTMLAttributes<unknown> & {
@@ -43,7 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 export default Button;

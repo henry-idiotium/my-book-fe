@@ -15,7 +15,7 @@ export function ThemeDialog({ children }: ThemeDialogProps) {
   const [baseIndex, baseNext] = useLoop(BASE.length, BASE.indexOf(theme.base));
   const [accentIndex, accentNext] = useLoop(
     ACCENT.length,
-    ACCENT.indexOf(theme.accent)
+    ACCENT.indexOf(theme.accent),
   );
 
   useEffect(() => {

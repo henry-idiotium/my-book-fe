@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 
-import styles from './conversation-placeholder.module.scss';
-
 import { Button } from '@/components';
+
+import styles from './conversation-placeholder.module.scss';
 
 const indicator = {
   TITLE: 'Select a message',

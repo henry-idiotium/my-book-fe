@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Most of this is jcalz answer, up until the magic.
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I
+  k: infer I,
 ) => void
   ? I
   : never;
@@ -17,7 +17,7 @@ type Push<T extends any[], V> = [...T, V];
 export type TuplifyUnion<
   T,
   L = LastOf<T>,
-  N = [T] extends [never] ? true : false
+  N = [T] extends [never] ? true : false,
 > = true extends N ? [] : Push<TuplifyUnion<Exclude<T, L>>, L>;
 
 export default TuplifyUnion;

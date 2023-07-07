@@ -1,11 +1,11 @@
-type ElementScheme = GenericObject;
-type Props = (ElementScheme | string | undefined)[];
+export type SingularClassName = Nullable<GenericObject | string>;
+type ClassNameArgs = SingularClassName[];
 
-export function classnames(...props: Props) {
+export function classnames(...props: ClassNameArgs) {
   return props
     .map((className) => {
       const name =
-        typeof className === 'object'
+        className && typeof className === 'object'
           ? extractClassScheme(className)
           : className;
 
@@ -15,7 +15,7 @@ export function classnames(...props: Props) {
     .join(' ');
 }
 
-function extractClassScheme(obj: ElementScheme) {
+function extractClassScheme(obj: GenericObject) {
   return Object.entries(obj).reduce((finalName, [name, enabled]) => {
     return enabled ? `${finalName} ${name}` : finalName;
   }, '');

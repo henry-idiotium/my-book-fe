@@ -1,9 +1,9 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { forwardRef } from 'react';
 
-import styles from './popover.module.scss';
-
 import { classnames } from '@/utils';
+
+import styles from './popover.module.scss';
 
 type PopoverContentProps = PopoverPrimitive.PopperContentProps &
   React.PropsWithChildren & {
@@ -35,7 +35,7 @@ const Content = forwardRef<HTMLDivElement, PopoverContentProps>(
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     );
-  }
+  },
 );
 
 export const Popover = Object.assign(PopoverPrimitive.Root, {

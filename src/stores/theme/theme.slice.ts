@@ -1,9 +1,9 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { z } from 'zod';
 
-import { RootState } from '..';
-
 import { getZodDefault, zodUnion } from '@/utils';
+
+import { RootState } from '..';
 
 export const THEME_FEATURE_KEY = 'theme';
 
@@ -25,6 +25,7 @@ export const themeSlice = createSlice({
       const { type, value } = action.payload;
 
       (state as { [key in typeof type]: typeof value })[type] = value;
+      (state as { [key in typeof type]: typeof value })[type] = value;
     },
   },
 });
@@ -45,7 +46,7 @@ export const selectThemeIsDark = (rootState: RootState) => {
 export type ThemeBaseTypes = (typeof themeConfig.base)[number];
 export type ThemeAccentTypes = (typeof themeConfig.accent)[number];
 export type ThemeState = z.infer<typeof themeStateZod>;
-type ThemeConfig = {
+export type ThemeConfig = {
   [Key in keyof ThemeState]: {
     type: Key;
     value: (typeof themeConfig)[Key][number];

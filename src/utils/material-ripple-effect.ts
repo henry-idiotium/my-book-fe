@@ -20,13 +20,13 @@ export class Ripple {
     offsetX: number,
     clickPointY: number,
     elementHeight: number,
-    offsetY: number
+    offsetY: number,
   ) {
     this.x = clickPointX - offsetX > elementWidth / 2 ? 0 : elementWidth;
     this.y = clickPointY - offsetY > elementHeight / 2 ? 0 : elementHeight;
     this.z = Math.hypot(
       this.x - (clickPointX - offsetX),
-      this.y - (clickPointY - offsetY)
+      this.y - (clickPointY - offsetY),
     );
 
     return this.z;
@@ -37,7 +37,7 @@ export class Ripple {
     color: ColorType,
     rect: DOMRect,
     radius: number,
-    event: MouseEvent
+    event: MouseEvent,
   ) {
     element.classList.add('ripple');
     element.style.backgroundColor =
@@ -56,7 +56,7 @@ export class Ripple {
         { transform: 'scale(0)', opacity: 1 },
         { transform: 'scale(1.5)', opacity: 0 },
       ],
-      { duration: 500, easing: 'linear' }
+      { duration: 500, easing: 'linear' },
     );
   }
 
@@ -74,7 +74,7 @@ export class Ripple {
       rect.left,
       event.clientY,
       element.offsetHeight,
-      rect.top
+      rect.top,
     );
 
     const circle = document.createElement('span');

@@ -7,7 +7,7 @@ export type DynamicFragmentProps<TProps> = TProps &
   };
 
 export function DynamicFragment<TProps = GenericObject>(
-  _props: DynamicFragmentProps<TProps>
+  _props: DynamicFragmentProps<TProps>,
 ) {
   const { as: Element, ...props } = _props;
 

@@ -1,6 +1,6 @@
-import * as Message from './message';
-
 import { MapEventPayloadActions } from '@/types/socket-helper';
+
+import * as Message from './message';
 
 export type ChatSocketEmitEvents = MapEventPayloadActions<{
   [Message.Events.SEEN]: Message.Payloads.Seen;

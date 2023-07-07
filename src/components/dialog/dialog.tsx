@@ -1,9 +1,9 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { forwardRef } from 'react';
 
-import styles from './dialog.module.scss';
-
 import { classnames } from '@/utils';
+
+import styles from './dialog.module.scss';
 
 type ContentProps = React.PropsWithChildren &
   Omit<React.HTMLAttributes<unknown>, 'className'> & {
@@ -21,7 +21,7 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(
 
     const portalClassnames = classnames(
       styles.container,
-      classNames?.container
+      classNames?.container,
     );
     const overlayClassnames = classnames(styles.overlay, classNames?.overlay);
     const contentClassnames = classnames(styles.content, classNames?.content, {
@@ -41,7 +41,7 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(
         </DialogPrimitive.Overlay>
       </DialogPrimitive.Portal>
     );
-  }
+  },
 );
 
 export const Dialog = Object.assign(DialogPrimitive.Root, {

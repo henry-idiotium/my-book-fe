@@ -4,14 +4,14 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 
-import { RootState } from '../app-store';
-
-import { ChatSocketEntity, chatSocketEntityZod, Payload } from './types';
-
 import { messageZod } from '@/types';
 import { Convo, getZodDefault } from '@/utils';
 
-export * from './chat-socket.map';
+import { RootState } from '../app-store';
+
+import { ChatSocketEntity, chatSocketEntityZod, Payloads } from './types';
+
+export * as ChatSocketMap from './chat-socket.map';
 
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
@@ -20,16 +20,16 @@ const initialState = adapter.getInitialState();
 const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);
 const initialMessage = getZodDefault(messageZod);
 
-const chatSocketSlice = createSlice({
+export const chatSocketSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
   reducers: {
-    addConversation: (state, action: Payload.Connect) => {
+    addConversation: (state, action: Payloads.User.Connect) => {
       const { activeUserIds, conversation: convo } = action.payload;
 
       const isGroup = Convo.isGroup(convo);
       const participants = Object.fromEntries(
-        convo.participants.map((user) => [user.id, user])
+        convo.participants.map((user) => [user.id, user]),
       );
 
       state.entities[convo.id] = {
@@ -41,7 +41,7 @@ const chatSocketSlice = createSlice({
       };
     },
 
-    addActiveUser: (state, action: Payload.JoinChat) => {
+    addActiveUser: (state, action: Payloads.User.JoinChat) => {
       const { id: userId, conversationId: convoId } = action.payload;
 
       const entity = state.entities[convoId];
@@ -50,7 +50,7 @@ const chatSocketSlice = createSlice({
       entity.activeUserIds = [...entity.activeUserIds, userId];
     },
 
-    removeActiveUser: (state, action: Payload.LeaveChat) => {
+    removeActiveUser: (state, action: Payloads.User.LeaveChat) => {
       const { id: userId, conversationId: convoId } = action.payload;
 
       const entity = state.entities[convoId];
@@ -59,7 +59,7 @@ const chatSocketSlice = createSlice({
       entity.activeUserIds = entity.activeUserIds.filter((id) => id !== userId);
     },
 
-    pendMessage: (state, action: Payload.Message.Pending) => {
+    pendMessage: (state, action: Payloads.Message.Pending) => {
       const { conversationId: convoId, content, at } = action.payload;
 
       const entity = state.entities[convoId];
@@ -71,7 +71,7 @@ const chatSocketSlice = createSlice({
       ];
     },
 
-    unpendMessage: (state, action: Payload.Message.SendSuccess) => {
+    unpendMessage: (state, action: Payloads.Message.SendSuccess) => {
       const { conversationId: convoId, ...updatedMessage } = action.payload;
 
       const entity = state.entities[convoId];
@@ -79,11 +79,11 @@ const chatSocketSlice = createSlice({
 
       // update pending message
       entity.messages = entity.messages.filter(
-        (msg) => msg.id !== updatedMessage.id
+        (msg) => msg.id !== updatedMessage.id,
       );
     },
 
-    addMessage: (state, action: Payload.Message.Receive) => {
+    addMessage: (state, action: Payloads.Message.Receive) => {
       const { conversationId: convoId, ...message } = action.payload;
 
       const entity = state.entities[convoId];
@@ -92,7 +92,7 @@ const chatSocketSlice = createSlice({
       entity.messages = [...entity.messages, message];
     },
 
-    deleteMessage: (state, action: Payload.Message.DeleteNotify) => {
+    deleteMessage: (state, action: Payloads.Message.DeleteNotify) => {
       const { conversationId: convoId, id: messageId } = action.payload;
 
       const entity = state.entities[convoId];
@@ -101,7 +101,7 @@ const chatSocketSlice = createSlice({
       entity.messages = entity.messages.filter((msg) => msg.id !== messageId);
     },
 
-    updateMessage: (state, action: Payload.Message.UpdateNotify) => {
+    updateMessage: (state, action: Payloads.Message.UpdateNotify) => {
       const { conversationId: convoId, ...message } = action.payload;
 
       const entity = state.entities[convoId];
@@ -116,7 +116,8 @@ const chatSocketSlice = createSlice({
 });
 
 export const chatSocketReducer = chatSocketSlice.reducer;
-export const chatSocketActions = chatSocketSlice.actions;
+export const chatSocketStoreActions = chatSocketSlice.actions;
+export * as chatSocketSocketActions from './chat-socket.extra-actions';
 
 // selector
 const stateSelector = (state: RootState) => state[CHAT_SOCKET_FEATURE_KEY];

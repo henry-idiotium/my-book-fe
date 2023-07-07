@@ -27,7 +27,7 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
         </div>
       </Button>
     );
-  }
+  },
 );
 
 export default MenuItem;

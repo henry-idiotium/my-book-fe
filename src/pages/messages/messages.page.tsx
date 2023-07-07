@@ -1,17 +1,25 @@
-import { useEffect, useState } from 'react';
+import { createContext, useMemo } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
+import { z } from 'zod';
+
+import { classnames, getZodDefault } from '@/utils';
 
 import { ChatEntry } from './components';
-import { useConversationRouteOutlet, useFetchChats } from './hooks';
+import { useConversationRouteOutlet, useFetchConversations } from './hooks';
 import styles from './messages.page.module.scss';
 
-import { PageMeta } from '@/components';
-import { classnames } from '@/utils';
+const EMPTY_ENTRIES_MSG = "It's empty! Let's start a new conversation.";
 
-const EMPTY_CHAT_ENTRIES_MSG = "It's empty! Let's start a new conversation.";
+export const PropagatePropsContext = createContext(
+  getZodDefault(
+    z.object({
+      reloadEntries: z.function(),
+    }),
+  ),
+);
 
 export function Messages() {
   const navigate = useNavigate();
@@ -20,32 +28,17 @@ export function Messages() {
   const routesOutlets = useConversationRouteOutlet();
   const headerOptions = getHeaderOptionScheme();
 
-  const [{ chatEntries, chatEntriesLoading, chatEntriesErrors }, refetch] =
-    useFetchChats();
-  // const chatEntries: MessageEntity[] = [];
+  const [{ chatEntries, chatEntriesLoading }, reloadEntries] =
+    useFetchConversations();
 
-  const [activeConvoId, setActiveConvoId] = useState<string>();
+  // watch current active convo
+  // `*` is the current match to this compose POV.
+  const activeConvoId = useMemo(() => params['*'], [params]);
 
-  // watch current acitve convo
-  useEffect(() => {
-    // not a spread obj 'cause it match * as a parent rather as a child route
-    const activeURLConvoId = params['*'];
-
-    setActiveConvoId(activeURLConvoId);
-  }, [params]);
-
-  function handleSelectChatEntry(id: string) {
-    return () => {
-      if (activeConvoId && activeConvoId === id) return;
-
-      navigate(id);
-    };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function reloadEntries() {
-    refetch();
-  }
+  const handleSelectChatEntry = (id: string) => () => {
+    if (activeConvoId === id) return;
+    navigate(id);
+  };
 
   function toggleOnRshMaxClassNames(className?: string, isEntryPane = true) {
     const entryShouldHide = !chatEntries.length || activeConvoId;
@@ -59,10 +52,9 @@ export function Messages() {
   // todo: create a layout cmp for division of two panel
 
   if (chatEntriesLoading) return <div>loading ...</div>;
-  if (chatEntriesErrors.length) return <div>something went wrong!!</div>;
 
   return (
-    <PageMeta title="Messages" auth={{ type: 'private' }}>
+    <PropagatePropsContext.Provider value={{ reloadEntries }}>
       <div className={styles.container}>
         <section className={toggleOnRshMaxClassNames(styles.chatEntry)}>
           <div className={styles.chatEntryHeader}>
@@ -91,12 +83,13 @@ export function Messages() {
                 <ChatEntry
                   key={index}
                   entry={entry}
+                  isActive={activeConvoId === entry.id}
                   openConvo={handleSelectChatEntry(entry.id)}
                 />
               ))
             ) : (
               <span className={styles.emptyChatEntriesMsg}>
-                {EMPTY_CHAT_ENTRIES_MSG}
+                {EMPTY_ENTRIES_MSG}
               </span>
             )}
           </div>
@@ -108,7 +101,7 @@ export function Messages() {
           {routesOutlets}
         </section>
       </div>
-    </PageMeta>
+    </PropagatePropsContext.Provider>
   );
 }
 

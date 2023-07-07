@@ -52,8 +52,8 @@ export function setupStore(preloadedState?: PreloadedState<RootState>) {
     reducer: persistReducer(persistConfig, reducer),
     enhancers,
     preloadedState,
-    middleware: (defaultMiddlewares) => {
-      return defaultMiddlewares({
+    middleware: (defaultMiddleware) => {
+      return defaultMiddleware({
         serializableCheck: {
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
