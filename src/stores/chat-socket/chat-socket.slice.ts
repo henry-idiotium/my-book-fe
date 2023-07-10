@@ -9,7 +9,7 @@ import {
   ChatSocketListener as Listener,
   messageZod,
 } from '@/types';
-import { Convo, getZodDefault } from '@/utils';
+import { getZodDefault } from '@/utils';
 
 import { RootState } from '../app-store';
 
@@ -35,22 +35,12 @@ export const chatSocketSlice = createSlice({
     startConnection(state, action: Payloads.User.InitConversation) {
       const { conversationId, token } = action.payload;
 
-      const socket = ChatSocketMap.getOrConnect(conversationId, token);
-      if (!socket?.connected) return;
+      ChatSocketMap.getOrConnect(conversationId, token).then((result) => {
+        if (!result) return;
+        const { socket, ...chatSocketEntity } = result;
+        if (!socket?.connected) return;
 
-      // Handle conversation connection from main user.
-      socket.on(UserListener.CONNECT, ({ activeUserIds, conversation }) => {
-        // add convo to current Set
-        adapter.setOne(state, {
-          ...conversation,
-          activeUserIds,
-          isGroup: Convo.isGroup(conversation),
-        });
-
-        console.log(state);
-
-        // terminate listen convo connect after callback is run
-        socket.off(UserListener.CONNECT);
+        adapter.setOne(state, chatSocketEntity);
 
         // active users changes
         socket.on(UserListener.JOIN_CHAT, ({ activeUserIds }) =>
@@ -65,43 +55,43 @@ export const chatSocketSlice = createSlice({
             changes: { activeUserIds },
           }),
         );
+
+        // Handle message updates from other users.
+        socket.on(MessageListener.UPDATE_NOTIFY, (payload) => {
+          const entity = state.entities[conversationId];
+          if (!entity) return;
+
+          const updatedMessageIndex = entity.messages.findIndex(
+            (m) => m.id === payload.id,
+          );
+          if (updatedMessageIndex === -1) return;
+          entity.messages[updatedMessageIndex] = payload;
+        });
+
+        // Handle message deletions from other users.
+        socket.on(MessageListener.DELETE_NOTIFY, (payload) => {
+          const entity = state.entities[conversationId];
+          if (!entity) return;
+
+          const deletedMessageIndex = entity.messages.findIndex(
+            (m) => m.id === payload.id,
+          );
+          if (deletedMessageIndex === -1) return;
+
+          entity.messages.splice(deletedMessageIndex, 1);
+        });
+
+        // server exception
+        if (import.meta.env.DEV) {
+          socket.on(Listener.EXCEPTION, (err) => console.error(err));
+        }
       });
-
-      // Handle message updates from other users.
-      socket.on(MessageListener.UPDATE_NOTIFY, (payload) => {
-        const entity = state.entities[conversationId];
-        if (!entity) return;
-
-        const updatedMessageIndex = entity.messages.findIndex(
-          (m) => m.id === payload.id,
-        );
-        if (updatedMessageIndex === -1) return;
-        entity.messages[updatedMessageIndex] = payload;
-      });
-
-      // Handle message deletions from other users.
-      socket.on(MessageListener.DELETE_NOTIFY, (payload) => {
-        const entity = state.entities[conversationId];
-        if (!entity) return;
-
-        const deletedMessageIndex = entity.messages.findIndex(
-          (m) => m.id === payload.id,
-        );
-        if (deletedMessageIndex === -1) return;
-
-        entity.messages.splice(deletedMessageIndex, 1);
-      });
-
-      // server exception
-      if (import.meta.env.DEV) {
-        socket.on(Listener.EXCEPTION, (err) => console.error(err));
-      }
     },
 
     disposeConnection(state, action: Payloads.User.DisposeConnection) {
-      const { conversationId, token } = action.payload;
+      const { conversationId } = action.payload;
 
-      const socket = ChatSocketMap.getOrConnect(conversationId, token);
+      const socket = ChatSocketMap.getSocket(conversationId);
       if (!socket?.connected) return;
 
       socket.off();
