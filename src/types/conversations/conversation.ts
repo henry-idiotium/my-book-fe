@@ -6,9 +6,11 @@ import { pairedConversationZod } from './paired-conversation';
 
 /** Conversation base type, where it except both types of conversation.  */
 export type ConversationEntity = z.infer<typeof conversationEntityZod>;
-export const conversationEntityZod = groupConversationZod
-  .deepPartial()
+export const conversationEntityZod = z
+  .object({})
   .extend(pairedConversationZod.shape)
+  .extend(groupConversationZod.shape)
+  .deepPartial()
   .extend(baseConversationZod.shape);
 
 /**

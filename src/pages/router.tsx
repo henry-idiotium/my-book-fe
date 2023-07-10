@@ -1,6 +1,7 @@
 import { RouteObject, createBrowserRouter } from 'react-router-dom';
 
-import { GuardWrapper, Root } from '@/layouts';
+import { Root } from '@/layouts';
+import { guardWrapper } from '@/utils';
 
 import Friends from './friends/friends.page';
 import Home from './home/home.page';
@@ -12,7 +13,7 @@ export const router = createBrowserRouter([
     Component: Root,
     children: [
       {
-        element: <GuardWrapper type="public" />,
+        Component: guardWrapper({ type: 'public' }),
         children: [
           { path: '/', element: <>this is public!!!</> },
           { path: '/foo', element: <>this is public!!! foo</> },
@@ -20,7 +21,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        element: <GuardWrapper type="private" />,
+        Component: guardWrapper({ type: 'private' }),
         children: [
           { path: '/', element: <>this is private!!!</> },
           { path: '/home', Component: Home },

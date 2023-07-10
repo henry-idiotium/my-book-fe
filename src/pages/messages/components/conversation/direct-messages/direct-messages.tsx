@@ -4,20 +4,24 @@ import {
   PaperPlaneRight as PaperPlaneRightIcon,
   Smiley as SmileyIcon,
 } from '@phosphor-icons/react';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { Button } from '@/components';
-import { ConversationEntity } from '@/types';
+
+import { ConversationCascadeStateContext } from '../conversation';
 
 import styles from './direct-messages.module.scss';
 
 const START_MESSAGING_PLACEHOLDER = 'Start a new message';
 
-type MessagingProps = {
-  conversation: ConversationEntity;
-};
+// eslint-disable-next-line @typescript-eslint/ban-types
+type MessagingProps = {};
 
 export function DirectMessages(props: MessagingProps) {
+  const { activeConversation: convo } = useContext(
+    ConversationCascadeStateContext,
+  );
+
   const [message, setMessage] = useState('');
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

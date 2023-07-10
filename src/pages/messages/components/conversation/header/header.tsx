@@ -1,25 +1,20 @@
+import { useContext } from 'react';
 import { FiMoreHorizontal } from 'react-icons/fi';
 
 import UserImg from '@/assets/account-image.jpg';
 import { Button } from '@/components';
-import { useSelector } from '@/hooks';
-import { selectAuth } from '@/stores';
-import { ConversationEntity, MinimalUserEntity } from '@/types';
-import { Convo, User } from '@/utils';
+
+import { ConversationCascadeStateContext } from '../conversation';
 
 import styles from './header.module.scss';
 
-type HeaderProps = {
-  conversation: ConversationEntity;
-};
+// eslint-disable-next-line @typescript-eslint/ban-types
+type HeaderProps = {};
 
 export function Header(props: HeaderProps) {
-  const { conversation: convo } = props;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user: mainUser } = useSelector(selectAuth);
-
-  const titleName = extractTitleName(convo);
+  const { activeConversation: convo } = useContext(
+    ConversationCascadeStateContext,
+  );
 
   return (
     <div className={styles.container}>
@@ -29,7 +24,7 @@ export function Header(props: HeaderProps) {
         </div>
 
         <div className={styles.title}>
-          <span>{titleName}</span>
+          <span>{convo.name}</span>
         </div>
 
         <Button disableBaseStyles className={styles.more}>
@@ -40,12 +35,3 @@ export function Header(props: HeaderProps) {
   );
 }
 export default Header;
-
-// todo: refactor, duplicate logic with chat entry
-function extractTitleName(convo: ConversationEntity) {
-  if (!Convo.isGroup(convo)) {
-    const interculator = convo.participants.at(0);
-    return interculator ? User.getFullName(interculator) : '[interlocutor]';
-  }
-  return convo.name;
-}

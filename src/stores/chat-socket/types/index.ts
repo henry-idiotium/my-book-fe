@@ -1,2 +1,2 @@
-export * from './chat-socket';
-export * as Payloads from './payloads';
+export * from './chat-socket-entity';
+export * as ChatSocketSlicePayloads from './payloads';

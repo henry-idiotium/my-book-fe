@@ -8,7 +8,7 @@ declare global {
     : Type;
   type Mutable<Type> = { -readonly [Key in keyof Type]-?: Type[Key] };
   type PartialPick<T, O extends keyof T> = Partial<Pick<T, O>> & Omit<T, O>;
-  type RequiredPick<T, O extends keyof T> = Omit<T, O> & Required<Pick<T, O>>;
+  type RequiredPick<T, O extends keyof T> = Required<Pick<T, O>> & Omit<T, O>;
   type HasNullable<T, TLeft, TRight = never> = Extract<
     T,
     undefined | null

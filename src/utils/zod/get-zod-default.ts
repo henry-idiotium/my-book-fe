@@ -8,9 +8,9 @@
 
 import { z } from 'zod';
 
-export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
-  schema: T,
-): z.infer<T> {
+export function getZodDefault<
+  T extends z.Schema<any> | z.AnyZodObject | z.ZodEffects<any>,
+>(schema: T): z.infer<T> {
   // is it a ZodEffect?
   if (schema instanceof z.ZodEffects) {
     // is it a recursive ZodEffect?

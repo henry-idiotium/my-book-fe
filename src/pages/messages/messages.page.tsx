@@ -1,11 +1,11 @@
-import { createContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { LuMailPlus } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 
-import { classnames, getZodDefault } from '@/utils';
+import { classnames, contextWithZod } from '@/utils';
 
 import { ChatEntry } from './components';
 import { useConversationRouteOutlet, useFetchConversations } from './hooks';
@@ -13,13 +13,9 @@ import styles from './messages.page.module.scss';
 
 const EMPTY_ENTRIES_MSG = "It's empty! Let's start a new conversation.";
 
-export const PropagatePropsContext = createContext(
-  getZodDefault(
-    z.object({
-      reloadEntries: z.function(),
-    }),
-  ),
-);
+export const MessageCascadeStateContext = contextWithZod({
+  reloadEntries: z.function().returns(z.void()),
+});
 
 export function Messages() {
   const navigate = useNavigate();
@@ -31,19 +27,16 @@ export function Messages() {
   const [{ chatEntries, chatEntriesLoading }, reloadEntries] =
     useFetchConversations();
 
-  // watch current active convo
   // `*` is the current match to this compose POV.
-  const activeConvoId = useMemo(() => params['*'], [params]);
+  const activeConvoId = useMemo(() => params['*'] ?? '', [params]);
 
   const handleSelectChatEntry = (id: string) => () => {
-    if (activeConvoId === id) return;
-    navigate(id);
+    if (activeConvoId !== id) navigate(id);
   };
 
   function toggleOnRshMaxClassNames(className?: string, isEntryPane = true) {
     const entryShouldHide = !chatEntries.length || activeConvoId;
     const shouldAdd = isEntryPane ? entryShouldHide : !entryShouldHide;
-
     return classnames(className, { [styles.hideOnRshMax]: shouldAdd });
   }
 
@@ -54,7 +47,7 @@ export function Messages() {
   if (chatEntriesLoading) return <div>loading ...</div>;
 
   return (
-    <PropagatePropsContext.Provider value={{ reloadEntries }}>
+    <MessageCascadeStateContext.Provider value={{ reloadEntries }}>
       <div className={styles.container}>
         <section className={toggleOnRshMaxClassNames(styles.chatEntry)}>
           <div className={styles.chatEntryHeader}>
@@ -101,7 +94,7 @@ export function Messages() {
           {routesOutlets}
         </section>
       </div>
-    </PropagatePropsContext.Provider>
+    </MessageCascadeStateContext.Provider>
   );
 }
 

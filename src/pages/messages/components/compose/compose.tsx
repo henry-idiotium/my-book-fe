@@ -9,7 +9,7 @@ import { useBoolean, useMap, useUpdateEffect } from 'usehooks-ts';
 import { Button, Dialog, DynamicFragment } from '@/components';
 import { MinimalUserEntity as MinimalUser } from '@/types';
 
-import { PropagatePropsContext } from '../../messages.page';
+import { MessageCascadeStateContext } from '../../messages.page';
 
 import styles from './compose.module.scss';
 import * as Constants from './constants';
@@ -21,7 +21,7 @@ import { useComposeConversation, useQueryFriend } from './hooks';
 export function Compose() {
   const navigate = useNavigate();
 
-  const propagatedProps = useContext(PropagatePropsContext);
+  const propagatedProps = useContext(MessageCascadeStateContext);
 
   const groupCreationEnabled = useBoolean(false);
   const [chosenFriends, chosenFriendsActions] = useMap(

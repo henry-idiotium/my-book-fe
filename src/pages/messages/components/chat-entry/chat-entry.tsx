@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
-
 import UserImage from '@/assets/account-image.jpg';
-import { useSelector } from '@/hooks';
-import { selectAuth, chatSocketSelectors } from '@/stores';
-import { ConversationEntity, MessageEntity, MinimalUserEntity } from '@/types';
-import { Convo, User, classnames, formatTimeReadable } from '@/utils';
+import {
+  useDeepCompareMemoize as deepCompareMemo,
+  useMemoWithInitial,
+  useSelector,
+} from '@/hooks';
+import { chatSocketSelectors, selectAuth } from '@/stores';
+import { Convo, classnames, formatTimeReadable } from '@/utils';
+
+import { ConversationResponse } from '../../types';
 
 import styles from './chat-entry.module.scss';
 
 export type ChatEntryProps = {
-  entry: ConversationEntity;
+  entry: ConversationResponse;
   isActive?: boolean;
   openConvo?: () => void;
 };
@@ -20,23 +23,35 @@ export function ChatEntry(props: ChatEntryProps) {
   const { user: mainUser } = useSelector(selectAuth);
   const chatSocketState = useSelector(chatSocketSelectors.getById(entry.id));
 
-  const [latestMessage, setLatestMessage] = useState(
-    getLatestMessage(entry.messages),
+  const latestMessage = useMemoWithInitial(
+    () => {
+      if (!chatSocketState) return;
+      return chatSocketState.messages.at(-1);
+    },
+    entry.latestMessage,
+    deepCompareMemo(chatSocketState?.messages),
   );
 
-  // update to latest message on socket state change
-  useEffect(() => {
-    // for now only update the one that currently open
-    if (!chatSocketState) return;
+  const filteredParticipants = useMemoWithInitial(
+    () => {
+      if (!chatSocketState) return [];
+      return chatSocketState.participants.filter((p) => p.id !== mainUser.id);
+    },
+    entry.participants,
+    [chatSocketState?.participants.length],
+  );
 
-    const newlyGetLatestMessage = getLatestMessage(chatSocketState.messages);
-
-    setLatestMessage(newlyGetLatestMessage);
-  }, [chatSocketState?.messages]);
-
-  const members = filterMembers(entry, mainUser.id);
-  const entryName = getEntryName(entry, members);
-  const oppositeTalker = members?.at(0);
+  const name = useMemoWithInitial(
+    () => {
+      if (!chatSocketState) return;
+      const { isGroup, activeUserIds, ...conversation } = chatSocketState;
+      return Convo.getName(conversation);
+    },
+    filteredParticipants
+      ? Convo.getName({ ...entry, participants: filteredParticipants })
+      : undefined,
+    [chatSocketState?.name, filteredParticipants],
+  );
 
   return (
     <button
@@ -52,23 +67,23 @@ export function ChatEntry(props: ChatEntryProps) {
         <div className={styles.content}>
           <div className={styles.info}>
             <div className={styles.infoName}>
-              <span>{entryName}</span>
+              <span>{name}</span>
             </div>
 
-            {oppositeTalker ? (
+            {filteredParticipants[0] ? (
               <div className={styles.infoId}>
-                <span>@{oppositeTalker.alias}</span>
+                <span>@{filteredParticipants[0].alias}</span>
               </div>
-            ) : undefined}
+            ) : null}
 
             {latestMessage ? (
               <>
                 <span className={styles.infoSep}>·</span>
                 <div className={styles.infoTimeLastMessage}>
-                  <span>{latestMessage.at}</span>
+                  <span>{formatTimeReadable(latestMessage.at)}</span>
                 </div>
               </>
-            ) : undefined}
+            ) : null}
           </div>
 
           <div className={styles.lastMessage}>
@@ -81,32 +96,3 @@ export function ChatEntry(props: ChatEntryProps) {
 }
 
 export default ChatEntry;
-
-// todo: refactor, duplicate logic with conversation
-function getEntryName(
-  entry: ConversationEntity,
-  members?: MinimalUserEntity[],
-) {
-  if (!Convo.isGroup(entry)) {
-    const interlocutor = members?.at(0);
-    return interlocutor ? User.getFullName(interlocutor) : '[interlocutor]';
-  }
-  return entry.name;
-}
-
-function filterMembers(entry: ConversationEntity, mainUserId: number) {
-  return entry.participants?.filter((p) => p.id !== mainUserId);
-}
-
-function getLatestMessage(messages?: MessageEntity[]) {
-  if (!messages || !messages.length) return;
-
-  const latestMsg = messages.reduce((former, latter) =>
-    former.at > latter.at ? former : latter,
-  );
-
-  return {
-    ...latestMsg,
-    at: formatTimeReadable(latestMsg.at),
-  };
-}

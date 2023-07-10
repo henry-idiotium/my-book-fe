@@ -1,81 +1,37 @@
 import { useParams } from 'react-router-dom';
 
-import { useChatSocketConnection } from '../../hooks';
+import { conversationEntityZod } from '@/types';
+import { contextWithZod } from '@/utils';
 
 import Content from './content/content';
 import styles from './conversation.module.scss';
 import DirectMessages from './direct-messages/direct-messages';
 import Header from './header/header';
+import { useChatSocketConnection } from './hooks';
 
-import { useSelector } from '@/hooks';
-import { selectAuth } from '@/stores';
-import { ConversationEntity } from '@/types';
+export const ConversationCascadeStateContext = contextWithZod({
+  activeConversation: conversationEntityZod,
+});
 
 export function Conversation() {
-  // const { id = '' } = useParams();
+  const { id = '' } = useParams();
 
-  // const { user: mainUser } = useSelector(selectAuth);
+  const { loading, connectFailed, activeConversation } =
+    useChatSocketConnection(id);
 
-  // const { state: socketState, loading: socketLoading } =
-  //   useChatSocketConnection(id);
-
-  // if (socketLoading) return <div>loading...</div>;
-
-  // const { isGroup, activeUserIds, ...socketConvo } = socketState;
-
-  // const participants = Object.values(socketConvo.participants).filter(
-  //   (pt) => pt.id !== mainUser.id
-  // );
-  // const conversation = { ...socketConvo, participants };
-
-  // note: mock data
-  const conversation: ConversationEntity = {
-    id: '64a660a8c616995e4cfd82b1',
-    participants: [
-      {
-        id: 55,
-        alias: 'join_doe_46',
-        firstName: 'John',
-        lastName: 'Doe',
-      },
-      {
-        id: 54,
-        alias: 'thor_karl',
-        firstName: 'Thor Finn',
-        lastName: 'Karl Sef Ni',
-      },
-    ],
-    messages: [],
-    messageSeenLog: [],
-  };
+  // todo: provide better status render handling
+  if (connectFailed) return <div className="text-red-600">connect failed</div>;
+  if (loading) return <div>loading...</div>;
 
   return (
-    <div className={styles.container}>
-      <Header conversation={conversation} />
-      <Content conversation={conversation} />
-      <DirectMessages conversation={conversation} />
-    </div>
+    <ConversationCascadeStateContext.Provider value={{ activeConversation }}>
+      <div className={styles.container}>
+        <Header />
+        <Content />
+        <DirectMessages />
+      </div>
+    </ConversationCascadeStateContext.Provider>
   );
 }
 
 export default Conversation;
-
-// todo: chat socket redux state, merge convo and convoGroup then flat
-//      them to the base props level
-
-//#region utils
-// todo: refactor, duplicate logic with chat entry
-
-/* function getLatestMessage(messages?: MessageEntity[]) {
-  if (!messages || !messages.length) return;
-
-  const latestMsg = messages.reduce((former, latter) =>
-    former.at > latter.at ? former : latter
-  );
-
-  return {
-    ...latestMsg,
-    at: formatTimeReadable(latestMsg.at),
-  };
-} */
-//#endregion

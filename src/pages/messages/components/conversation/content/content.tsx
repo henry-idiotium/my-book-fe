@@ -1,20 +1,16 @@
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
 
-import { useSelector } from '@/hooks';
-import { selectAuth } from '@/stores';
-import { ConversationEntity } from '@/types';
+import { ConversationCascadeStateContext } from '../conversation';
 
 import styles from './content.module.scss';
 
-type ContentProps = {
-  conversation: ConversationEntity;
-};
+// eslint-disable-next-line @typescript-eslint/ban-types
+type ContentProps = {};
 
 export function Content(props: ContentProps) {
-  const { conversation } = props;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user: mainUser } = useSelector(selectAuth);
+  const { activeConversation: convo } = useContext(
+    ConversationCascadeStateContext,
+  );
 
   const ref = useRef<HTMLDivElement>(null);
 

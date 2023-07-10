@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Navigate, Outlet } from 'react-router-dom';
 
 import { useLocation, useSelector } from '@/hooks';
@@ -7,20 +8,19 @@ const ROUTE_ROOT = '/';
 const ROUTE_LOGIN = '/login';
 const ROUTE_HOME = '/home';
 
-type GuardWrapperProps = {
+type GuardWrapperArgs = {
   type: 'private' | 'public' | 'custom';
 };
 
 /** Authentication guard wrapper for route children. */
-export function GuardWrapper(props: GuardWrapperProps) {
-  const { type: authType } = props;
+export const guardWrapper = (args: GuardWrapperArgs) => () => {
+  const { type: authType } = args;
 
   const location = useLocation();
 
   const { token } = useSelector(selectAuth);
 
   // auth guard ------
-
   const path = location.pathname ?? ROUTE_ROOT;
   const isMatchRoot = path === ROUTE_ROOT;
   const validAuth = !!token;
@@ -45,6 +45,6 @@ export function GuardWrapper(props: GuardWrapperProps) {
   }
 
   return <Outlet />;
-}
+};
 
-export default GuardWrapper;
+export default guardWrapper;

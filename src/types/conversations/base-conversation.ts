@@ -10,7 +10,7 @@ export const baseConversationZod = object({
   id: string(),
   participants: array(minimalUserZod),
   messages: array(messageZod),
+  messageSeenLog: array(messageSeenLogZod),
   theme: string().optional(),
   quickEmoji: string().optional(),
-  messageSeenLog: array(messageSeenLogZod),
 });

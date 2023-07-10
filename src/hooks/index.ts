@@ -5,3 +5,4 @@ export * from './router';
 export * from './window-scroll';
 export * from './effect-control-state';
 export * from './deep-compare-memorize';
+export * from './memo-with-initial';

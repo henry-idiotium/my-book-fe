@@ -1,12 +1,16 @@
 import { useAxios } from '@/hooks/axios/axios';
-import { GroupConversation, PairedConversation } from '@/types';
+
+import {
+  GroupConversationResponse,
+  PairedConversationResponse,
+} from '../types';
 
 export function useFetchConversations() {
   const [{ data: pairedConvo = [], loading: pairedLoading }, fetchPairedConvo] =
-    useAxios<PairedConversation[]>(`/paired-conversations`);
+    useAxios<PairedConversationResponse[]>(`/paired-conversations`);
 
   const [{ data: groupConvo = [], loading: groupLoading }, fetchGroupConvo] =
-    useAxios<GroupConversation[]>(`/group-conversations`);
+    useAxios<GroupConversationResponse[]>(`/group-conversations`);
 
   async function refetch() {
     await fetchPairedConvo();
