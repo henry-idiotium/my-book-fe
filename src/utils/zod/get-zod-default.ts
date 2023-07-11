@@ -8,9 +8,9 @@
 
 import { z } from 'zod';
 
-export function getZodDefault<
-  T extends z.Schema<any> | z.AnyZodObject | z.ZodEffects<any>,
->(schema: T): z.infer<T> {
+export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
+  schema: T,
+): z.infer<T> {
   // is it a ZodEffect?
   if (schema instanceof z.ZodEffects) {
     // is it a recursive ZodEffect?
@@ -27,12 +27,13 @@ export function getZodDefault<
     if (schema instanceof z.ZodOptional) return undefined;
     if (schema instanceof z.ZodNullable) return null;
 
+    if (schema instanceof z.ZodRecord) return {};
     if (schema instanceof z.ZodArray) return [];
     if (schema instanceof z.ZodString) return '';
     if (schema instanceof z.ZodNumber) return 0;
     if (schema instanceof z.ZodBoolean) return false;
     if (schema instanceof z.ZodDate) return new Date();
-    if (schema instanceof z.ZodFunction) return () => void 0; // undefined
+    if (schema instanceof z.ZodFunction) return () => undefined;
 
     // return an content of object recursively
     if (schema instanceof z.ZodObject) return getZodDefault(schema);

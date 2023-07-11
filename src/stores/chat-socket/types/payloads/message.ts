@@ -1,10 +1,31 @@
-import { ChatSocketEmitter } from '@/types';
+import {
+  ChatSocketEmitter,
+  ChatSocketListener,
+  MessageEntity,
+  MessageSeenLog,
+} from '@/types';
 
-import { ConvoWrap } from './helpers';
+import { ConvoPayloadWrap, ConvoWrap } from './helpers';
 
 import Emitter = ChatSocketEmitter.Message.Payloads;
+import Listener = ChatSocketListener.Message.Payloads;
 
-export type Send = ConvoWrap<Emitter.Send>;
-export type Update = ConvoWrap<Emitter.Update>;
-export type Delete = ConvoWrap<Emitter.Delete>;
-export type Seen = ConvoWrap<Emitter.Seen & { userId: number }>;
+export type Add = ConvoPayloadWrap<Listener.Receive>;
+export type Create = ConvoPayloadWrap<Emitter.Send>;
+export type ResolvePending = Add;
+export type Update = ConvoPayloadWrap<MessageEntity>;
+export type Delete = ConvoPayloadWrap<Listener.DeleteNotify>;
+export type UpdateSeenLog = ConvoPayloadWrap<MessageSeenLog>;
+
+export type UpsertMessageError = ConvoPayloadWrap<{
+  payload: Partial<WithKeys<'id' | 'at'>>;
+  reason?: Nullable<string>;
+}>;
+
+// socket event logic related types
+export type SocketSend = ConvoWrap<Emitter.Send>;
+export type SocketUpdate = ConvoWrap<Emitter.Update>;
+export type SocketDelete = ConvoWrap<Emitter.Delete>;
+export type SocketSeen = ConvoWrap<MessageSeenLog>;
+
+type WithKeys<T extends keyof MessageEntity> = Pick<MessageEntity, T>;

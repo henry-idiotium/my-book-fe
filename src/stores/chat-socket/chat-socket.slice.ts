@@ -4,23 +4,14 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 
-import {
-  ChatSocketEmitter as Emitter,
-  ChatSocketListener as Listener,
-  messageZod,
-} from '@/types';
-import { getZodDefault } from '@/utils';
+import { messageZod } from '@/types';
+import { Logger, getZodDefault } from '@/utils';
 
 import { RootState } from '../app-store';
 
 import * as ChatSocketMap from './chat-socket.map';
+import * as thunkActions from './thunks';
 import { ChatSocketEntity, ChatSocketSlicePayloads as Payloads } from './types';
-
-import UserListener = Listener.User.Events;
-import MessageListener = Listener.Message.Events;
-import MessageEmitter = Emitter.Message.Events;
-
-export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
 const adapter = createEntityAdapter<ChatSocketEntity>({
   selectId: ({ id }) => id,
@@ -28,84 +19,60 @@ const adapter = createEntityAdapter<ChatSocketEntity>({
 
 const initialState = adapter.getInitialState();
 
+export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
+
 export const chatSocketSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
   reducers: {
-    startConnection(state, action: Payloads.User.InitConversation) {
-      const { conversationId, token } = action.payload;
+    updateActiveUser(state, action: Payloads.User.UpdateActiveUser) {
+      const { conversationId, id, type } = action.payload;
 
-      ChatSocketMap.getOrConnect(conversationId, token).then((result) => {
-        if (!result) return;
-        const { socket, ...chatSocketEntity } = result;
-        if (!socket?.connected) return;
+      const entity = state.entities[conversationId];
+      if (!entity) return;
 
-        adapter.setOne(state, chatSocketEntity);
+      const activeUserIndex = entity.activeUserIds.findIndex(
+        (activeId) => activeId === id,
+      );
+      const userIsActive = activeUserIndex !== -1;
 
-        // active users changes
-        socket.on(UserListener.JOIN_CHAT, ({ activeUserIds }) =>
-          adapter.updateOne(state, {
-            id: conversationId,
-            changes: { activeUserIds },
-          }),
-        );
-        socket.on(UserListener.LEAVE_CHAT, ({ activeUserIds }) =>
-          adapter.updateOne(state, {
-            id: conversationId,
-            changes: { activeUserIds },
-          }),
-        );
-
-        // Handle message updates from other users.
-        socket.on(MessageListener.UPDATE_NOTIFY, (payload) => {
-          const entity = state.entities[conversationId];
-          if (!entity) return;
-
-          const updatedMessageIndex = entity.messages.findIndex(
-            (m) => m.id === payload.id,
-          );
-          if (updatedMessageIndex === -1) return;
-          entity.messages[updatedMessageIndex] = payload;
-        });
-
-        // Handle message deletions from other users.
-        socket.on(MessageListener.DELETE_NOTIFY, (payload) => {
-          const entity = state.entities[conversationId];
-          if (!entity) return;
-
-          const deletedMessageIndex = entity.messages.findIndex(
-            (m) => m.id === payload.id,
-          );
-          if (deletedMessageIndex === -1) return;
-
-          entity.messages.splice(deletedMessageIndex, 1);
-        });
-
-        // server exception
-        if (import.meta.env.DEV) {
-          socket.on(Listener.EXCEPTION, (err) => console.error(err));
-        }
-      });
+      /**
+       * @remarks conditional bellow coded in a way to eases user
+       * reading experience, so don't refactor it.
+       */
+      // toggle if not specified action
+      if (!type) {
+        userIsActive
+          ? entity.activeUserIds.push(id)
+          : entity.activeUserIds.splice(activeUserIndex, 1);
+      }
+      // add only if is ACTIVE
+      if (type === 'add' && !userIsActive) {
+        entity.activeUserIds.push(id);
+      }
+      // add only if is NOT ACTIVE
+      if (type === 'remove' && userIsActive) {
+        entity.activeUserIds.splice(activeUserIndex, 1);
+      }
     },
 
-    disposeConnection(state, action: Payloads.User.DisposeConnection) {
-      const { conversationId } = action.payload;
+    addMessage(state, action: Payloads.Message.Add) {
+      const { conversationId, ...message } = action.payload;
 
-      const socket = ChatSocketMap.getSocket(conversationId);
-      if (!socket?.connected) return;
+      const entity = state.entities[conversationId];
+      if (!entity) return;
 
-      socket.off();
-      ChatSocketMap.store.delete(conversationId);
+      const messageIsExists = entity.messages.some((m) => m.id === message.id);
+      if (messageIsExists) {
+        Logger.error('💬 Message is already exists!!\n', message);
+        return;
+      }
+
+      entity.messages.push(message);
     },
 
-    // ----------------
-    // emit events
-
-    sendMessage(state, action: Payloads.Message.Send) {
+    createMessage(state, action: Payloads.Message.Create) {
       const { conversationId, content } = action.payload;
-
-      const socket = ChatSocketMap.store.get(conversationId);
-      if (!socket?.connected) return;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
@@ -118,73 +85,90 @@ export const chatSocketSlice = createSlice({
 
       // remarks: add newly created message with empty ID as `pending` status
       entity.messages.push(newMessage);
+    },
 
-      socket.emit(MessageEmitter.SEND, newMessage);
+    resolvePendingMessage(state, action: Payloads.Message.ResolvePending) {
+      const { conversationId, ...successMessage } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const pendingIndex = entity.messages.findIndex(
+        (message) => message.at.getTime() === successMessage.at.getTime(),
+      );
+      if (pendingIndex === -1) return;
+
+      // sync with the server version of this message
+      entity.messages[pendingIndex] = successMessage;
     },
 
     updateMessage(state, action: Payloads.Message.Update) {
-      const { conversationId, content, id } = action.payload;
-
-      const socket = ChatSocketMap.store.get(conversationId);
-      if (!socket?.connected) return;
+      const { conversationId, ...messageToUpdate } = action.payload;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const index = entity.messages.findIndex((m) => m.id === id);
-      if (index === -1) return;
+      const indexToUpdate = entity.messages.findIndex(
+        (message) => message.id === messageToUpdate.id,
+      );
+      if (indexToUpdate === -1) return;
 
-      entity.messages[index] = {
-        ...entity.messages[index],
-        isEdited: true,
-        content,
-      };
-
-      socket.emit(MessageEmitter.UPDATE, entity.messages[index]);
+      entity.messages[indexToUpdate] = messageToUpdate;
     },
 
     deleteMessage(state, action: Payloads.Message.Delete) {
-      const { conversationId, id } = action.payload;
-
-      const socket = ChatSocketMap.store.get(conversationId);
-      if (!socket?.connected) return;
+      const { conversationId, id: idToDelete } = action.payload;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const index = entity.messages.findIndex((m) => m.id === id);
-      if (index === -1) return;
+      const messageToDeleteIndex = entity.messages.findIndex(
+        (m) => m.id === idToDelete,
+      );
+      if (messageToDeleteIndex === -1) return;
 
-      entity.messages.splice(index, 1);
-      socket.emit(MessageEmitter.DELETE, { id });
+      entity.messages.splice(messageToDeleteIndex, 1);
     },
 
-    seenMessage(state, action: Payloads.Message.Seen) {
-      const { conversationId, id, userId } = action.payload;
-
-      const socket = ChatSocketMap.store.get(conversationId);
-      if (!socket?.connected) return;
+    updateMessageSeenLog(state, action: Payloads.Message.UpdateSeenLog) {
+      const { conversationId, messageId, userId } = action.payload;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const index = entity.messageSeenLog.findIndex((m) => m.userId === userId);
-      if (index === -1) return;
+      const seenLogToUpdateIndex = entity.messageSeenLog.findIndex(
+        (log) => log.userId === userId,
+      );
+      if (seenLogToUpdateIndex === -1) return;
 
-      // entity.messageSeenLog[index] = {
-      //   ...entity.messageSeenLog[index],
-      //   messageId: id,
-      // };
-      entity.messageSeenLog[index].messageId = id;
-      socket.emit(MessageEmitter.SEEN, { id });
+      entity.messageSeenLog[seenLogToUpdateIndex] = { userId, messageId };
     },
+
+    upsertMessageError(state, action: Payloads.Message.UpsertMessageError) {
+      const { conversationId, payload, reason } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const identifier = payload.at?.getTime()?.toString() ?? payload.id;
+      if (!identifier) return;
+
+      entity.errorMessages[identifier] = { reason };
+    },
+  },
+  extraReducers(builder) {
+    builder.addCase(thunkActions.startConnection.fulfilled, (state, action) => {
+      if (action.payload) adapter.setOne(state, action.payload);
+    });
   },
 });
 
 export { ChatSocketMap };
 
 export const chatSocketReducer = chatSocketSlice.reducer;
-export const chatSocketActions = chatSocketSlice.actions;
+export const chatSocketActions = Object.assign(chatSocketSlice.actions, {
+  socket: thunkActions,
+});
 
 // selector
 const stateSelector = (state: RootState) => state[CHAT_SOCKET_FEATURE_KEY];

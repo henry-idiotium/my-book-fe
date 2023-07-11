@@ -1,36 +1,38 @@
 import { io } from 'socket.io-client';
 
 import { ChatSocket, ChatSocketListener as Listener } from '@/types';
-import { Convo } from '@/utils';
+import { Convo, getZodDefault } from '@/utils';
 
-import { ChatSocketEntity } from './types';
+import { ChatSocketEntity, chatSocketEntityZod } from './types';
 import { handshakeQueryZod } from './types/handshake-query';
 
 const UserListener = Listener.User.Events;
 
 // todo: handle socket re-request when connect failed, and navigated
 
-const socketAddress = `${
-  import.meta.env.VITE_SERVER_CONVERSATION_URL
-}/conversations`;
+const URL = `${import.meta.env.VITE_SERVER_CONVERSATION_URL}/conversations`;
 
 export const store = new Map<string, ChatSocket>();
 
 /** Connect socket to the backend then immediately add to the Map. */
-export async function connect(id: string, token: string) {
-  const connectResult = await new Promise<
-    ChatSocketEntity & { socket: ChatSocket }
-  >((resolve, rejects) => {
-    const socket: ChatSocket = io(socketAddress, {
-      query: handshakeQueryZod.parse({ conversationId: id }),
+export async function connect(conversationId: string, token: string) {
+  return await new Promise<ConnectionResult>((resolve, reject) => {
+    const socket: ChatSocket = io(URL, {
+      query: handshakeQueryZod.parse({ conversationId: conversationId }),
       extraHeaders: { Authorization: token },
       timeout: 5000,
     });
 
     socket.on('connect', () => {
       socket.on(UserListener.CONNECT, ({ activeUserIds, conversation }) => {
+        // avoid loop in `connect` event
         socket.off(UserListener.CONNECT);
+
+        // add to socket Map
+        store.set(conversationId, socket);
+
         resolve({
+          ...getZodDefault(chatSocketEntityZod),
           ...conversation,
           activeUserIds,
           isGroup: Convo.isGroup(conversation),
@@ -39,25 +41,17 @@ export async function connect(id: string, token: string) {
       });
     });
 
-    socket.on('connect_error', function (err) {
-      rejects(err);
-    });
+    socket.on('connect_error', (err) => reject(err));
   });
-
-  const { socket } = connectResult;
-
-  console.log('🚀 ~ file: chat-socket.map.ts:22 ~ socket:\n', socket);
-
-  store.set(id, socket);
-  return connectResult;
 }
 
-/** Get current chat socket. Create new if not found. */
-export async function getOrConnect(id: string, token: string) {
-  const existsSocket = store.get(id);
-  return existsSocket ? undefined : await connect(id, token);
+/** Get current chat socket. Connect new if not found. */
+export async function ensureGet(conversationId: string, token: string) {
+  const existingSocket = store.get(conversationId);
+  if (existingSocket) return existingSocket;
+
+  const newSocket = await connect(conversationId, token);
+  return newSocket.socket;
 }
 
-export function getSocket(id: string) {
-  return store.get(id);
-}
+type ConnectionResult = ChatSocketEntity & { socket: ChatSocket };

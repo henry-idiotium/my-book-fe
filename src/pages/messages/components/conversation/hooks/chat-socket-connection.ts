@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useEffectOnce } from 'usehooks-ts';
+import { useMemo, useState } from 'react';
+import { useEffectOnce, useUpdateEffect } from 'usehooks-ts';
 
 import {
   useDeepCompareMemoize as deepCompareMemo,
@@ -7,15 +7,19 @@ import {
   useSelector,
 } from '@/hooks';
 import {
-  chatSocketActions,
+  ChatSocketMap,
+  chatSocketActions as actions,
   selectAuth,
   chatSocketSelectors as selectors,
 } from '@/stores';
 import { ChatSocketEntity } from '@/stores/chat-socket/types';
-import { ConversationEntity } from '@/types';
+import { ChatSocketListener, ConversationEntity } from '@/types';
 import { Convo } from '@/utils';
 
-const CONNECT_TIMEOUT_LIMIT = 5000;
+import UserEvents = ChatSocketListener.User.Events;
+import MessageEvents = ChatSocketListener.Message.Events;
+
+const CONNECT_TIMEOUT_LIMIT = 8000;
 
 export function useChatSocketConnection(conversationId: string) {
   const dispatch = useDispatch();
@@ -48,20 +52,69 @@ export function useChatSocketConnection(conversationId: string) {
   }, deepCompareMemo(socketState));
 
   useEffectOnce(() => {
-    const payload = { conversationId, token };
-
-    dispatch(chatSocketActions.startConnection(payload));
-
-    return () => {
-      dispatch(chatSocketActions.disposeConnection(payload));
-    };
+    dispatch(actions.socket.startConnection({ conversationId, token }));
   });
 
-  // Connect failed timeout
-  useEffect(() => {
-    if (socketState) return;
+  useUpdateEffect(() => {
+    // Loading limit
+    if (!socketState) {
+      setTimeout(() => setConnectFailed(!socketState), CONNECT_TIMEOUT_LIMIT);
+      return;
+    }
 
-    setTimeout(() => setConnectFailed(!socketState), CONNECT_TIMEOUT_LIMIT);
+    const socket = ChatSocketMap.store.get(conversationId);
+    if (!socket) return;
+
+    socket.on(UserEvents.JOIN_CHAT, (payload) => {
+      dispatch(
+        actions.updateActiveUser({
+          ...payload,
+          conversationId,
+          type: 'add',
+        }),
+      );
+    });
+    socket.on(UserEvents.LEAVE_CHAT, (payload) => {
+      dispatch(
+        actions.updateActiveUser({
+          ...payload,
+          conversationId,
+          type: 'remove',
+        }),
+      );
+    });
+
+    socket
+      .on(MessageEvents.READ_RECEIPT, (payload) => {
+        dispatch(actions.updateMessageSeenLog({ conversationId, ...payload }));
+      })
+      .on(MessageEvents.RECEIVE, (payload) => {
+        dispatch(actions.addMessage({ conversationId, ...payload }));
+      })
+      .on(MessageEvents.SEND_SUCCESS, (payload) => {
+        dispatch(actions.resolvePendingMessage({ conversationId, ...payload }));
+      })
+      .on(MessageEvents.DELETE_NOTIFY, (payload) => {
+        dispatch(actions.deleteMessage({ conversationId, ...payload }));
+      })
+      .on(MessageEvents.UPDATE_NOTIFY, (message) => {
+        dispatch(actions.updateMessage({ conversationId, ...message }));
+      });
+
+    socket
+      .on(MessageEvents.SEND_FAILURE, (payload) => {
+        dispatch(actions.upsertMessageError({ conversationId, ...payload }));
+      })
+      .on(MessageEvents.UPDATE_FAILURE, (payload) => {
+        dispatch(actions.upsertMessageError({ conversationId, ...payload }));
+      })
+      .on(MessageEvents.DELETE_FAILURE, (payload) => {
+        dispatch(actions.upsertMessageError({ conversationId, ...payload }));
+      });
+
+    return () => {
+      dispatch(actions.socket.disposeConnection({ conversationId }));
+    };
   }, [!socketState]);
 
   return {
