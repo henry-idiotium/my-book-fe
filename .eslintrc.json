@@ -1,17 +1,29 @@
 {
   "root": true,
+  "env": { "es2021": true, "node": true },
+
+  "plugins": ["@nx", "@typescript-eslint", "react", "import"],
   "extends": [
     "plugin:@nx/react",
     "plugin:import/typescript",
     "plugin:import/recommended",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "eslint:recommended"
   ],
-  "parserOptions": { "project": ["./tsconfig.app.json"] },
-  "ignorePatterns": ["!**/*", "**/*.stories.ts", "**/*.stories.tsx"],
+
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["./tsconfig.app.json"],
+    "sourceType": "module"
+  },
+
   "overrides": [
     { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
   ],
-  "plugins": ["@nx", "react", "@typescript-eslint", "import"],
+
   "rules": {
     "react-hooks/exhaustive-deps": "off",
     "react/display-name": "off",
@@ -59,6 +71,9 @@
     ],
     "tailwindcss/no-custom-classname": "off"
   },
+
+  "ignorePatterns": ["!**/*", "**/*.stories.ts", "**/*.stories.tsx"],
+
   "settings": {
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
     "import/resolver": { "typescript": {} }
