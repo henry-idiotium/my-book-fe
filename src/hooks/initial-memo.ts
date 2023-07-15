@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useBoolean } from 'usehooks-ts';
 
-export function useMemoWithInitial<T>(
+export function useInitialMemo<T>(
   factory: () => T,
   initialValue: T,
   deps: React.DependencyList | undefined,
@@ -19,3 +19,5 @@ export function useMemoWithInitial<T>(
 
   return value;
 }
+
+export default useInitialMemo;
