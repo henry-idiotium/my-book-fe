@@ -23,7 +23,9 @@ export type UpsertMessageError = ConvoPayloadWrap<{
 }>;
 
 // socket event logic related types
-export type SocketSend = ConvoWrap<Emitter.Send>;
+export type SocketSend = ConvoWrap<
+  Omit<RequiredNotNull<Emitter.Send>, 'at'> & { userId: number }
+>;
 export type SocketUpdate = ConvoWrap<Emitter.Update>;
 export type SocketDelete = ConvoWrap<Emitter.Delete>;
 export type SocketSeen = ConvoWrap<MessageSeenLog>;

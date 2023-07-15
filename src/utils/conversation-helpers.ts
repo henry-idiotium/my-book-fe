@@ -1,20 +1,36 @@
+import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { ConversationEntity, GroupConversation } from '@/types';
 
 import { User } from '.';
 
-type ConvoArgs<T extends keyof ConversationEntity = never> = RequiredPick<
-  Partial<ConversationEntity>,
-  T
->;
+type GenericConversation = Omit<ConversationEntity, 'participants'> & {
+  participants:
+    | ConversationEntity['participants']
+    | ChatSocketEntity['participants'];
+};
 
-export function isGroup(convo: ConvoArgs): convo is GroupConversation {
-  return !!convo?.admin;
+export function isGroup(
+  conversation?: Partial<GenericConversation>,
+): conversation is GroupConversation {
+  return !!conversation?.admin;
 }
 
-export function getName(convo: ConvoArgs<'participants'>) {
-  if (!isGroup(convo)) {
-    const interlocutor = convo.participants.at(0);
+type GetNameArgs =
+  | [RequiredPick<Partial<GenericConversation>, 'participants'>]
+  | [
+      isGroup: boolean,
+      participants: GenericConversation['participants'],
+      name?: string,
+    ];
+export function getName(...args: GetNameArgs) {
+  const [isConvoGroup, participants, name] =
+    typeof args[0] === 'object'
+      ? ([isGroup(args[0]), args[0].participants, args[0].name] as const)
+      : args;
+
+  if (!isConvoGroup) {
+    const interlocutor = participants.at(0);
     return interlocutor ? User.getFullName(interlocutor) : '[username]';
   }
-  return convo.name ?? User.getDefaultGroupName(convo.participants);
+  return name ?? User.getDefaultGroupName(participants);
 }

@@ -14,6 +14,8 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   font-feature-settings: 'kern';
+
+  scroll-behavior: smooth;
 }
 
 html {
@@ -57,10 +59,10 @@ button {
   @screen md-max { @apply wh-[4px]; }
   @screen pmt-max { @apply wh-[2px]; }
 
-  &-track { @apply border-[4px_solid_tranparent]; }
+  &-track { @apply border-[4px_solid_transparent]; }
   &-corner { @apply bg-transparent; }
   &-thumb {
-    @apply border-[4px_solid_tranparent]
+    @apply border-[4px_solid_transparent]
       shadow-[inset_0_0_10px_10px_rgba(106,104,110,0.5)]
       rounded-full;
   }

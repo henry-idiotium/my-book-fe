@@ -45,9 +45,9 @@ export class Ripple {
     element.style.borderRadius = '50%';
     element.style.pointerEvents = 'none';
     element.style.position = 'absolute';
-    element.style.left = event.clientX - rect.left - radius + 'px';
-    element.style.top = event.clientY - rect.top - radius + 'px';
-    element.style.width = element.style.height = radius * 2 + 'px';
+    element.style.left = `${event.clientX - rect.left - radius}px`;
+    element.style.top = `${event.clientY - rect.top - radius}px`;
+    element.style.width = element.style.height = `${radius * 2}px`;
   }
 
   applyAnimation(element: HTMLElement) {

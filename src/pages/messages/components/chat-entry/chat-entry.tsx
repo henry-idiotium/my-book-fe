@@ -1,10 +1,11 @@
 import UserImage from '@/assets/account-image.jpg';
 import {
   useDeepCompareMemoize as deepCompareMemo,
-  useMemoWithInitial,
+  useInitialMemo,
   useSelector,
 } from '@/hooks';
 import { chatSocketSelectors, selectAuth } from '@/stores';
+import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { Convo, classnames, formatTimeReadable } from '@/utils';
 
 import { ConversationResponse } from '../../types';
@@ -23,7 +24,7 @@ export function ChatEntry(props: ChatEntryProps) {
   const { user: mainUser } = useSelector(selectAuth);
   const chatSocketState = useSelector(chatSocketSelectors.getById(entry.id));
 
-  const latestMessage = useMemoWithInitial(
+  const latestMessage = useInitialMemo(
     () => {
       if (!chatSocketState) return;
       return chatSocketState.messages.at(-1);
@@ -32,7 +33,7 @@ export function ChatEntry(props: ChatEntryProps) {
     deepCompareMemo(chatSocketState?.messages),
   );
 
-  const filteredParticipants = useMemoWithInitial(
+  const filteredParticipants = useInitialMemo<ChatSocketEntity['participants']>(
     () => {
       if (!chatSocketState) return [];
       return chatSocketState.participants.filter((p) => p.id !== mainUser.id);
@@ -41,15 +42,17 @@ export function ChatEntry(props: ChatEntryProps) {
     [chatSocketState?.participants.length],
   );
 
-  const name = useMemoWithInitial(
+  const name = useInitialMemo(
     () => {
       if (!chatSocketState) return;
-      const { isGroup, activeUserIds, ...conversation } = chatSocketState;
-      return Convo.getName(conversation);
+      return Convo.getName({
+        admin: chatSocketState.admin,
+        participants: filteredParticipants,
+      });
     },
-    filteredParticipants
+    filteredParticipants.length
       ? Convo.getName({ ...entry, participants: filteredParticipants })
-      : undefined,
+      : '[chat name]',
     [chatSocketState?.name, filteredParticipants],
   );
 

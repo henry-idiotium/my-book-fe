@@ -15,11 +15,17 @@ export const sendMessage = createAsyncThunk<
   Payloads.Message.SocketSend,
   { state: RootState }
 >('chat-socket/socket/sendMessage', (arg, { dispatch }) => {
-  const { conversationId, ...payload } = arg;
+  const { conversationId, content, userId } = arg;
 
   const socket = ChatSocketMap.store.get(conversationId);
   if (!socket?.connected) return;
 
-  dispatch(chatSocketSlice.actions.createMessage(arg));
+  const payload = {
+    at: new Date().getTime(), // identifier for pending state
+    content,
+    from: userId,
+  };
+
   socket.emit(ChatSocketEmitter.Message.Events.SEND, payload);
+  dispatch(chatSocketSlice.actions.createMessage({ ...arg, ...payload }));
 });

@@ -25,8 +25,10 @@ export const chatSocketSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
   reducers: {
-    updateActiveUser(state, action: Payloads.User.UpdateActiveUser) {
-      const { conversationId, id, type } = action.payload;
+    set: adapter.setOne,
+
+    addActiveUser(state, action: Payloads.User.UpdateActiveUser) {
+      const { conversationId, id } = action.payload;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
@@ -34,26 +36,23 @@ export const chatSocketSlice = createSlice({
       const activeUserIndex = entity.activeUserIds.findIndex(
         (activeId) => activeId === id,
       );
-      const userIsActive = activeUserIndex !== -1;
+      if (activeUserIndex !== -1) return;
 
-      /**
-       * @remarks conditional bellow coded in a way to eases user
-       * reading experience, so don't refactor it.
-       */
-      // toggle if not specified action
-      if (!type) {
-        userIsActive
-          ? entity.activeUserIds.push(id)
-          : entity.activeUserIds.splice(activeUserIndex, 1);
-      }
-      // add only if is ACTIVE
-      if (type === 'add' && !userIsActive) {
-        entity.activeUserIds.push(id);
-      }
-      // add only if is NOT ACTIVE
-      if (type === 'remove' && userIsActive) {
-        entity.activeUserIds.splice(activeUserIndex, 1);
-      }
+      entity.activeUserIds.push(id);
+    },
+
+    removeActiveUser(state, action: Payloads.User.UpdateActiveUser) {
+      const { conversationId, id } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const activeUserIndex = entity.activeUserIds.findIndex(
+        (activeId) => activeId === id,
+      );
+      if (activeUserIndex === -1) return;
+
+      entity.activeUserIds.splice(activeUserIndex, 1);
     },
 
     addMessage(state, action: Payloads.Message.Add) {
@@ -64,27 +63,26 @@ export const chatSocketSlice = createSlice({
 
       const messageIsExists = entity.messages.some((m) => m.id === message.id);
       if (messageIsExists) {
-        Logger.error('💬 Message is already exists!!\n', message);
-        return;
+        return Logger.info(
+          '💬 Message is already exists!! (possibly due to Strict Mode)\n',
+          message,
+        );
       }
 
       entity.messages.push(message);
     },
 
     createMessage(state, action: Payloads.Message.Create) {
-      const { conversationId, content } = action.payload;
+      const { conversationId, ...payload } = action.payload;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const newMessage = {
-        ...getZodDefault(messageZod),
-        at: new Date(), // identifier for pending state
-        content,
-      };
-
       // remarks: add newly created message with empty ID as `pending` status
-      entity.messages.push(newMessage);
+      entity.messages.push({
+        ...getZodDefault(messageZod),
+        ...payload,
+      });
     },
 
     resolvePendingMessage(state, action: Payloads.Message.ResolvePending) {
@@ -94,11 +92,16 @@ export const chatSocketSlice = createSlice({
       if (!entity) return;
 
       const pendingIndex = entity.messages.findIndex(
-        (message) => message.at.getTime() === successMessage.at.getTime(),
+        (message) => message.at === successMessage.at,
       );
+
+      console.log('🚀 ~ file: chat-socket.slice.ts:90 ~ successMessage:\n', {
+        pending: entity.messages[pendingIndex],
+        successMessage,
+      });
       if (pendingIndex === -1) return;
 
-      // sync with the server version of this message
+      // sync with the server version of this message ff
       entity.messages[pendingIndex] = successMessage;
     },
 
@@ -150,16 +153,11 @@ export const chatSocketSlice = createSlice({
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const identifier = payload.at?.getTime()?.toString() ?? payload.id;
+      const identifier = payload.at ?? payload.id;
       if (!identifier) return;
 
       entity.errorMessages[identifier] = { reason };
     },
-  },
-  extraReducers(builder) {
-    builder.addCase(thunkActions.startConnection.fulfilled, (state, action) => {
-      if (action.payload) adapter.setOne(state, action.payload);
-    });
   },
 });
 

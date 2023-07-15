@@ -1,1 +1,1 @@
-export * from './chat-socket-connection';
+export * from './chat-socket-connection/index.js';

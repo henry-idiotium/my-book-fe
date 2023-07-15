@@ -7,9 +7,9 @@ import { Button } from '@/components';
 import { useLocation, useSelector } from '@/hooks';
 import { useLoginMutation } from '@/stores/auth/auth.api';
 import { selectAuth } from '@/stores/auth/auth.slice';
-import { LoginForm, loginFormZod } from '@/types';
 
 import styles from './login.page.module.scss';
+import { LoginForm, loginFormZod } from './types';
 
 export function Login() {
   const navigate = useNavigate();
@@ -37,7 +37,6 @@ export function Login() {
   };
 
   // return (
-  //   <PageMeta title="Login" auth={{ type: 'public' }}>
   //     <Form.Root className="w-64" onSubmit={handleSubmit(onSubmit)}>
   //       <Form.Field name="email" className="mb-[10px] grid">
   //         <div className="flex items-baseline justify-between">
@@ -66,7 +65,6 @@ export function Login() {
   //         </Button>
   //       </Form.Submit>
   //     </Form.Root>
-  //   </PageMeta>
   // );
 
   return (

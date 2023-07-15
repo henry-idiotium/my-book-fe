@@ -12,3 +12,7 @@ export const contextWithZod = <T extends z.ZodRawShape>(shape: T) => {
   return createContext(getZodDefault(z.object(shape)));
 };
 export default contextWithZod;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type InferZodContext<TContext extends React.Context<any>> =
+  TContext extends React.Context<infer State> ? State : never;

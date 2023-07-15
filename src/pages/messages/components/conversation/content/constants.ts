@@ -1,0 +1,1 @@
+export const PROFILE_BANNER_HEIGHT = 240;

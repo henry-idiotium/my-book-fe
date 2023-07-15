@@ -4,17 +4,14 @@ import { FiMoreHorizontal } from 'react-icons/fi';
 import UserImg from '@/assets/account-image.jpg';
 import { Button } from '@/components';
 
-import { ConversationCascadeStateContext } from '../conversation';
+import { ConversationCascadeStateContext } from '../context-cascade';
 
 import styles from './header.module.scss';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type HeaderProps = {};
-
-export function Header(props: HeaderProps) {
-  const { activeConversation: convo } = useContext(
-    ConversationCascadeStateContext,
-  );
+export function Header() {
+  const {
+    state: { chatSocketState },
+  } = useContext(ConversationCascadeStateContext);
 
   return (
     <div className={styles.container}>
@@ -24,7 +21,7 @@ export function Header(props: HeaderProps) {
         </div>
 
         <div className={styles.title}>
-          <span>{convo.name}</span>
+          <span>{chatSocketState.name}</span>
         </div>
 
         <Button disableBaseStyles className={styles.more}>

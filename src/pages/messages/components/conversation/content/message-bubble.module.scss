@@ -1,0 +1,16 @@
+.container {
+  @apply w-full cursor-pointer;
+
+  &:hover {
+    .options {
+      @apply visible opacity-100;
+    }
+  }
+}
+
+.options {
+  @apply invisible opacity-0;
+  transition:
+    visibility 0s,
+    opacity 100ms linear;
+}

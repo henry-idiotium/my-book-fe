@@ -1,31 +1,62 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Gif as GifIcon,
   Image as ImageIcon,
   PaperPlaneRight as PaperPlaneRightIcon,
   Smiley as SmileyIcon,
 } from '@phosphor-icons/react';
-import React, { useContext, useState } from 'react';
+import { useContext } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components';
+import { useDispatch, useSelector } from '@/hooks';
+import { chatSocketActions, selectAuth } from '@/stores';
 
-import { ConversationCascadeStateContext } from '../conversation';
+import { ConversationCascadeStateContext } from '../context-cascade';
 
+import * as Constants from './constants';
 import styles from './direct-messages.module.scss';
+import { MessageForm, messageFormZod } from './types';
 
-const START_MESSAGING_PLACEHOLDER = 'Start a new message';
+export function DirectMessages() {
+  const dispatch = useDispatch();
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type MessagingProps = {};
+  const { user: mainUser } = useSelector(selectAuth);
+  const {
+    state: { chatSocketState },
+  } = useContext(ConversationCascadeStateContext);
 
-export function DirectMessages(props: MessagingProps) {
-  const { activeConversation: convo } = useContext(
-    ConversationCascadeStateContext,
-  );
+  const { register, handleSubmit, watch, reset } = useForm<MessageForm>({
+    resolver: zodResolver(messageFormZod),
+  });
 
-  const [message, setMessage] = useState('');
+  const watchMessage = watch('message', '');
 
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
+  const onSubmit: SubmitHandler<MessageForm> = (data) => {
+    const { message } = data;
+    if (!message) return;
+
+    dispatch(
+      chatSocketActions.socket.sendMessage({
+        conversationId: chatSocketState.id,
+        content: message,
+        userId: mainUser.id,
+      }),
+    );
+    reset({ message: '' });
+  };
+
+  const autoGrow = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const element = e.target;
+    element.style.height = `12px`;
+    element.style.height = `${element.scrollHeight}px`;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== 'Enter') return;
+    handleSubmit(onSubmit)();
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   return (
@@ -47,17 +78,23 @@ export function DirectMessages(props: MessagingProps) {
         </Button>
 
         <div className={styles.composeEditor}>
-          <input
-            autoFocus
-            type="text"
-            placeholder={START_MESSAGING_PLACEHOLDER}
-            onChange={handleMessageChange}
-          />
+          <form id="message-form" onSubmit={handleSubmit(onSubmit)}>
+            <textarea
+              autoFocus
+              maxLength={Constants.MAX_MESSAGE_LENGTH}
+              placeholder={Constants.Contents.MESSAGING_PLACEHOLDER}
+              className={styles.composeEditorInput}
+              onInput={autoGrow}
+              onKeyDown={handleKeyDown}
+              {...register('message')}
+            />
+          </form>
         </div>
 
         <Button
           disableBaseStyles
-          disabled={!message}
+          disabled={!watchMessage}
+          form="message-form"
           className={styles.composeSend}
         >
           <PaperPlaneRightIcon />

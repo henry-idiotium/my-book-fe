@@ -1,13 +1,17 @@
 .container {
-  @apply min-h-screen wh-full grid grid-cols-[minmax(200px,610px)_1fr];
+  @apply min-h-screen wh-full grid grid-cols-[minmax(200px,680px)_1fr];
 
   @screen rsh {
-    @apply grid-cols-[minmax(200px,388px)_minmax(600px,620px)];
+    @apply grid-cols-[minmax(310px,388px)_minmax(580px,630px)];
   }
 
   // all panes
   > * {
     @apply border-r border-color wh-full max-w-[600px];
+  }
+
+  *::-webkit-scrollbar {
+    @apply wh-1;
   }
 }
 
@@ -15,7 +19,7 @@
   @apply block;
 
   &-header {
-    @apply w-full h-[53px] py-4 px-3 mx-1
+    @apply w-full h-14 py-4 px-3
       flex items-center justify-between;
 
     > h2 {
@@ -40,13 +44,13 @@
 
     &-input {
       @apply w-full h-11 pl-[41px] bg-base
-        border border-color rounded-full
-        text-color sm:text-sm
-        shadow-sm;
+          border border-color rounded-full
+          text-color sm:text-sm
+          shadow-sm;
 
       &:focus {
         @apply border-2 border-accent bg-base
-          pl-10;
+            pl-10;
       }
 
       &::placeholder {
@@ -56,8 +60,8 @@
 
     &-icon {
       @apply absolute top-[calc(50%-8px)] left-4
-        wh-4
-        text-color-accent;
+          wh-4
+          text-color-accent;
     }
   }
 

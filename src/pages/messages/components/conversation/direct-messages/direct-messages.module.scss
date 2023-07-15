@@ -1,19 +1,26 @@
 .container {
-  @apply wh-full px-3 py-[7px]
+  @apply w-full px-3 py-[7px]
     border-t border-color;
 }
 
 .compose {
-  @apply wh-full px-2
+  @apply w-full px-2
     flex items-center gap-1
     rounded-[17px]
     bg-base-hover-lt;
 
   &-editor {
-    @apply wh-full mr-1 ml-4;
+    @apply w-full mr-1 ml-4;
 
-    input {
-      @apply wh-full bg-base-hover-lt py-1;
+    form {
+      @apply w-full h-fit;
+    }
+
+    &-input {
+      @apply w-full h-6 min-h-6 max-h-48 my-3
+        bg-base-hover-lt
+        align-middle
+        resize-none overflow-x-hidden outline-none;
 
       &::placeholder {
         @apply text-color-accent;
@@ -30,20 +37,11 @@
 
     &:disabled {
       @apply pointer-events-none hover:bg-[unset]
-        text-accent/70;
+        text-accent/60;
     }
 
     > svg {
       @apply wh-5 stroke-[2];
     }
   }
-
-  // &-image-upload {
-  // }
-  // &-gif-picker {
-  // }
-  // &-emoji-picker {
-  // }
-  // &-send {
-  // }
 }
