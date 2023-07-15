@@ -1,5 +1,6 @@
 declare global {
   type Nullable<Type> = Type | undefined | null;
+  type RequiredNotNull<T> = { [P in keyof T]: NonNullable<T[P]> };
   type GenericObject<Type = unknown> = object & Record<string | number, Type>;
   type AtLeast<Type, Key extends keyof Type> = Partial<Type> &
     Required<Pick<Type, Key>>;
@@ -17,6 +18,10 @@ declare global {
     : TRight;
 
   type RequireNonOptional<T> = { [P in keyof T]-?: NonNullable<T[P]> };
+
+  type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+  }[keyof T][];
 }
 
 export {};

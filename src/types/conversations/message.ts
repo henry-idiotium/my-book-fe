@@ -6,5 +6,5 @@ export const messageZod = z.object({
   content: z.string().nullable(),
   from: z.number(),
   isEdited: z.boolean(),
-  at: z.date(),
+  at: z.union([z.string(), z.number()]),
 });
