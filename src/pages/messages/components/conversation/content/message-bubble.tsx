@@ -1,5 +1,4 @@
-import { DotsThreeOutline } from '@phosphor-icons/react';
-import { TbHeartPlus } from 'react-icons/tb';
+import { DotsThree, Heart } from '@phosphor-icons/react';
 
 import { MessageEntity } from '@/types';
 import { classnames } from '@/utils';
@@ -19,40 +18,34 @@ export function MessageBubble(props: MessageBubbleProps) {
     <div className={styles.container}>
       <div
         className={classnames(
-          'flex justify-end',
+          'flex items-center justify-end gap-3',
           fromSessionUser ? 'ml-4' : 'mr-4 flex-row-reverse',
         )}
       >
-        {/* {renderBubbleChildren()} */}
-
         <div className={styles.options}>
           <div
             className={classnames(
-              'flex gap-1 text-color-accent',
+              'flex gap-4 text-color-accent',
               fromSessionUser ? '' : 'flex-row-reverse',
             )}
           >
-            {/* ------ actions ------ */}
-            <button className="wh-12">
-              <DotsThreeOutline />
+            {/* ------ emojis ------ */}
+            <button className="">
+              <Heart size={18} weight="bold" />
             </button>
 
-            {/* ------ emojis ------ */}
-            <button className="wh-12">
-              <TbHeartPlus />
+            {/* ------ actions ------ */}
+            <button className="">
+              <DotsThree size={24} weight="bold" />
             </button>
           </div>
         </div>
 
         <div
           className={classnames(
-            'flex max-w-[400px] items-center rounded-3xl px-4 py-3',
+            'flex max-w-[400px] items-center break-all rounded-3xl px-4 py-3',
             fromSessionUser ? 'bg-accent' : 'bg-base-hover',
-            sharpCorner
-              ? fromSessionUser
-                ? 'rounded-br-md'
-                : 'rounded-bl-md'
-              : '',
+            sharpCorner ? (fromSessionUser ? 'rounded-br-md' : 'rounded-bl-md') : '',
           )}
         >
           <div
@@ -61,7 +54,7 @@ export function MessageBubble(props: MessageBubbleProps) {
               fromSessionUser ? 'text-white' : 'text-color',
             )}
           >
-            <span>{message.content}</span>
+            <span className="">{message.content}</span>
           </div>
         </div>
       </div>

@@ -10,9 +10,8 @@ import {
 import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { Convo } from '@/utils';
 
-import { initChatSocketListeners } from './helper';
-
-const CONNECT_TIMEOUT_LIMIT = 1000;
+import * as Constants from './constants';
+import { initChatSocketListeners } from './init-chat-socket-listeners';
 
 export function useChatSocketConnection(
   conversationId: string,
@@ -43,13 +42,16 @@ export function useChatSocketConnection(
 
   /** Initialize connection. */
   useEffectOnce(() => {
-    setTimeout(checksGreenLit.setTrue, CONNECT_TIMEOUT_LIMIT); // init connection checks
+    // init connection checks
+    setTimeout(checksGreenLit.setTrue, Constants.CONNECT_TIMEOUT_LIMIT);
 
-    const socket = ChatSocketMap.connect(conversationId, token);
+    const socket = ChatSocketMap.connect(conversationId, token, {
+      latestMessagesCount: Constants.LATEST_MESSAGES_COUNT,
+    });
     initChatSocketListeners(conversationId, socket, dispatch);
 
     return () => {
-      socket.off().close(); // remove listeners and close
+      socket.removeAllListeners().off().close(); // remove listeners and close
       ChatSocketMap.store.delete(conversationId); // delete the socket instance
     };
   });

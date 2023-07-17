@@ -1,4 +1,5 @@
 .container {
   @apply w-full max-h-screen min-h-screen overflow-auto
-    grid grid-rows-[0px_1fr_auto];
+    grid grid-rows-[0px_1fr_auto]
+    relative;
 }

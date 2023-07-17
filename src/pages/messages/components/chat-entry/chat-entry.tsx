@@ -8,12 +8,11 @@ import { chatSocketSelectors, selectAuth } from '@/stores';
 import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { Convo, classnames, formatTimeReadable } from '@/utils';
 
-import { ConversationResponse } from '../../types';
-
 import styles from './chat-entry.module.scss';
+import { ChatEntryResponse } from './types';
 
 export type ChatEntryProps = {
-  entry: ConversationResponse;
+  entry: ChatEntryResponse;
   isActive?: boolean;
   openConvo?: () => void;
 };
@@ -25,10 +24,7 @@ export function ChatEntry(props: ChatEntryProps) {
   const chatSocketState = useSelector(chatSocketSelectors.getById(entry.id));
 
   const latestMessage = useInitialMemo(
-    () => {
-      if (!chatSocketState) return;
-      return chatSocketState.messages.at(-1);
-    },
+    () => chatSocketState?.messages.at(-1),
     entry.latestMessage,
     deepCompareMemo(chatSocketState?.messages),
   );

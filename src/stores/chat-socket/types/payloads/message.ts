@@ -1,6 +1,7 @@
 import {
   ChatSocketEmitter,
   ChatSocketListener,
+  ConversationResponse,
   MessageEntity,
   MessageSeenLog,
 } from '@/types';
@@ -16,8 +17,13 @@ export type ResolvePending = Add;
 export type Update = ConvoPayloadWrap<MessageEntity>;
 export type Delete = ConvoPayloadWrap<Listener.DeleteNotify>;
 export type UpdateSeenLog = ConvoPayloadWrap<MessageSeenLog>;
+export type AddHistories = ConvoPayloadWrap<{ messages: MessageEntity[] }>;
 
-export type UpsertMessageError = ConvoPayloadWrap<{
+export type UpdateTotalCount = ConvoPayloadWrap<
+  Required<Pick<ConversationResponse, 'totalMessageCount'>>
+>;
+
+export type UpsertError = ConvoPayloadWrap<{
   payload: Partial<WithKeys<'id' | 'at'>>;
   reason?: Nullable<string>;
 }>;

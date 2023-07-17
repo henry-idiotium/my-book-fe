@@ -39,7 +39,12 @@ const Content = forwardRef<HTMLDivElement, PopoverContentProps>(
 );
 
 export const Popover = Object.assign(PopoverPrimitive.Root, {
-  Content,
   Trigger: PopoverPrimitive.Trigger,
+  Content,
 });
+
+Popover.displayName = 'Popover';
+Popover.Content.displayName = 'Popover.Content';
+Popover.Trigger.displayName = 'Popover.Trigger';
+
 export default Popover;

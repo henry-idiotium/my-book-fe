@@ -9,9 +9,7 @@ import { ConversationCascadeStateContext } from '../context-cascade';
 import styles from './header.module.scss';
 
 export function Header() {
-  const {
-    state: { chatSocketState },
-  } = useContext(ConversationCascadeStateContext);
+  const [{ chatSocketState }] = useContext(ConversationCascadeStateContext);
 
   return (
     <div className={styles.container}>

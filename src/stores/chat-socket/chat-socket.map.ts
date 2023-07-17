@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 
 import { ChatSocket } from '@/types';
 
-import { handshakeQueryZod } from './types/handshake-query';
+import { HandshakeQuery, handshakeQueryZod } from './types/handshake-query';
 
 const URL = `${import.meta.env.VITE_SERVER_CONVERSATION_URL}/conversations`;
 const TIMEOUT = 5000;
@@ -10,9 +10,13 @@ const TIMEOUT = 5000;
 export const store = new Map<string, ChatSocket>();
 
 /** Connect socket to the backend then immediately add to the Map. */
-export function connect(conversationId: string, token: string): ChatSocket {
+export function connect(
+  conversationId: string,
+  token: string,
+  options?: Omit<HandshakeQuery, 'conversationId'>,
+): ChatSocket {
   const socket = io(URL, {
-    query: handshakeQueryZod.parse({ conversationId: conversationId }),
+    query: handshakeQueryZod.parse({ conversationId, ...options }),
     extraHeaders: { Authorization: token },
     timeout: TIMEOUT,
   });

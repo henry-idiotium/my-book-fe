@@ -1,8 +1,4 @@
-import {
-  createEntityAdapter,
-  createSelector,
-  createSlice,
-} from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 
 import { messageZod } from '@/types';
 import { Logger, getZodDefault } from '@/utils';
@@ -95,10 +91,11 @@ export const chatSocketSlice = createSlice({
         (message) => message.at === successMessage.at,
       );
 
-      console.log('🚀 ~ file: chat-socket.slice.ts:90 ~ successMessage:\n', {
-        pending: entity.messages[pendingIndex],
-        successMessage,
-      });
+      // note: debug
+      // console.log('🚀 ~ file: chat-socket.slice.ts:90 ~ successMessage:\n', {
+      //   pending: entity.messages[pendingIndex],
+      //   successMessage,
+      // });
       if (pendingIndex === -1) return;
 
       // sync with the server version of this message ff
@@ -125,9 +122,7 @@ export const chatSocketSlice = createSlice({
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const messageToDeleteIndex = entity.messages.findIndex(
-        (m) => m.id === idToDelete,
-      );
+      const messageToDeleteIndex = entity.messages.findIndex((m) => m.id === idToDelete);
       if (messageToDeleteIndex === -1) return;
 
       entity.messages.splice(messageToDeleteIndex, 1);
@@ -147,7 +142,7 @@ export const chatSocketSlice = createSlice({
       entity.messageSeenLog[seenLogToUpdateIndex] = { userId, messageId };
     },
 
-    upsertMessageError(state, action: Payloads.Message.UpsertMessageError) {
+    upsertMessageError(state, action: Payloads.Message.UpsertError) {
       const { conversationId, payload, reason } = action.payload;
 
       const entity = state.entities[conversationId];
@@ -157,6 +152,24 @@ export const chatSocketSlice = createSlice({
       if (!identifier) return;
 
       entity.errorMessages[identifier] = { reason };
+    },
+
+    updateMessageTotalCount(state, action: Payloads.Message.UpdateTotalCount) {
+      const { conversationId, totalMessageCount } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      entity.totalMessageCount = totalMessageCount;
+    },
+
+    prependMessages(state, action: Payloads.Message.AddHistories) {
+      const { conversationId, messages } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      entity.messages.unshift(...messages);
     },
   },
 });

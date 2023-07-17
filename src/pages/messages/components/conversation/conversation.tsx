@@ -1,41 +1,47 @@
-import { useReducer, useRef } from 'react';
+import { useMemo, useReducer } from 'react';
 import { useParams } from 'react-router-dom';
-import { z } from 'zod';
 
-import { chatSocketEntityZod } from '@/stores/chat-socket/types';
-import { InferZodContext, contextWithZod } from '@/utils';
+import { useDeepCompareMemoize as deepCompareMemo } from '@/hooks';
 
 import Content from './content/content';
-import styles from './conversation.module.scss';
-import DirectMessages from './direct-messages/direct-messages';
-import Header from './header/header';
-import { useChatSocketConnection } from './hooks';
 import {
+  ConversationCascadeState,
   ConversationCascadeStateContext,
   cascadeContextReducer,
   initialCascadeState,
 } from './context-cascade';
+import styles from './conversation.module.scss';
+import DirectMessages from './direct-messages/direct-messages';
+import Header from './header/header';
+import { useChatSocketConnection } from './hooks';
 
 export function Conversation() {
-  const { id = '' } = useParams();
+  const conversationId = useParams().id ?? '';
 
-  const [state, dispatch] = useReducer(
+  const socketState = useChatSocketConnection(conversationId);
+  const [initialContextState, dispatch] = useReducer(
     cascadeContextReducer,
     initialCascadeState,
   );
 
-  const socketState = useChatSocketConnection(id);
+  const contextState = useMemo(() => {
+    if (socketState.loading || socketState.connectFailed) return;
+
+    const { loading, connectFailed, ...chatSocketState } = socketState;
+    const cascadeState: ConversationCascadeState = {
+      ...initialContextState,
+      chatSocketState,
+    };
+
+    return cascadeState;
+  }, deepCompareMemo(socketState));
 
   // todo: provide better status render handling
   if (socketState.connectFailed) return <div>connect failed</div>;
-  if (socketState.loading) return <div>loading...</div>;
-
-  const { loading, connectFailed, ...chatSocketState } = socketState;
-
-  const contextState = { state: { ...state, chatSocketState }, dispatch };
+  if (!contextState || socketState.loading) return <div>loading...</div>;
 
   return (
-    <ConversationCascadeStateContext.Provider value={contextState}>
+    <ConversationCascadeStateContext.Provider value={[contextState, dispatch]}>
       <div className={styles.container}>
         <Header />
         <Content />

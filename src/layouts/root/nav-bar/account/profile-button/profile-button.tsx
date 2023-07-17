@@ -50,4 +50,7 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
     );
   },
 );
+
+ProfileButton.displayName = 'ProfileButton';
+
 export default ProfileButton;

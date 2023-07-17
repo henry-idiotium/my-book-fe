@@ -1,11 +1,45 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { useBoolean, useEffectOnce } from 'usehooks-ts';
+import { useEffectOnce } from 'usehooks-ts';
 
+/**
+ * Provide scroll-abilities and states to a div Ref Object.
+ * @remarks scroll back not support horizontal position yet.
+ */
 export function useScroll(
   ref: React.RefObject<HTMLDivElement>,
-  options?: Options,
+  _options?: UseScrollOptions,
 ) {
-  const [position, setPosition] = useState<Location>({ x: null, y: null });
+  const options: UseScrollOptions = {
+    startAt: 'top',
+    shouldScrollBackPerc: 0.3,
+    ..._options,
+  };
+
+  const [position, setPosition] = useState<Location>({ x: 0, y: 0 });
+
+  const shouldGoBack = useMemo(() => {
+    const element = ref.current;
+    const startAt = options.startAt;
+    const excludedHeightPerc = options.shouldScrollBackPerc;
+    if (!element || !startAt || !excludedHeightPerc) return false;
+
+    const height = element.clientHeight;
+    const scrollHeight = element.scrollHeight;
+
+    /** Should go back when pass certain height. */
+    const excludedHeight = Math.floor(height * excludedHeightPerc);
+    /** Point of interest for the checks. */
+    const checkPoint = startAt === 'bottom' ? height : 0;
+    /** Scroll height matches with check point. */
+    const relativeScrollHeight = scrollHeight - (startAt === 'top' ? height : 0);
+
+    const heightPosition = Math.ceil(checkPoint + position.y);
+    const comparedHeight = relativeScrollHeight - excludedHeight;
+
+    return startAt === 'bottom'
+      ? heightPosition <= comparedHeight
+      : heightPosition >= comparedHeight;
+  }, [options.startAt, position.y]);
 
   const handleScroll = useCallback(() => {
     const element = ref.current;
@@ -23,7 +57,7 @@ export function useScroll(
 
       // full object args
       if (typeof args[0] === 'object') {
-        element.scrollTo(args[0]);
+        element.scrollTo({ ...args[0], behavior: args[0].behavior ?? options.behavior });
       }
 
       // xy only args
@@ -34,63 +68,46 @@ export function useScroll(
       // default
       else throw new Error('Invalid arguments passed to scrollTo.');
     },
-    [ref],
+    [ref.current?.scrollHeight],
   );
 
   const scrollBack = useCallback(
     (behavior?: ScrollBehavior) => {
       const element = ref.current;
-      const type = options?.endsIndication?.startAt;
-      if (!element || !type) return;
-
-      const top = type === 'bottom' ? element.scrollHeight : 0;
-      element.scrollTo({ left: 0, top, behavior });
+      const startAt = options.startAt;
+      if (!element || !startAt) return;
+      scrollTo({ top: getTop(element, startAt), behavior });
     },
-    [ref],
+    [ref.current?.scrollHeight],
   );
-
-  const shouldGoBack = useMemo(() => {
-    const element = ref.current;
-    const endType = options?.endsIndication?.startAt;
-
-    if (!element || !endType) return;
-    const pinPoint = endType === 'bottom' ? element.clientHeight : 0;
-    const heightPosition = Math.abs((position.y ?? 0) + pinPoint);
-    const excludedHeight = Math.abs(element.clientHeight * 0.2);
-    const comparisionHeight = element.scrollHeight - excludedHeight;
-
-    return endType === 'bottom'
-      ? heightPosition <= comparisionHeight
-      : heightPosition >= comparisionHeight;
-  }, [position.y]);
-
   useLayoutEffect(() => {
     handleScroll();
-
-    const element = ref.current;
-    if (!element) return;
-
-    element.addEventListener('scroll', handleScroll);
-    return () => element.removeEventListener('scroll', handleScroll);
+    ref.current?.addEventListener('scroll', handleScroll);
+    return () => ref.current?.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffectOnce(() => {
-    if (ref.current && options?.endsIndication?.startAt === 'bottom') {
-      ref.current.scrollTop = ref.current.scrollHeight;
-    }
+    if (!ref.current || !options.startAt) return;
+
+    ref.current.scrollTo({
+      top: getTop(ref.current, options.startAt),
+      behavior: 'instant',
+    });
   });
 
   return { position, shouldGoBack, scrollTo, scrollBack };
 }
 
-type VerticalOption = 'top' | 'bottom';
+function getTop(element: HTMLDivElement, startAt: VerticalOption) {
+  return startAt === 'bottom' ? element.scrollHeight : 0;
+}
 
 type ScrollToArgs = [number, number] | [ScrollToOptions];
+type Location = { x: number; y: number };
 
-type Location = { x: number | null; y: number | null };
-
-type Options = {
-  endsIndication?: {
-    startAt: VerticalOption;
-  };
+type VerticalOption = 'top' | 'bottom';
+type UseScrollOptions = {
+  startAt?: VerticalOption;
+  shouldScrollBackPerc?: number;
+  behavior?: ScrollBehavior;
 };

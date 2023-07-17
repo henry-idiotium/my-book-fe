@@ -45,8 +45,15 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(
 );
 
 export const Dialog = Object.assign(DialogPrimitive.Root, {
-  Trigger: DialogPrimitive.Trigger,
   // Description: DialogPrimitive.Description,
+  Trigger: DialogPrimitive.Trigger,
   Title: DialogPrimitive.Title,
   Content,
 });
+
+Dialog.displayName = 'Dialog';
+Dialog.Title.displayName = 'Dialog.Title';
+Dialog.Content.displayName = 'Dialog.Content';
+Dialog.Trigger.displayName = 'Dialog.Trigger';
+
+export default Dialog;

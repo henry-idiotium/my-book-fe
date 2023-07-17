@@ -1,25 +1,28 @@
+import { useCallback } from 'react';
+
 import { useAxios } from '@/hooks/axios/axios';
 
 import {
-  GroupConversationResponse,
-  PairedConversationResponse,
-} from '../types';
+  GroupChatEntryResponse,
+  PairedChatEntryResponse,
+} from '../components/chat-entry/types';
 
 export function useFetchConversations() {
-  const [{ data: pairedConvo = [], loading: pairedLoading }, fetchPairedConvo] =
-    useAxios<PairedConversationResponse[]>(`/paired-conversations`);
+  const [
+    { data: pairedEntries = [], loading: pairedLoading },
+    fetchPairedEnties,
+  ] = useAxios<PairedChatEntryResponse[]>(`/paired-conversations`);
 
-  const [{ data: groupConvo = [], loading: groupLoading }, fetchGroupConvo] =
-    useAxios<GroupConversationResponse[]>(`/group-conversations`);
+  const [{ data: groupEnties = [], loading: groupLoading }, fetchGroupEntries] =
+    useAxios<GroupChatEntryResponse[]>(`/group-conversations`);
 
-  async function refetch() {
-    await fetchPairedConvo();
-    await fetchGroupConvo();
-  }
+  const refetch = useCallback(async () => {
+    await Promise.allSettled([fetchPairedEnties(), fetchGroupEntries()]);
+  }, [fetchPairedEnties, fetchGroupEntries]);
 
   return [
     {
-      chatEntries: [...pairedConvo, ...groupConvo],
+      chatEntries: [...pairedEntries, ...groupEnties],
       chatEntriesLoading: pairedLoading || groupLoading,
     },
     refetch,

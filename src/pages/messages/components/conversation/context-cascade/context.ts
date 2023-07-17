@@ -1,8 +1,9 @@
+import { createContext } from 'react';
 import { z } from 'zod';
 
 import { chatSocketEntityZod } from '@/stores/chat-socket/types';
 import { getZodDefault } from '@/utils';
-import { createContext } from 'react';
+
 import { CascadeReducerAction } from './reducer';
 
 export type ConversationCascadeState = z.infer<typeof convoCascadeStateZod>;
@@ -12,11 +13,11 @@ const convoCascadeStateZod = z.object({
 });
 export const initialCascadeState = getZodDefault(convoCascadeStateZod);
 
-type CascadeContext = {
-  state: ConversationCascadeState;
-  dispatch: React.Dispatch<CascadeReducerAction>;
-};
-export const ConversationCascadeStateContext = createContext<CascadeContext>({
-  state: initialCascadeState,
-  dispatch: () => {},
-});
+type CascadeContext = [
+  state: ConversationCascadeState,
+  dispatch: React.Dispatch<CascadeReducerAction>,
+];
+export const ConversationCascadeStateContext = createContext<CascadeContext>([
+  initialCascadeState,
+  () => undefined,
+]);

@@ -1,5 +1,7 @@
 import { MapEventPayloadActions } from '@/types/socket-helper';
 
+import ChatSocket from '../chat-socket';
+
 import * as Message from './message';
 import * as Server from './server';
 import * as User from './user';

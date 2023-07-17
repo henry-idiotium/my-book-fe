@@ -6,3 +6,7 @@ export const UPDATE = 'message_update';
 export const DELETE = 'message_delete';
 /** When the client sees a message. */
 export const SEEN = 'message_seen';
+/** When the client request for previous messages. */
+export const LOAD_HISTORY = 'message_load_history';
+/** When the client request for latest total message count. */
+export const COUNT_TOTAL = 'message_count_total';

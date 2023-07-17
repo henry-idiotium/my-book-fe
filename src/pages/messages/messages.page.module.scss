@@ -1,5 +1,5 @@
 .container {
-  @apply min-h-screen wh-full grid grid-cols-[minmax(200px,680px)_1fr];
+  @apply min-h-screen wh-full grid grid-cols-[minmax(200px,630px)_1fr];
 
   @screen rsh {
     @apply grid-cols-[minmax(310px,388px)_minmax(580px,630px)];
@@ -7,7 +7,7 @@
 
   // all panes
   > * {
-    @apply border-r border-color wh-full max-w-[600px];
+    @apply border-r border-color wh-full max-w-[630px];
   }
 
   *::-webkit-scrollbar {

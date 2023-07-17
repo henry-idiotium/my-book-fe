@@ -4,10 +4,10 @@ export function cascadeContextReducer(
   state: ConversationCascadeState,
   action: CascadeReducerAction,
 ): ConversationCascadeState {
-  const { type, payload } = action;
+  const [type, payload] = action;
 
   switch (type) {
-    case 'set-scroll-content-to-end': {
+    case 'set-scroll-to-end': {
       return {
         ...state,
         scrollContentToEnd: payload,
@@ -19,7 +19,4 @@ export function cascadeContextReducer(
   }
 }
 
-export type CascadeReducerAction = {
-  type: 'set-scroll-content-to-end';
-  payload: () => void;
-};
+export type CascadeReducerAction = [type: 'set-scroll-to-end', payload: () => void];

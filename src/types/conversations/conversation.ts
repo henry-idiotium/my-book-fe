@@ -1,17 +1,17 @@
 import { z } from 'zod';
 
 import { baseConversationZod } from './base-conversation';
-import { groupConversationZod } from './group-conversation';
-import { pairedConversationZod } from './paired-conversation';
+import { groupConversationZod } from './group/group-conversation';
+import { pairedConversationZod } from './pair/paired-conversation';
 
 /** Conversation base type, where it except both types of conversation.  */
 export type ConversationEntity = z.infer<typeof conversationEntityZod>;
 export const conversationEntityZod = z
   .object({})
-  .extend(pairedConversationZod.shape)
-  .extend(groupConversationZod.shape)
-  .deepPartial()
-  .extend(baseConversationZod.shape);
+  .merge(pairedConversationZod)
+  .merge(groupConversationZod)
+  .partial()
+  .merge(baseConversationZod);
 
 /**
  * Strict version of the base {@link ConversationEntity} type,

@@ -54,7 +54,7 @@ const useAxiosOptionsZod = z.object({
   manual: z.boolean(),
   autoAfterMountedFetch: z.boolean().default(true),
 });
-const useAxiosOptionsPartialZod = useAxiosOptionsZod.deepPartial();
+const useAxiosOptionsPartialZod = useAxiosOptionsZod.partial();
 export const defaultUseAxiosOptions = getZodDefault(useAxiosOptionsZod);
 
 /** Return value of useAxios. */

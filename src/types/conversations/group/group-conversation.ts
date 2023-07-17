@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { baseConversationZod } from './base-conversation';
+import { baseConversationZod } from '../base-conversation';
 
 /** Conversation between more than two individuals.  */
 export type GroupConversation = z.infer<typeof groupConversationZod>;
