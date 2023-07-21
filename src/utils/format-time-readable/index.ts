@@ -1,56 +1,42 @@
-import {
-  format,
-  getYear,
-  intervalToDuration,
-  isSameDay,
-  isSameWeek,
-  subDays,
-} from 'date-fns';
+import { format, getYear, isSameDay, isSameWeek, subDays } from 'date-fns';
 
 import * as Constants from './constants';
-import { formatRange, getDefaultOption, parse } from './helpers';
-import { DateArg, Options } from './types';
+import { formatRange, getArgs } from './helpers';
+import { FormatTimeReadableArgs } from './types';
 
-export function formatTimeReadable(
-  _start: DateArg,
-  _end: DateArg = new Date(),
-  _options?: Options,
-) {
-  const options = getDefaultOption(_options);
+export function formatTimeReadable(...args: FormatTimeReadableArgs) {
+  const { start, end, options } = getArgs(args);
 
-  const start = parse(_start, options.dateStrFormat);
-  const end = parse(_end, options.dateStrFormat);
+  if (options.type === 'no times') return format(start, Constants.DateFormats.MO_YR);
 
-  if (options.simple) return format(start, Constants.DateFormats.ALT);
-  if (start >= end) return Constants.Contents.NOW;
+  function getTypeFormat(prefix: string) {
+    return format(start, options.type === 'full' ? `${prefix}, p` : prefix);
+  }
 
-  //* Is in same day
+  //* same day
   if (isSameDay(start, end)) {
-    const {
-      hours = 0,
-      minutes = 0,
-      seconds = 0,
-    } = intervalToDuration({ start, end });
+    return options.type === 'full' ? format(start, 'p') : formatRange(start, end);
+  }
 
-    return seconds > Constants.TIME_BEFORE_PASS_NOW
-      ? formatRange(hours, minutes, seconds)
-      : Constants.Contents.NOW;
+  //* yesterday
+  else if (!options.disableYesterdayAnnotation && isSameDay(start, subDays(end, 1))) {
+    return getTypeFormat("'" + Constants.Contents.YESTERDAY + "'");
   }
-  //* Is yesterday
-  else if (options.useYesterday && isSameDay(start, subDays(end, 1))) {
-    return Constants.Contents.YESTERDAY;
-  }
-  //* Still in week
+
+  //* same week
   else if (isSameWeek(start, end)) {
-    return format(start, Constants.DateFormats.IN_WEEK);
+    return getTypeFormat('EEEE');
   }
-  //* Still in year
+
+  //* same year
   else if (getYear(start) === getYear(end)) {
-    return format(start, Constants.DateFormats.IN_YEAR);
+    return getTypeFormat('MMM d');
   }
-  //* Is in previous year
+
+  //* previous year
   else {
-    return format(start, Constants.DateFormats.PASS_YEAR);
+    return getTypeFormat('dd/MM/yyyy');
   }
 }
+
 export default formatTimeReadable;

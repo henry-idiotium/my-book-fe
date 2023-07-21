@@ -25,9 +25,7 @@ export function DirectMessages() {
   const triggerScrollToBottom = useBoolean(false);
 
   const { user: mainUser } = useSelector(selectAuth);
-  const [{ chatSocketState, scrollContentToEnd }] = useContext(
-    ConversationCascadeStateContext,
-  );
+  const [{ chatSocketState, scrollContentToEnd }] = useContext(ConversationCascadeStateContext);
 
   const { register, handleSubmit, watch, setValue } = useForm<MessageForm>({
     resolver: zodResolver(messageFormZod),
@@ -51,6 +49,7 @@ export function DirectMessages() {
         conversationId: chatSocketState.id,
         content: message,
         userId: mainUser.id,
+        at: new Date().toISOString(),
       }),
     );
 

@@ -1,14 +1,12 @@
 import { MessageEntity } from '@/types';
+import { Acknowledgment } from '@/types/socket-helper';
 
-export type Send = WithKeys<'content' | 'at'>;
+export type Send = Acknowledgment<WithKeys<'content' | 'at'>, Payload>;
 export type Update = WithKeys<'content' | 'id'>;
 export type Delete = WithKeys<'id'>;
 export type Seen = WithKeys<'id'>;
 
-export type CountTotal = [request: void, response: (total: number) => void];
-export type LoadHistory = [
-  request: { count: number; nthFromEnd?: number },
-  response: (args: MessageEntity[]) => void,
-];
+export type LoadHistory = Acknowledgment<{ count: number; nthFromEnd: number }, Payload[]>;
 
-type WithKeys<T extends keyof MessageEntity> = Pick<MessageEntity, T>;
+type Payload = RequiredNotNullPick<MessageEntity, 'content'>;
+type WithKeys<T extends keyof Payload> = Pick<Payload, T>;

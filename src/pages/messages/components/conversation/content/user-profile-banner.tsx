@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 import UserAvatar from '@/assets/account-image.jpg';
 import { MinimalUserEntity } from '@/types';
-import { formatTimeReadable } from '@/utils';
+import { User, formatTimeReadable } from '@/utils';
 
 import * as constants from './constants';
 
 type ProfileBannerProps = {
   interlocutor: MinimalUserEntity;
-  conversationName: string;
 };
 
 /**
@@ -19,20 +18,15 @@ type ProfileBannerProps = {
  * @remarks This component should only used for paired conversation.
  */
 export function UserProfileBanner(props: ProfileBannerProps) {
-  const { interlocutor, conversationName } = props;
+  const { interlocutor } = props;
 
   const navigate = useNavigate();
 
-  const goToUserProfile = useCallback(
-    () => navigate(`/${interlocutor.alias}`),
-    [],
-  );
+  const goToUserProfile = useCallback(() => navigate(`/${interlocutor.alias}`), []);
 
   const userJoinedTime = useMemo(() => {
     if (!interlocutor.createdAt) return;
-    return formatTimeReadable(interlocutor.createdAt, undefined, {
-      simple: true,
-    });
+    return formatTimeReadable(interlocutor.createdAt, { type: 'no times' });
   }, []);
 
   return (
@@ -45,15 +39,11 @@ export function UserProfileBanner(props: ProfileBannerProps) {
         <div className="px-4 py-5 wh-full">
           <div className="flex flex-col items-center wh-full">
             <div className="overflow-hidden rounded-full wh-16">
-              <img
-                src={interlocutor.photo ?? UserAvatar}
-                alt="user avatar"
-                className="wh-full"
-              />
+              <img src={interlocutor.photo ?? UserAvatar} alt="user avatar" className="wh-full" />
             </div>
 
             <div className="mt-1 font-bold text-color">
-              <span>{conversationName}</span>
+              <span>{User.getFullName(interlocutor)}</span>
             </div>
 
             <div className="mt-[2px] font-light text-color-accent">

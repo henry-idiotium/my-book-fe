@@ -14,6 +14,7 @@ const adapter = createEntityAdapter<ChatSocketEntity>({
 });
 
 const initialState = adapter.getInitialState();
+const initialMessage = getZodDefault(messageZod);
 
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
@@ -29,9 +30,7 @@ export const chatSocketSlice = createSlice({
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const activeUserIndex = entity.activeUserIds.findIndex(
-        (activeId) => activeId === id,
-      );
+      const activeUserIndex = entity.activeUserIds.findIndex((activeId) => activeId === id);
       if (activeUserIndex !== -1) return;
 
       entity.activeUserIds.push(id);
@@ -43,9 +42,7 @@ export const chatSocketSlice = createSlice({
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const activeUserIndex = entity.activeUserIds.findIndex(
-        (activeId) => activeId === id,
-      );
+      const activeUserIndex = entity.activeUserIds.findIndex((activeId) => activeId === id);
       if (activeUserIndex === -1) return;
 
       entity.activeUserIds.splice(activeUserIndex, 1);
@@ -68,41 +65,7 @@ export const chatSocketSlice = createSlice({
       entity.messages.push(message);
     },
 
-    createMessage(state, action: Payloads.Message.Create) {
-      const { conversationId, ...payload } = action.payload;
-
-      const entity = state.entities[conversationId];
-      if (!entity) return;
-
-      // remarks: add newly created message with empty ID as `pending` status
-      entity.messages.push({
-        ...getZodDefault(messageZod),
-        ...payload,
-      });
-    },
-
-    resolvePendingMessage(state, action: Payloads.Message.ResolvePending) {
-      const { conversationId, ...successMessage } = action.payload;
-
-      const entity = state.entities[conversationId];
-      if (!entity) return;
-
-      const pendingIndex = entity.messages.findIndex(
-        (message) => message.at === successMessage.at,
-      );
-
-      // note: debug
-      // console.log('🚀 ~ file: chat-socket.slice.ts:90 ~ successMessage:\n', {
-      //   pending: entity.messages[pendingIndex],
-      //   successMessage,
-      // });
-      if (pendingIndex === -1) return;
-
-      // sync with the server version of this message ff
-      entity.messages[pendingIndex] = successMessage;
-    },
-
-    updateMessage(state, action: Payloads.Message.Update) {
+    updateFullMessage(state, action: Payloads.Message.FullUpdate) {
       const { conversationId, ...messageToUpdate } = action.payload;
 
       const entity = state.entities[conversationId];
@@ -114,6 +77,18 @@ export const chatSocketSlice = createSlice({
       if (indexToUpdate === -1) return;
 
       entity.messages[indexToUpdate] = messageToUpdate;
+    },
+
+    updateMessage(state, action: Payloads.Message.Update) {
+      const { conversationId, content, id: messageId } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const indexToUpdate = entity.messages.findIndex((message) => message.id === messageId);
+      if (indexToUpdate === -1) return;
+
+      entity.messages[indexToUpdate].content = content;
     },
 
     deleteMessage(state, action: Payloads.Message.Delete) {
@@ -134,9 +109,7 @@ export const chatSocketSlice = createSlice({
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const seenLogToUpdateIndex = entity.messageSeenLog.findIndex(
-        (log) => log.userId === userId,
-      );
+      const seenLogToUpdateIndex = entity.messageSeenLog.findIndex((log) => log.userId === userId);
       if (seenLogToUpdateIndex === -1) return;
 
       entity.messageSeenLog[seenLogToUpdateIndex] = { userId, messageId };
@@ -151,19 +124,10 @@ export const chatSocketSlice = createSlice({
       const identifier = payload.at ?? payload.id;
       if (!identifier) return;
 
-      entity.errorMessages[identifier] = { reason };
+      entity.meta.message.errors[identifier] = { reason };
     },
 
-    updateMessageTotalCount(state, action: Payloads.Message.UpdateTotalCount) {
-      const { conversationId, totalMessageCount } = action.payload;
-
-      const entity = state.entities[conversationId];
-      if (!entity) return;
-
-      entity.totalMessageCount = totalMessageCount;
-    },
-
-    prependMessages(state, action: Payloads.Message.AddHistories) {
+    prependMessages(state, action: Payloads.Message.PrependMessages) {
       const { conversationId, messages } = action.payload;
 
       const entity = state.entities[conversationId];
@@ -171,6 +135,50 @@ export const chatSocketSlice = createSlice({
 
       entity.messages.unshift(...messages);
     },
+
+    updateMessagesFetchingLog(state, action: Payloads.Message.UpdateFetchingLog) {
+      const { conversationId, ...payload } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      entity.meta.message.prevFetch = payload;
+    },
+  },
+
+  extraReducers(builder) {
+    /** Add message (pending state) */
+    builder.addCase(thunkActions.sendMessage.pending, (state, action) => {
+      const { conversationId, ...partialMessage } = action.meta.arg;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      entity.messages.push({
+        ...initialMessage,
+        ...partialMessage,
+      });
+    });
+
+    /** Resolve pending message */
+    builder.addCase(thunkActions.sendMessage.fulfilled, (state, action) => {
+      if (!action.payload) return;
+
+      const { conversationId, ...successMessage } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const pendingIndex = entity.messages.findIndex((message) => {
+        const msgTime = new Date(message.at).getTime();
+        const successMsgTime = new Date(successMessage.at).getTime();
+        return msgTime === successMsgTime;
+      });
+      if (pendingIndex === -1) return;
+
+      // sync with the server version of this message
+      entity.messages[pendingIndex] = successMessage;
+    });
   },
 });
 

@@ -6,3 +6,4 @@ export * from './scroll';
 export * from './effect-control-state';
 export * from './deep-compare-memorize';
 export * from './initial-memo';
+export * from './persist-scroll-view';

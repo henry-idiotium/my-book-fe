@@ -1,10 +1,7 @@
-import {
-  ChatSocketEmitter,
-  ChatSocketListener,
-  ConversationResponse,
-  MessageEntity,
-  MessageSeenLog,
-} from '@/types';
+/* eslint-disable @typescript-eslint/no-namespace */
+import { ChatSocketEmitter, ChatSocketListener, MessageEntity, MessageSeenLog } from '@/types';
+
+import { ChatSocketEntity } from '../chat-socket-entity';
 
 import { ConvoPayloadWrap, ConvoWrap } from './helpers';
 
@@ -12,28 +9,34 @@ import Emitter = ChatSocketEmitter.Message.Payloads;
 import Listener = ChatSocketListener.Message.Payloads;
 
 export type Add = ConvoPayloadWrap<Listener.Receive>;
-export type Create = ConvoPayloadWrap<Emitter.Send>;
-export type ResolvePending = Add;
-export type Update = ConvoPayloadWrap<MessageEntity>;
+export type Update = ConvoPayloadWrap<WithKeys<'content' | 'id'>>;
+export type FullUpdate = ConvoPayloadWrap<Payload>;
 export type Delete = ConvoPayloadWrap<Listener.DeleteNotify>;
 export type UpdateSeenLog = ConvoPayloadWrap<MessageSeenLog>;
-export type AddHistories = ConvoPayloadWrap<{ messages: MessageEntity[] }>;
-
-export type UpdateTotalCount = ConvoPayloadWrap<
-  Required<Pick<ConversationResponse, 'totalMessageCount'>>
->;
+export type PrependMessages = ConvoPayloadWrap<{ messages: Payload[] }>;
 
 export type UpsertError = ConvoPayloadWrap<{
   payload: Partial<WithKeys<'id' | 'at'>>;
-  reason?: Nullable<string>;
+  reason?: string | null;
 }>;
 
-// socket event logic related types
-export type SocketSend = ConvoWrap<
-  Omit<RequiredNotNull<Emitter.Send>, 'at'> & { userId: number }
->;
-export type SocketUpdate = ConvoWrap<Emitter.Update>;
-export type SocketDelete = ConvoWrap<Emitter.Delete>;
-export type SocketSeen = ConvoWrap<MessageSeenLog>;
+export type UpdateFetchingLog = ConvoPayloadWrap<ChatSocketEntity['meta']['message']['prevFetch']>;
 
-type WithKeys<T extends keyof MessageEntity> = Pick<MessageEntity, T>;
+// socket event logic related types
+export namespace Socket {
+  export namespace Arg {
+    export type Send = ConvoWrap<WithKeys<'content' | 'at'> & { userId: number }>;
+    export type Update = ConvoWrap<WithKeys<'content' | 'id'>>;
+    export type Delete = ConvoWrap<Emitter.Delete>;
+    export type Seen = ConvoWrap<MessageSeenLog>;
+    export type LoadHistory = ConvoWrap<Emitter.LoadHistory[0]>;
+  }
+
+  export namespace Result {
+    export type Send = ConvoWrap<Payload>;
+    export type LoadHistory = boolean;
+  }
+}
+
+type Payload = RequiredNotNullPick<MessageEntity, 'content'>;
+type WithKeys<T extends keyof Payload> = Pick<Payload, T>;

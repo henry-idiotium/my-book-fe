@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-export function zodUnion<const TLiteral extends ReadonlyArray<string>>(
-  literals: TLiteral,
+export function zodLiteralUnion<const Literals extends ReadonlyArray<string>>(
+  ...literals: Literals
 ) {
   const literalZods = literals.map((l) => z.literal(l));
 
   type ZodLiterals = Mutable<{
-    [Key in keyof TLiteral]: z.ZodLiteral<TLiteral[Key]>;
+    [Key in keyof Literals]: z.ZodLiteral<Literals[Key]>;
   }>;
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -14,4 +14,4 @@ export function zodUnion<const TLiteral extends ReadonlyArray<string>>(
   return z.union(literalZods) as z.ZodUnion<ZodLiterals>;
 }
 
-export default zodUnion;
+export default zodLiteralUnion;

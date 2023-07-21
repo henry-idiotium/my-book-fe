@@ -29,6 +29,7 @@ export function ChatEntry(props: ChatEntryProps) {
     deepCompareMemo(chatSocketState?.messages),
   );
 
+  // todo: refactor/remove `filteredParticipants` and `name` memos
   const filteredParticipants = useInitialMemo<ChatSocketEntity['participants']>(
     () => {
       if (!chatSocketState) return [];
@@ -79,7 +80,7 @@ export function ChatEntry(props: ChatEntryProps) {
               <>
                 <span className={styles.infoSep}>·</span>
                 <div className={styles.infoTimeLastMessage}>
-                  <span>{formatTimeReadable(latestMessage.at)}</span>
+                  <span>{formatTimeReadable(latestMessage.at, { type: 'minimal' })}</span>
                 </div>
               </>
             ) : null}

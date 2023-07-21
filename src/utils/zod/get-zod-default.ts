@@ -22,10 +22,30 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
     return getZodDefault(z.ZodObject.create(schema.innerType().shape));
   }
 
+  /**
+   * @remarks
+   *    The first IF logic keep the provided default value from the schema,
+   *    but also NOT loosing the optional rule.
+   *    The original logic of zod is that if the default() is place after optional(), then the type
+   *    would identify itself as being NOT OPTIONAL.
+   *
+   * @example
+   *    const schema = z.number().default(100).optional();
+   *    type Schema = z.infer<typeof schema>; //=> number | undefined
+   *    const value = getDefaultValue(schema); //=> 100
+   *
+   * @disclaimer ZodNullable not work the same way.
+   */
   function getDefaultValue(schema: z.ZodTypeAny): unknown {
-    if (schema instanceof z.ZodDefault) return schema._def.defaultValue();
-    if (schema instanceof z.ZodOptional) return undefined;
+    if (schema instanceof z.ZodOptional) {
+      const innerSchema = schema.unwrap() as z.ZodTypeAny;
+      return innerSchema instanceof z.ZodDefault
+        ? innerSchema._def.defaultValue()
+        : undefined;
+    }
+
     if (schema instanceof z.ZodNullable) return null;
+    if (schema instanceof z.ZodDefault) return schema._def.defaultValue();
 
     if (schema instanceof z.ZodRecord) return {};
     if (schema instanceof z.ZodArray) return [];

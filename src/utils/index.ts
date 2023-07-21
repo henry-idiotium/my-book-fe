@@ -9,3 +9,4 @@ export * as Convo from './conversation-helpers';
 export * from './material-ripple-effect';
 export * from './filter-boolean';
 export * from './logger';
+export * from './raise';

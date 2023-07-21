@@ -1,17 +1,20 @@
 import { MessageEntity, MessageSeenLog } from '@/types';
 
 export type ReadReceipt = MessageSeenLog;
-export type Receive = MessageEntity;
-export type UpdateNotify = MessageEntity;
+export type Receive = Payload;
+export type UpdateNotify = Payload;
 export type DeleteNotify = WithKeys<'id'>;
 
-export type SendSuccess = MessageEntity;
+/** @deprecated replaced by exception  */
 export type SendFailure = WithFailure<WithKeys<'at'>>;
+/** @deprecated replaced by exception  */
 export type UpdateFailure = WithFailure<WithKeys<'id'>>;
+/** @deprecated replaced by exception  */
 export type DeleteFailure = WithFailure<WithKeys<'id'>>;
 
 // helpers
-type WithKeys<T extends keyof MessageEntity> = Pick<MessageEntity, T>;
+type Payload = RequiredNotNullPick<MessageEntity, 'content'>;
+type WithKeys<T extends keyof Payload> = Pick<Payload, T>;
 type WithFailure<T> = {
   payload: T;
   reason?: string;

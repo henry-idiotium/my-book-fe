@@ -4,18 +4,20 @@ import { useBoolean, useEffectOnce } from 'usehooks-ts';
 import { useDispatch, useInitialMemo, useSelector } from '@/hooks';
 import {
   ChatSocketMap,
+  chatSocketActions as actions,
   selectAuth,
   chatSocketSelectors as selectors,
 } from '@/stores';
-import { ChatSocketEntity } from '@/stores/chat-socket/types';
-import { Convo } from '@/utils';
+import { ChatSocketEntity, chatSocketEntityZod } from '@/stores/chat-socket/types';
+import { ChatSocketListener } from '@/types';
+import { Convo, getZodDefault } from '@/utils';
 
 import * as Constants from './constants';
 import { initChatSocketListeners } from './init-chat-socket-listeners';
 
-export function useChatSocketConnection(
-  conversationId: string,
-): ConnectionState {
+const initialChatSocketState = getZodDefault(chatSocketEntityZod);
+
+export function useChatSocketConnection(conversationId: string): ConnectionState {
   const dispatch = useDispatch();
 
   const { token, user: sessionUser } = useSelector(selectAuth);
@@ -45,9 +47,28 @@ export function useChatSocketConnection(
     // init connection checks
     setTimeout(checksGreenLit.setTrue, Constants.CONNECT_TIMEOUT_LIMIT);
 
+    // todo: consider move this logic back to redux thunk
     const socket = ChatSocketMap.connect(conversationId, token, {
       latestMessagesCount: Constants.LATEST_MESSAGES_COUNT,
     });
+
+    /** Init conversation socket state. */
+    socket.on(ChatSocketListener.User.Events.CONNECT, ({ activeUserIds, conversation }) => {
+      const isGroup = Convo.isGroup(conversation);
+      const chatSocketState = Object.assign(initialChatSocketState, conversation, {
+        isGroup,
+        activeUserIds,
+      });
+
+      // log
+      chatSocketState.meta.previousMessageFetchingAttempt = {
+        args: { count: Constants.LATEST_MESSAGES_COUNT, nthFromEnd: 0 },
+        result: { count: conversation.messages.length },
+      };
+
+      dispatch(actions.set(chatSocketState));
+    });
+
     initChatSocketListeners(conversationId, socket, dispatch);
 
     return () => {

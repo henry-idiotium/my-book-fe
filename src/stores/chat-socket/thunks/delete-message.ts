@@ -3,22 +3,24 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '@/stores/app-store';
 import { ChatSocketEmitter } from '@/types';
 
-import { ChatSocketMap } from '../chat-socket.slice';
-import { ChatSocketSlicePayloads as Payloads } from '../types';
+import { ChatSocketMap, chatSocketActions } from '../chat-socket.slice';
+import { ChatSocketSlicePayloads } from '../types';
+
+import SocketPayload = ChatSocketSlicePayloads.Message.Socket;
 
 /**
  * Emit DELETE MESSAGE event to server.
  * @remarks Dispatch needed to be executed by the DELETE_SUCCESS listener.
  */
-export const deleteMessage = createAsyncThunk<
-  void,
-  Payloads.Message.SocketDelete,
-  { state: RootState }
->('chat-socket/socket/deleteMessage', (arg) => {
-  const { conversationId, ...payload } = arg;
+export const deleteMessage = createAsyncThunk<void, SocketPayload.Arg.Delete, { state: RootState }>(
+  'chat-socket/socket/deleteMessage',
+  (arg, { dispatch }) => {
+    const { conversationId, ...payload } = arg;
 
-  const socket = ChatSocketMap.store.get(conversationId);
-  if (!socket?.connected) return;
+    const socket = ChatSocketMap.store.get(conversationId);
+    if (!socket?.connected) return;
 
-  socket.emit(ChatSocketEmitter.Message.Events.DELETE, payload);
-});
+    socket.emit(ChatSocketEmitter.Message.Events.DELETE, payload);
+    dispatch(chatSocketActions.deleteMessage(arg));
+  },
+);
