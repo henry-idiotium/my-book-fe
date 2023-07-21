@@ -9,6 +9,7 @@
     "plugin:import/recommended",
     "plugin:tailwindcss/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "eslint:recommended"
@@ -19,10 +20,6 @@
     "project": ["./tsconfig.app.json"],
     "sourceType": "module"
   },
-
-  "overrides": [
-    { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
-  ],
 
   "rules": {
     "react-hooks/exhaustive-deps": "off",
@@ -41,15 +38,14 @@
         "noSortAlphabetically": true
       }
     ],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/unbound-method": "off",
-    "@typescript-eslint/no-misused-promises": [
-      "error",
-      { "checksVoidReturn": false }
-    ],
+    "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
     "import/no-named-as-default": "off",
     "import/default": "off",
     "import/order": [
