@@ -18,10 +18,7 @@ export function useStateReducer<TResponse, TBody, TError>(
     reducer<TResponse, TBody, TError>(),
     createInitialResponseState<TResponse, TBody, TError>(config, options),
   );
-  const response = useMemo(
-    () => hyperActiveResponse,
-    deepCompareMemo(hyperActiveResponse),
-  );
+  const response = useMemo(() => hyperActiveResponse, deepCompareMemo(hyperActiveResponse));
 
   return [response, dispatch] as const;
 }

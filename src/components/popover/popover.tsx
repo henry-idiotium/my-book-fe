@@ -11,32 +11,29 @@ type PopoverContentProps = PopoverPrimitive.PopperContentProps &
     disableBaseStyles?: boolean;
   };
 
-const Content = forwardRef<HTMLDivElement, PopoverContentProps>(
-  (_props, forwardedRef) => {
-    const { children, className, usePadding, disableBaseStyles, ...props } =
-      _props;
+const Content = forwardRef<HTMLDivElement, PopoverContentProps>((_props, forwardedRef) => {
+  const { children, className, usePadding, disableBaseStyles, ...props } = _props;
 
-    const contentClassnames = classnames(styles.content, className, {
-      [styles.contentPadding]: usePadding,
-      [styles.contentBase]: !disableBaseStyles,
-    });
+  const contentClassnames = classnames(styles.content, className, {
+    [styles.contentPadding]: usePadding,
+    [styles.contentBase]: !disableBaseStyles,
+  });
 
-    // note: the position of {...props} is important for default values
-    return (
-      <PopoverPrimitive.Portal>
-        <PopoverPrimitive.Content
-          sideOffset={5}
-          {...props}
-          ref={forwardedRef}
-          className={contentClassnames}
-        >
-          {children}
-          <PopoverPrimitive.Arrow />
-        </PopoverPrimitive.Content>
-      </PopoverPrimitive.Portal>
-    );
-  },
-);
+  // note: the position of {...props} is important for default values
+  return (
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        sideOffset={5}
+        {...props}
+        ref={forwardedRef}
+        className={contentClassnames}
+      >
+        {children}
+        <PopoverPrimitive.Arrow />
+      </PopoverPrimitive.Content>
+    </PopoverPrimitive.Portal>
+  );
+});
 
 export const Popover = Object.assign(PopoverPrimitive.Root, {
   Trigger: PopoverPrimitive.Trigger,

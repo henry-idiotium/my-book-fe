@@ -60,10 +60,10 @@ export function useChatSocketConnection(conversationId: string): ConnectionState
         activeUserIds,
       });
 
-      // log
-      chatSocketState.meta.previousMessageFetchingAttempt = {
-        args: { count: Constants.LATEST_MESSAGES_COUNT, nthFromEnd: 0 },
-        result: { count: conversation.messages.length },
+      chatSocketState.meta.message.prevFetch = {
+        count: Constants.LATEST_MESSAGES_COUNT,
+        size: conversation.messages.length,
+        nthFromEnd: 0,
       };
 
       dispatch(actions.set(chatSocketState));

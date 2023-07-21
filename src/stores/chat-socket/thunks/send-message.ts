@@ -6,15 +6,15 @@ import { ChatSocketEmitter } from '@/types';
 import { ChatSocketMap } from '../chat-socket.slice';
 import { ChatSocketSlicePayloads } from '../types';
 
-import SocketPayload = ChatSocketSlicePayloads.Message.Socket;
+import Send = ChatSocketSlicePayloads.Thunk.Message.Send;
 
 /**
  * Emit SEND MESSAGE event to server.
  * @remarks Dispatch is executed along with emit event.
  */
 export const sendMessage = createAsyncThunk<
-  SocketPayload.Result.Send | undefined,
-  SocketPayload.Arg.Send,
+  Send['Returned'] | undefined,
+  Send['Arg'],
   { state: RootState }
 >('chat-socket/socket/sendMessage', async (arg) => {
   const { conversationId, content, at, userId: from } = arg;

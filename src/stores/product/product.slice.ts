@@ -4,7 +4,7 @@ import {
   createSelector,
   createSlice,
   EntityState,
-  PayloadAction
+  PayloadAction,
 } from '@reduxjs/toolkit';
 
 export const PRODUCT_FEATURE_KEY = 'product';
@@ -49,12 +49,12 @@ export const fetchProduct = createAsyncThunk<ProductEntity[]>(
      * Right now we just return an empty array.
      */
     return Promise.resolve([]);
-  }
+  },
 );
 
 export const initialProductState: ProductState = productAdapter.getInitialState({
   loadingStatus: 'not loaded',
-  error: null
+  error: null,
 });
 
 export const productSlice = createSlice({
@@ -62,23 +62,26 @@ export const productSlice = createSlice({
   initialState: initialProductState,
   reducers: {
     add: productAdapter.addOne,
-    remove: productAdapter.removeOne
+    remove: productAdapter.removeOne,
     // ...
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
       .addCase(fetchProduct.pending, (state: ProductState) => {
         state.loadingStatus = 'loading';
       })
-      .addCase(fetchProduct.fulfilled, (state: ProductState, action: PayloadAction<ProductEntity[]>) => {
-        productAdapter.setAll(state, action.payload);
-        state.loadingStatus = 'loaded';
-      })
+      .addCase(
+        fetchProduct.fulfilled,
+        (state: ProductState, action: PayloadAction<ProductEntity[]>) => {
+          productAdapter.setAll(state, action.payload);
+          state.loadingStatus = 'loaded';
+        },
+      )
       .addCase(fetchProduct.rejected, (state: ProductState, action) => {
         state.loadingStatus = 'error';
         state.error = action.error.message;
       });
-  }
+  },
 });
 
 /*
@@ -122,7 +125,8 @@ export const productActions = productSlice.actions;
  */
 const { selectAll, selectEntities } = productAdapter.getSelectors();
 
-export const getProductState = (rootState: {[PRODUCT_FEATURE_KEY]: ProductState }): ProductState => rootState[PRODUCT_FEATURE_KEY];
+export const getProductState = (rootState: { [PRODUCT_FEATURE_KEY]: ProductState }): ProductState =>
+  rootState[PRODUCT_FEATURE_KEY];
 
 export const selectAllProduct = createSelector(getProductState, selectAll);
 

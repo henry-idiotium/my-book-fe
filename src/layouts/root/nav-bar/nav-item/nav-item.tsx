@@ -21,13 +21,7 @@ export type NavItemProps = {
 };
 
 export function NavItem(props: NavItemProps) {
-  const {
-    icon: Icon,
-    activeIcon: ActiveIcon = Icon,
-    hideContent,
-    name,
-    iconClassName,
-  } = props;
+  const { icon: Icon, activeIcon: ActiveIcon = Icon, hideContent, name, iconClassName } = props;
 
   const linkPath = props.to ?? (name ? name.replace('-', ' ') : '');
 
@@ -39,8 +33,7 @@ export function NavItem(props: NavItemProps) {
 
       if (typeof classNames === 'object') {
         iconClassName.active && (classNames[iconClassName.active] = isActive);
-        iconClassName.nonActive &&
-          (classNames[iconClassName.nonActive] = !isActive);
+        iconClassName.nonActive && (classNames[iconClassName.nonActive] = !isActive);
       }
     }
 
@@ -54,10 +47,7 @@ export function NavItem(props: NavItemProps) {
           <div className={styles.icon}>
             <DynamicFragment<IconBaseProps>
               as={isActive ? ActiveIcon : Icon}
-              className={classnames(
-                styles.iconImg,
-                filteredIconClassNames(isActive),
-              )}
+              className={classnames(styles.iconImg, filteredIconClassNames(isActive))}
             />
           </div>
 

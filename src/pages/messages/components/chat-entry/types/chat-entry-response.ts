@@ -1,9 +1,4 @@
-import {
-  ConversationEntity,
-  GroupConversation,
-  MessageEntity,
-  PairedConversation,
-} from '@/types';
+import { ConversationEntity, GroupConversation, MessageEntity, PairedConversation } from '@/types';
 
 export type ChatEntryResponse = BaseWrap<ConversationEntity>;
 export type GroupChatEntryResponse = BaseWrap<GroupConversation>;

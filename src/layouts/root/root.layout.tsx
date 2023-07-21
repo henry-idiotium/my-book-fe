@@ -1,11 +1,6 @@
 import { AiFillHome, AiOutlineHome } from 'react-icons/ai';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import {
-  HiOutlineUser,
-  HiOutlineUsers,
-  HiUser,
-  HiUsers,
-} from 'react-icons/hi2';
+import { HiOutlineUser, HiOutlineUsers, HiUser, HiUsers } from 'react-icons/hi2';
 import {
   RiFileListFill,
   RiFileListLine,

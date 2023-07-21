@@ -1,12 +1,9 @@
-import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { ConversationEntity, GroupConversation } from '@/types';
 
 import { User } from '.';
 
 type GenericConversation = Omit<ConversationEntity, 'participants'> & {
-  participants:
-    | ConversationEntity['participants']
-    | ChatSocketEntity['participants'];
+  participants: ConversationEntity['participants'];
 };
 
 export function isGroup(
@@ -17,11 +14,7 @@ export function isGroup(
 
 type GetNameArgs =
   | [RequiredPick<Partial<GenericConversation>, 'participants'>]
-  | [
-      isGroup: boolean,
-      participants: GenericConversation['participants'],
-      name?: string,
-    ];
+  | [isGroup: boolean, participants: GenericConversation['participants'], name?: string];
 export function getName(...args: GetNameArgs) {
   const [isConvoGroup, participants, name] =
     typeof args[0] === 'object'

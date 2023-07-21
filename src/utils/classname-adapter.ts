@@ -1,13 +1,12 @@
 export type SingularClassName = Nullable<GenericObject | string>;
 type ClassNameArgs = SingularClassName[];
 
+/** @deprecated use clsx instead */
 export function classnames(...props: ClassNameArgs) {
   return props
     .map((className) => {
       const name =
-        className && typeof className === 'object'
-          ? extractClassScheme(className)
-          : className;
+        className && typeof className === 'object' ? extractClassScheme(className) : className;
 
       return name;
     })

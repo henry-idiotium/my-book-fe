@@ -8,9 +8,7 @@
 
 import { z } from 'zod';
 
-export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
-  schema: T,
-): z.infer<T> {
+export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(schema: T): z.infer<T> {
   // is it a ZodEffect?
   if (schema instanceof z.ZodEffects) {
     // is it a recursive ZodEffect?
@@ -39,9 +37,7 @@ export function getZodDefault<T extends z.AnyZodObject | z.ZodEffects<any>>(
   function getDefaultValue(schema: z.ZodTypeAny): unknown {
     if (schema instanceof z.ZodOptional) {
       const innerSchema = schema.unwrap() as z.ZodTypeAny;
-      return innerSchema instanceof z.ZodDefault
-        ? innerSchema._def.defaultValue()
-        : undefined;
+      return innerSchema instanceof z.ZodDefault ? innerSchema._def.defaultValue() : undefined;
     }
 
     if (schema instanceof z.ZodNullable) return null;

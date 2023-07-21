@@ -9,8 +9,6 @@ export function zodLiteralUnion<const Literals extends ReadonlyArray<string>>(
     [Key in keyof Literals]: z.ZodLiteral<Literals[Key]>;
   }>;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
   return z.union(literalZods) as z.ZodUnion<ZodLiterals>;
 }
 

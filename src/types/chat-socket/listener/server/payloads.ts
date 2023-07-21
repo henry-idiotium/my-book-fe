@@ -1,1 +1,5 @@
-export type Exception = { name: string; message: string; stack?: string };
+export type Exception = {
+  name: string;
+  message: string;
+  stack?: string;
+};

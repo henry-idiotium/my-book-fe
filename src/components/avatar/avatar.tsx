@@ -17,10 +17,7 @@ type AvatarProps = Omit<Partial<HTMLImageElement>, 'className'> & {
 export function Avatar(props: AvatarProps) {
   const { src, classNames, username, alt } = props;
 
-  const containerClassnames = classnames(
-    classNames?.container,
-    styles.container,
-  );
+  const containerClassnames = classnames(classNames?.container, styles.container);
   const imgClassnames = classnames(classNames?.img, styles.img);
   const fallbackClassnames = classnames(classNames?.fallback, styles.fallback);
 

@@ -8,7 +8,7 @@ const optionsZod = z.object({
   dateStrFormat: z.string().optional(),
 
   /** default: new Date() */
-  end: z.union([z.string(), z.number(), z.date()]).default(new Date()).optional(), // remarks: cannot put default, zod lib version ^3.21.4 is bug out with Date union when INSIDE ZodObject
+  end: z.union([z.string(), z.number(), z.date()]).default(new Date()).optional(),
 
   /** Format type, default: full */
   type: zodLiteralUnion('minimal', 'full', 'no times').default('full').optional(),
@@ -21,7 +21,4 @@ export const initialOptions = getZodDefault(optionsZod);
 
 export type RawDate = Date | string | number;
 
-export type FormatTimeReadableArgs = [
-  start: RawDate,
-  options?: FormatTimeReadableOptions,
-];
+export type FormatTimeReadableArgs = [start: RawDate, options?: FormatTimeReadableOptions];

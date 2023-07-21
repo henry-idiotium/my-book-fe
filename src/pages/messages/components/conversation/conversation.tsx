@@ -19,10 +19,7 @@ export function Conversation() {
   const conversationId = useParams().id ?? '';
 
   const socketState = useChatSocketConnection(conversationId);
-  const [initialContextState, dispatch] = useReducer(
-    cascadeContextReducer,
-    initialCascadeState,
-  );
+  const [initialContextState, dispatch] = useReducer(cascadeContextReducer, initialCascadeState);
 
   const contextState = useMemo(() => {
     if (socketState.loading || socketState.connectFailed) return;

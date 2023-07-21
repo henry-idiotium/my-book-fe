@@ -15,11 +15,6 @@ export type ChatSocketListenEvents = MapEventPayloadActions<{
   [Message.Events.READ_RECEIPT]: Message.Payloads.ReadReceipt;
   [Message.Events.DELETE_NOTIFY]: Message.Payloads.DeleteNotify;
   [Message.Events.UPDATE_NOTIFY]: Message.Payloads.UpdateNotify;
-
-  [Message.Events.SEND_SUCCESS]: Message.Payloads.SendSuccess;
-  [Message.Events.SEND_FAILURE]: Message.Payloads.SendFailure;
-  [Message.Events.DELETE_FAILURE]: Message.Payloads.DeleteFailure;
-  [Message.Events.UPDATE_FAILURE]: Message.Payloads.UpdateFailure;
 }>;
 
 export { Message, Server, User };

@@ -24,7 +24,7 @@ export function Home() {
 
   const { afterPrepend, beforePrepend } = usePersistScrollView(containerRef);
 
-  const [{ shouldGoBack, isAtEnds, isAtOppositeEnds }, , scrollBack] = useScroll(containerRef, {
+  const [{ shouldGoBack, isAtEnds, isAtOppositeEnds }, scrollBack] = useScroll(containerRef, {
     viewHeightPerc: 0.4,
     behavior: 'smooth',
     startAt: 'bottom',

@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  useBoolean,
-  useDebounce,
-  useEffectOnce,
-  useUpdateEffect,
-} from 'usehooks-ts';
+import { useBoolean, useDebounce, useEffectOnce, useUpdateEffect } from 'usehooks-ts';
 import { z } from 'zod';
 
 import { useAxios } from '@/hooks';
@@ -29,17 +24,12 @@ export function useQueryFriend() {
 
   const [currentFriends, setCurrentFriends] = useState<MinimalUserEntity[]>([]);
 
-  const [{ data: friendsData = [], loading: friendLoading }, fetchFriends] =
-    useAxios<MinimalUserEntity[]>(
-      { method: 'get', url: '/friends' },
-      { manual: true },
-    );
+  const [{ data: friendsData = [], loading: friendLoading }, fetchFriends] = useAxios<
+    MinimalUserEntity[]
+  >({ method: 'get', url: '/friends' }, { manual: true });
 
   useEffectOnce(() => void fetchFriends({ params }));
-  useEffect(
-    () => void fetchFriends({ params }),
-    [debouncedQuery, params.skip, params.take],
-  );
+  useEffect(() => void fetchFriends({ params }), [debouncedQuery, params.skip, params.take]);
 
   useUpdateEffect(() => {
     if (friendLoading) return;

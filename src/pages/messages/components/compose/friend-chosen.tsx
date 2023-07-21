@@ -1,4 +1,3 @@
-// import { X as XIcon } from '@phosphor-icons/react';
 import { VscChromeClose } from 'react-icons/vsc';
 
 import UserImg from '@/assets/account-image.jpg';

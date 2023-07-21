@@ -22,6 +22,8 @@
   },
 
   "rules": {
+    "no-undef": "off",
+    "no-unused-vars": "off",
     "react-hooks/exhaustive-deps": "off",
     "react/display-name": "off",
     "react/jsx-no-undef": "off",
@@ -38,7 +40,6 @@
         "noSortAlphabetically": true
       }
     ],
-    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-empty-interface": "off",

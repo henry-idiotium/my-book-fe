@@ -75,9 +75,7 @@ export function Login() {
             Email
           </label>
 
-          {errors.email && (
-            <p className={styles.formInputMessage}>{errors.email.message}</p>
-          )}
+          {errors.email && <p className={styles.formInputMessage}>{errors.email.message}</p>}
         </div>
 
         <input
@@ -95,9 +93,7 @@ export function Login() {
             Password
           </label>
 
-          {errors.password && (
-            <p className={styles.formInputMessage}>{errors.password.message}</p>
-          )}
+          {errors.password && <p className={styles.formInputMessage}>{errors.password.message}</p>}
         </div>
 
         <input

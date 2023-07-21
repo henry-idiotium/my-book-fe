@@ -126,5 +126,5 @@ export function useScroll(ref: React.RefObject<HTMLDivElement>, _options?: UseSc
     });
   });
 
-  return [{ position, shouldGoBack, isAtEnds, isAtOppositeEnds }, scrollTo, scrollBack] as const;
+  return [{ position, shouldGoBack, isAtEnds, isAtOppositeEnds }, scrollBack, scrollTo] as const;
 }

@@ -7,7 +7,9 @@ import { RootState } from '../app-store';
 
 import * as ChatSocketMap from './chat-socket.map';
 import * as thunkActions from './thunks';
-import { ChatSocketEntity, ChatSocketSlicePayloads as Payloads } from './types';
+import { ChatSocketEntity, ChatSocketSlicePayloads } from './types';
+
+import Payloads = ChatSocketSlicePayloads.Reducer;
 
 const adapter = createEntityAdapter<ChatSocketEntity>({
   selectId: ({ id }) => id,

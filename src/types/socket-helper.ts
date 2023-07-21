@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 export type MapEventPayloadActions<TSchema> = {
   [Key in keyof TSchema]: TSchema[Key] extends Array<unknown>
     ? (...payloadArgs: TSchema[Key]) => void

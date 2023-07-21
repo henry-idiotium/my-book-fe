@@ -1,2 +1,2 @@
-export * as Message from './message';
-export * as User from './user';
+export * as Reducer from './reducers';
+export * as Thunk from './thunks';

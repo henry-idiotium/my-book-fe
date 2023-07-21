@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 const plugin = require('tailwindcss/plugin');
 
 module.exports = plugin(
@@ -13,10 +14,8 @@ module.exports = plugin(
         };
       }),
     );
-    matchUtilities(
-      { wh: (value) => ({ width: value, height: value }) },
-      { values: theme('wh') },
-    );
+
+    matchUtilities({ wh: (value) => ({ width: value, height: value }) }, { values: theme('wh') });
 
     // overflow
     addUtilities({

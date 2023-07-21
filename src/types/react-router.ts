@@ -11,6 +11,4 @@ type PageMeta = {
   authType?: RouteAuthType;
 };
 
-export const isPageRoute = (
-  route: RouteObject | PageRoute,
-): route is PageRoute => 'meta' in route;
+export const isPageRoute = (route: RouteObject | PageRoute): route is PageRoute => 'meta' in route;

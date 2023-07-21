@@ -6,13 +6,13 @@ import { ChatSocketEmitter } from '@/types';
 import { ChatSocketMap, chatSocketActions } from '../chat-socket.slice';
 import { ChatSocketSlicePayloads } from '../types';
 
-import SocketPayload = ChatSocketSlicePayloads.Message.Socket;
+import DeleteArg = ChatSocketSlicePayloads.Thunk.Message.Delete;
 
 /**
  * Emit DELETE MESSAGE event to server.
  * @remarks Dispatch needed to be executed by the DELETE_SUCCESS listener.
  */
-export const deleteMessage = createAsyncThunk<void, SocketPayload.Arg.Delete, { state: RootState }>(
+export const deleteMessage = createAsyncThunk<void, DeleteArg, { state: RootState }>(
   'chat-socket/socket/deleteMessage',
   (arg, { dispatch }) => {
     const { conversationId, ...payload } = arg;

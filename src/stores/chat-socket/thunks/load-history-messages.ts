@@ -6,13 +6,13 @@ import { ChatSocketEmitter } from '@/types';
 import { ChatSocketMap, chatSocketActions as actions } from '../chat-socket.slice';
 import { ChatSocketSlicePayloads } from '../types';
 
-type ThunkArg = ChatSocketSlicePayloads.Message.Socket.Arg.LoadHistory;
+type LoadHistoryArg = ChatSocketSlicePayloads.Thunk.Message.LoadHistory;
 
 /**
  * Emit LOAD HISTORY MESSAGES event to server.
  * @remarks Dispatch is executed along with emit event.
  */
-export const loadHistoryMessages = createAsyncThunk<void, ThunkArg, { state: RootState }>(
+export const loadHistoryMessages = createAsyncThunk<void, LoadHistoryArg, { state: RootState }>(
   'chat-socket/socket/loadHistoryMessages',
   (arg, { dispatch }) => {
     const { conversationId, ...payload } = arg;

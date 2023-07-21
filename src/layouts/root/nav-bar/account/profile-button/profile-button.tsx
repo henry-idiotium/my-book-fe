@@ -20,11 +20,7 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
         <div className={styles.wrapper}>
           <div className={styles.avatar}>
             <div className={styles.avatarWrapper}>
-              <img
-                className={styles.avatarImg}
-                src={accountImage}
-                alt="User avatar"
-              />
+              <img className={styles.avatarImg} src={accountImage} alt="User avatar" />
             </div>
           </div>
 

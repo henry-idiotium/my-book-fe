@@ -15,6 +15,7 @@ import { chatSocketActions as actions, selectAuth } from '@/stores';
 import { classnames } from '@/utils';
 
 import { ConversationCascadeStateContext } from '../context-cascade';
+import { LATEST_MESSAGES_COUNT } from '../hooks/chat-socket-connection/constants';
 
 import * as Constants from './constants';
 import styles from './content.module.scss';
@@ -27,18 +28,12 @@ todo:
 - new message indication when shouldGoBack=true
 */
 
-const MESSAGE_FETCH_AMOUNT = 20;
-
 export function Content() {
   const dispatch = useDispatch();
 
-  const _foo = '';
-
   const containerRef = useRef<HTMLDivElement>(null);
-  const { afterPrepend, beforePrepend } = usePersistScrollView(containerRef, {
-    index: 1,
-  });
-  const [{ shouldGoBack, isAtOppositeEnds: isAtTop }, , scrollToBottom] = useScroll(containerRef, {
+  const { afterPrepend, beforePrepend } = usePersistScrollView(containerRef, { index: 1 });
+  const [{ shouldGoBack, isAtOppositeEnds: isAtTop }, scrollToBottom] = useScroll(containerRef, {
     viewHeightPerc: 0.8,
     behavior: 'smooth',
     startAt: 'bottom',
@@ -56,7 +51,7 @@ export function Content() {
     },
   } = chatSocketState;
 
-  const canLoadMoreMessages = useInitialMemo(() => prevFetch.count >= MESSAGE_FETCH_AMOUNT, true, [
+  const canLoadMoreMessages = useInitialMemo(() => prevFetch.count >= LATEST_MESSAGES_COUNT, true, [
     prevFetch.count,
   ]);
   const shouldShowProfileBanner = useMemo(
@@ -66,7 +61,7 @@ export function Content() {
 
   const loadingPreviousMessages = useBoolean(false);
 
-  /** Chain messages into loosely group of closure messages (ie, sent not far apart). */
+  /** Chaining messages into loosely group of closure messages (ie, messages that sent not far apart). */
   const decorativeMessages = useMemo(() => {
     return messages.reduce<DecorativeMessage[]>((acc, message) => {
       // evaluate previous messages
@@ -104,23 +99,27 @@ export function Content() {
     loadingPreviousMessages.setTrue();
     beforePrepend();
 
+    // "await" min amount of time to avoid focus "glitching"
     setTimeout(() => {
       dispatch(
         actions.socket.loadHistoryMessages({
           conversationId,
-          nthFromEnd: prevFetch.nthFromEnd + MESSAGE_FETCH_AMOUNT,
-          count: MESSAGE_FETCH_AMOUNT,
+          nthFromEnd: prevFetch.nthFromEnd + LATEST_MESSAGES_COUNT,
+          count: LATEST_MESSAGES_COUNT,
         }),
       );
     }, Constants.LOAD_HISTORY_MIN_WAIT_DURATION);
   }, [isAtTop]);
 
-  // Scroll focus to latest message, when the view is relatively bottom
+  // handle messages size change
   useUpdateEffect(() => {
+    // Persist scroll view when load previous messages.
     if (loadingPreviousMessages.value) {
       afterPrepend();
       loadingPreviousMessages.setFalse();
     }
+
+    // Scroll focus to NEWLY CREATED message, when the view is relatively bottom.
     if (containerRef.current && !shouldGoBack) scrollToBottom('instant');
   }, [messages.length]);
 

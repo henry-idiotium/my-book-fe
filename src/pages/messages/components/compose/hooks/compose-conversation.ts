@@ -7,15 +7,14 @@ import { CreateConversationDto as Dto } from '../types';
 export function useComposeConversation() {
   const [createConversationId, setCreateConversationId] = useState<string>();
 
-  const [paredRes, createPair] = useAxios<Dto.Paired.Response>(
-    '/paired-conversations',
+  const [paredRes, createPair] = useAxios<Dto.Paired.Response>('/paired-conversations', {
+    manual: true,
+  });
+
+  const [groupRes, createGroup] = useAxios<Dto.Group.Response, Dto.Group.Request>(
+    '/group-conversations',
     { manual: true },
   );
-
-  const [groupRes, createGroup] = useAxios<
-    Dto.Group.Response,
-    Dto.Group.Request
-  >('/group-conversations', { manual: true });
 
   // Redirect to the newly created conversation when the
   // API request completes successfully.
@@ -27,17 +26,14 @@ export function useComposeConversation() {
   }, [paredRes.data, groupRes.data]);
 
   /** Create a conversation, either a group or pair chat. */
-  const composeConversation = useCallback(
-    ({ type, payload }: CreateConvoArgs) => {
-      const createConversation = type === 'pair' ? createPair : createGroup;
-      return createConversation(
-        type === 'pair'
-          ? { method: 'get', url: `/to/${payload.interlocutorId}` }
-          : { method: 'post', data: payload },
-      );
-    },
-    [],
-  );
+  const composeConversation = useCallback(({ type, payload }: CreateConvoArgs) => {
+    const createConversation = type === 'pair' ? createPair : createGroup;
+    return createConversation(
+      type === 'pair'
+        ? { method: 'get', url: `/to/${payload.interlocutorId}` }
+        : { method: 'post', data: payload },
+    );
+  }, []);
 
   return [createConversationId, composeConversation] as const;
 }

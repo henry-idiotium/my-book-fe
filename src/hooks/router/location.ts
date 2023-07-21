@@ -1,7 +1,4 @@
-import {
-  Location as RouterLocation,
-  useLocation as useRouterLocation,
-} from 'react-router-dom';
+import { Location as RouterLocation, useLocation as useRouterLocation } from 'react-router-dom';
 
 export type PreviousLocationState = { from?: RouterLocation };
 export type AppLocation<TState = PreviousLocationState> = {

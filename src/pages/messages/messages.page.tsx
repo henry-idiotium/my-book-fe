@@ -24,8 +24,7 @@ export function Messages() {
   const routesOutlets = useConversationRouteOutlet();
   const headerOptions = getHeaderOptionScheme();
 
-  const [{ chatEntries, chatEntriesLoading }, reloadEntries] =
-    useFetchConversations();
+  const [{ chatEntries, chatEntriesLoading }, reloadEntries] = useFetchConversations();
 
   // `*` is the current match to this compose POV.
   const activeConvoId = useMemo(() => params['*'] ?? '', [params]);
@@ -64,10 +63,7 @@ export function Messages() {
 
           <div className={styles.chatEntrySearch}>
             <FiSearch className={styles.chatEntrySearchIcon} />
-            <input
-              placeholder="Search Messages"
-              className={styles.chatEntrySearchInput}
-            />
+            <input placeholder="Search Messages" className={styles.chatEntrySearchInput} />
           </div>
 
           <div className={styles.chatEntryContent}>
@@ -81,16 +77,12 @@ export function Messages() {
                 />
               ))
             ) : (
-              <span className={styles.emptyChatEntriesMsg}>
-                {EMPTY_ENTRIES_MSG}
-              </span>
+              <span className={styles.emptyChatEntriesMsg}>{EMPTY_ENTRIES_MSG}</span>
             )}
           </div>
         </section>
 
-        <section
-          className={toggleOnRshMaxClassNames(styles.conversation, false)}
-        >
+        <section className={toggleOnRshMaxClassNames(styles.conversation, false)}>
           {routesOutlets}
         </section>
       </div>

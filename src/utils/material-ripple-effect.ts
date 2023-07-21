@@ -1,11 +1,12 @@
 type ColorType = 'dark' | 'light';
 
-const config = {
-  light: {
-    color: 'rgba(250,250,250, 0.3)',
+const EXIST_DURATION = 250;
+const ColorConfig = {
+  LIGHT: {
+    COLOR: 'rgba(250,250,250, 0.3)',
   },
-  dark: {
-    color: 'rgba(0,0,0, 0.2)',
+  DARK: {
+    COLOR: 'rgba(0,0,0, 0.2)',
   },
 };
 
@@ -24,15 +25,12 @@ export class Ripple {
   ) {
     this.x = clickPointX - offsetX > elementWidth / 2 ? 0 : elementWidth;
     this.y = clickPointY - offsetY > elementHeight / 2 ? 0 : elementHeight;
-    this.z = Math.hypot(
-      this.x - (clickPointX - offsetX),
-      this.y - (clickPointY - offsetY),
-    );
+    this.z = Math.hypot(this.x - (clickPointX - offsetX), this.y - (clickPointY - offsetY));
 
     return this.z;
   }
 
-  appyStyles(
+  applyStyles(
     element: HTMLElement,
     color: ColorType,
     rect: DOMRect,
@@ -41,7 +39,7 @@ export class Ripple {
   ) {
     element.classList.add('ripple');
     element.style.backgroundColor =
-      color === 'dark' ? config.dark.color : config.light.color;
+      color === 'dark' ? ColorConfig.DARK.COLOR : ColorConfig.LIGHT.COLOR;
     element.style.borderRadius = '50%';
     element.style.pointerEvents = 'none';
     element.style.position = 'absolute';
@@ -79,12 +77,12 @@ export class Ripple {
 
     const circle = document.createElement('span');
 
-    this.appyStyles(circle, color, rect, radius, event as MouseEvent);
+    this.applyStyles(circle, color, rect, radius, event as MouseEvent);
     this.applyAnimation(circle);
 
     element.appendChild(circle);
 
-    setTimeout(() => circle.remove(), 500);
+    setTimeout(() => circle.remove(), EXIST_DURATION);
   }
 }
 

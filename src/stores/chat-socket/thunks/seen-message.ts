@@ -6,13 +6,13 @@ import { ChatSocketEmitter } from '@/types';
 import { ChatSocketMap, chatSocketActions as actions } from '../chat-socket.slice';
 import { ChatSocketSlicePayloads } from '../types';
 
-import SocketPayload = ChatSocketSlicePayloads.Message.Socket;
+import SeenArg = ChatSocketSlicePayloads.Thunk.Message.Seen;
 
 /**
  * Emit SEEN MESSAGE event to server.
  * @remarks Dispatch needed to be executed by the UPDATE_SUCCESS listener.
  */
-export const seenMessage = createAsyncThunk<void, SocketPayload.Arg.Seen, { state: RootState }>(
+export const seenMessage = createAsyncThunk<void, SeenArg, { state: RootState }>(
   'chat-socket/socket/seenMessage',
   (arg, { dispatch }) => {
     const { conversationId, ...payload } = arg;

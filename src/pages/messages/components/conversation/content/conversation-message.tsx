@@ -20,6 +20,7 @@ todo:
 - loading and error state
 - add emoji
 - extra options
+  - CRUD
 */
 
 export function ConversationMessage(props: ConversationMessageProps) {

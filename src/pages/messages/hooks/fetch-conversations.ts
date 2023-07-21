@@ -2,18 +2,13 @@ import { useCallback } from 'react';
 
 import { useAxios } from '@/hooks/axios/axios';
 
-import {
-  GroupChatEntryResponse,
-  PairedChatEntryResponse,
-} from '../components/chat-entry/types';
+import { GroupChatEntryResponse, PairedChatEntryResponse } from '../components/chat-entry/types';
 
 export function useFetchConversations() {
-  const [
-    { data: pairedEntries = [], loading: pairedLoading },
-    fetchPairedEnties,
-  ] = useAxios<PairedChatEntryResponse[]>(`/paired-conversations`);
+  const [{ data: pairedEntries = [], loading: pairedLoading }, fetchPairedEnties] =
+    useAxios<PairedChatEntryResponse[]>(`/paired-conversations`);
 
-  const [{ data: groupEnties = [], loading: groupLoading }, fetchGroupEntries] =
+  const [{ data: groupEntries = [], loading: groupLoading }, fetchGroupEntries] =
     useAxios<GroupChatEntryResponse[]>(`/group-conversations`);
 
   const refetch = useCallback(async () => {
@@ -22,7 +17,7 @@ export function useFetchConversations() {
 
   return [
     {
-      chatEntries: [...pairedEntries, ...groupEnties],
+      chatEntries: [...pairedEntries, ...groupEntries],
       chatEntriesLoading: pairedLoading || groupLoading,
     },
     refetch,

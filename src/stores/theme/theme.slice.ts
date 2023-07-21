@@ -25,7 +25,6 @@ export const themeSlice = createSlice({
       const { type, value } = action.payload;
 
       (state as { [key in typeof type]: typeof value })[type] = value;
-      (state as { [key in typeof type]: typeof value })[type] = value;
     },
   },
 });

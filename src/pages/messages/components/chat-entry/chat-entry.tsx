@@ -1,9 +1,5 @@
 import UserImage from '@/assets/account-image.jpg';
-import {
-  useDeepCompareMemoize as deepCompareMemo,
-  useInitialMemo,
-  useSelector,
-} from '@/hooks';
+import { useDeepCompareMemoize as deepCompareMemo, useInitialMemo, useSelector } from '@/hooks';
 import { chatSocketSelectors, selectAuth } from '@/stores';
 import { ChatSocketEntity } from '@/stores/chat-socket/types';
 import { Convo, classnames, formatTimeReadable } from '@/utils';

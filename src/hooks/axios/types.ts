@@ -1,10 +1,4 @@
-import {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-  Method,
-} from 'axios';
+import { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { z } from 'zod';
 
 import { getZodDefault } from '@/utils';
@@ -42,9 +36,7 @@ export type UseAxiosResponseValues<TResponse, TBody, TError> = {
  * One of the return value type in UseAxiosResult.
  * It's a function type for manually call/recall request.
  */
-export type UseAxiosRefetch<TBody> = (
-  configOverride?: UseAxiosConfigArgs<TBody>,
-) => Promise<void>;
+export type UseAxiosRefetch<TBody> = (configOverride?: UseAxiosConfigArgs<TBody>) => Promise<void>;
 
 /** Used in useAxios parameters for options. */
 export type UseAxiosOptions = z.infer<typeof useAxiosOptionsPartialZod>;
@@ -65,7 +57,6 @@ export type UseAxiosResult<TResponse, TBody, TError> = [
 ];
 
 /** Callback function type for `withCancel` function. */
-export type WithCancelTokenFunction<
-  TBody = unknown,
-  _Config = UseAxiosRequestConfig<TBody>,
-> = (config: _Config) => _Config;
+export type WithCancelTokenFunction<TBody = unknown, _Config = UseAxiosRequestConfig<TBody>> = (
+  config: _Config,
+) => _Config;

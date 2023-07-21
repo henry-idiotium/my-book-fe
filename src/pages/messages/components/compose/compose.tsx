@@ -24,9 +24,7 @@ export function Compose() {
   const propagatedProps = useContext(MessageCascadeStateContext);
 
   const groupCreationEnabled = useBoolean(false);
-  const [chosenFriends, chosenFriendsActions] = useMap(
-    new Map<number, MinimalUser>(),
-  );
+  const [chosenFriends, chosenFriendsActions] = useMap(new Map<number, MinimalUser>());
 
   const [createdConvoId, composeConversation] = useComposeConversation();
   const [
@@ -86,16 +84,12 @@ export function Compose() {
             title="back"
             onClick={closeDialog}
           >
-            <DynamicFragment
-              as={!groupCreationEnabled.value ? VscChromeClose : FaArrowLeft}
-            />
+            <DynamicFragment as={!groupCreationEnabled.value ? VscChromeClose : FaArrowLeft} />
           </Button>
 
           <div className={styles.topSectionTitle}>
             <span className={styles.topSectionTitlePrimary}>
-              {groupCreationEnabled.value
-                ? Constants.TITLE_BASE
-                : Constants.TITLE_GROUP_PRIMARY}
+              {groupCreationEnabled.value ? Constants.TITLE_BASE : Constants.TITLE_GROUP_PRIMARY}
             </span>
 
             {groupCreationEnabled.value ? (
@@ -143,15 +137,9 @@ export function Compose() {
             </Button>
           ) : (
             <div className={styles.bottomSectionChosenFriends}>
-              {Array.from(chosenFriends.entries()).map(
-                ([id, friend], index) => (
-                  <FriendChosen
-                    key={index}
-                    friend={friend}
-                    onClick={toggleFriendSelection(id)}
-                  />
-                ),
-              )}
+              {Array.from(chosenFriends.entries()).map(([id, friend], index) => (
+                <FriendChosen key={index} friend={friend} onClick={toggleFriendSelection(id)} />
+              ))}
             </div>
           )}
 

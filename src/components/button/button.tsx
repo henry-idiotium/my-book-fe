@@ -12,39 +12,37 @@ export type ButtonProps = React.PropsWithChildren &
     disableBaseStyles?: boolean;
   };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (_props, ref) => {
-    const { children, disableRipple, disableBaseStyles, ...props } = _props;
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>((_props, ref) => {
+  const { children, disableRipple, disableBaseStyles, ...props } = _props;
 
-    const isDark = useSelector(selectThemeIsDark);
+  const isDark = useSelector(selectThemeIsDark);
 
-    const rippleEffect = !disableRipple ? new Ripple() : undefined;
+  const rippleEffect = !disableRipple ? new Ripple() : undefined;
 
-    function handleMouseDown(e: React.MouseEvent) {
-      const onMouseDown = props?.onMouseDown;
+  function handleMouseDown(e: React.MouseEvent) {
+    const onMouseDown = props?.onMouseDown;
 
-      if (!disableRipple && rippleEffect) {
-        const mode = isDark ? 'light' : 'dark';
-        rippleEffect?.create(e, mode);
-      }
-      if (onMouseDown) onMouseDown(e);
+    if (!disableRipple && rippleEffect) {
+      const mode = isDark ? 'light' : 'dark';
+      rippleEffect?.create(e, mode);
     }
+    if (onMouseDown) onMouseDown(e);
+  }
 
-    return (
-      <button
-        {...props}
-        ref={ref}
-        type={props.type ?? 'button'}
-        className={classnames(styles.required, props.className, {
-          [styles.base]: !disableBaseStyles,
-        })}
-        onMouseDown={handleMouseDown}
-      >
-        {children}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      {...props}
+      ref={ref}
+      type={props.type ?? 'button'}
+      className={classnames(styles.required, props.className, {
+        [styles.base]: !disableBaseStyles,
+      })}
+      onMouseDown={handleMouseDown}
+    >
+      {children}
+    </button>
+  );
+});
 
 Button.displayName = 'Button';
 

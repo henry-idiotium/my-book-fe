@@ -52,9 +52,7 @@ function ep(name: string) {
     <div className="m-10">
       <span className="text-2xl font-bold capitalize">{name} page</span>
       <br />
-      <span className="text-base font-bold text-red-400">
-        Not Implemented Yet!!
-      </span>
+      <span className="text-base font-bold text-red-400">Not Implemented Yet!!</span>
     </div>
   );
 }

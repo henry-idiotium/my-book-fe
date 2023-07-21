@@ -20,11 +20,7 @@ export function FriendOption(_props: FriendOptionProps) {
       className="flex w-full px-4 py-3 duration-300 hover:bg-base-hover"
     >
       <div className="shrink-0 overflow-hidden rounded-full wh-11">
-        <img
-          src={friend.photo ?? UserImg}
-          alt={`${friend.alias} profile`}
-          className="wh-full"
-        />
+        <img src={friend.photo ?? UserImg} alt={`${friend.alias} profile`} className="wh-full" />
       </div>
 
       <div className="flex w-full flex-col items-start px-3">

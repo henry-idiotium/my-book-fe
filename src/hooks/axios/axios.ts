@@ -23,19 +23,12 @@ export const axiosClient = axios.create({
 });
 
 /** Axios hook adapter that provide a rich response. */
-export function useAxios<
-  TResponse = unknown,
-  TBody = unknown,
-  TError = unknown,
->(
+export function useAxios<TResponse = unknown, TBody = unknown, TError = unknown>(
   _config: UseAxiosConfigArgs<TBody>,
   _options?: UseAxiosOptions,
 ): UseAxiosResult<TResponse, TBody, TError> {
   // Convert arguments to useable configs.
-  const config = useMemo(
-    () => configToObject(_config),
-    deepCompareMemo(_config),
-  );
+  const config = useMemo(() => configToObject(_config), deepCompareMemo(_config));
   const options = useMemo(
     () => ({ ...defaultUseAxiosOptions, ..._options }),
     deepCompareMemo(_options),
@@ -46,14 +39,13 @@ export function useAxios<
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [response, dispatch] = useStateReducer<TResponse, TBody, TError>(
-    config,
-    options,
-  );
+  const [response, dispatch] = useStateReducer<TResponse, TBody, TError>(config, options);
 
   // get request auth guard logic
-  const [{ refreshUninitialized, isRefreshing }, executeAuthAwareRequest] =
-    useBaseAxios<TResponse, TBody>();
+  const [{ refreshUninitialized, isRefreshing }, executeAuthAwareRequest] = useBaseAxios<
+    TResponse,
+    TBody
+  >();
 
   /** Cancel Axios request. */
   const cancelRequest = useCallback(() => {
@@ -118,8 +110,7 @@ export function useAxios<
       let newConfig = { ...config };
 
       if (_overrideConfig) {
-        const { url: overrideUrl, ...overrideConfig } =
-          configToObject(_overrideConfig);
+        const { url: overrideUrl, ...overrideConfig } = configToObject(_overrideConfig);
 
         if (overrideUrl) {
           newConfig.url = (newConfig.url ?? '') + overrideUrl;
@@ -140,8 +131,6 @@ export function useAxios<
  * Convert arguments of string and object into
  * request config object ({@link UseAxiosRequestConfig}).
  */
-function configToObject<TBody>(
-  args: UseAxiosConfigArgs<TBody>,
-): UseAxiosRequestConfig<TBody> {
+function configToObject<TBody>(args: UseAxiosConfigArgs<TBody>): UseAxiosRequestConfig<TBody> {
   return typeof args === 'string' ? { url: args, method: 'get' } : args;
 }
