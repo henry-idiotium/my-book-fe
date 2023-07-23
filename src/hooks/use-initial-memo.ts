@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { useBoolean } from 'usehooks-ts';
 
+import { useBoolean } from '@/hooks';
+
+/** @deprecated */
 export function useInitialMemo<T>(
   factory: () => T,
   initialValue: T,

@@ -1,8 +1,10 @@
+import { useState } from 'react';
+
 import UserImage from '@/assets/account-image.jpg';
-import { useDeepCompareMemoize as deepCompareMemo, useInitialMemo, useSelector } from '@/hooks';
-import { chatSocketSelectors, selectAuth } from '@/stores';
-import { ChatSocketEntity } from '@/stores/chat-socket/types';
-import { Convo, classnames, formatTimeReadable } from '@/utils';
+import { useSelector, useUpdateEffect } from '@/hooks';
+import { chatSocketSelectors } from '@/stores';
+import { initialMessage } from '@/types';
+import { classnames, formatTimeReadable } from '@/utils';
 
 import styles from './chat-entry.module.scss';
 import { ChatEntryResponse } from './types';
@@ -16,37 +18,19 @@ export type ChatEntryProps = {
 export function ChatEntry(props: ChatEntryProps) {
   const { entry, isActive, openConvo } = props;
 
-  const { user: mainUser } = useSelector(selectAuth);
   const chatSocketState = useSelector(chatSocketSelectors.getById(entry.id));
 
-  const latestMessage = useInitialMemo(
-    () => chatSocketState?.messages.at(-1),
-    entry.latestMessage,
-    deepCompareMemo(chatSocketState?.messages),
+  const [latestMessage, setLatestMessage] = useState(entry.latestMessage);
+  const [participants, setParticipants] = useState(entry.participants);
+
+  useUpdateEffect(
+    () => setLatestMessage(chatSocketState?.messages?.at(-1) ?? initialMessage),
+    [chatSocketState?.messages?.at(-1)],
   );
 
-  // todo: refactor/remove `filteredParticipants` and `name` memos
-  const filteredParticipants = useInitialMemo<ChatSocketEntity['participants']>(
-    () => {
-      if (!chatSocketState) return [];
-      return chatSocketState.participants.filter((p) => p.id !== mainUser.id);
-    },
-    entry.participants,
-    [chatSocketState?.participants.length],
-  );
-
-  const name = useInitialMemo(
-    () => {
-      if (!chatSocketState) return;
-      return Convo.getName({
-        admin: chatSocketState.admin,
-        participants: filteredParticipants,
-      });
-    },
-    filteredParticipants.length
-      ? Convo.getName({ ...entry, participants: filteredParticipants })
-      : '[chat name]',
-    [chatSocketState?.name, filteredParticipants],
+  useUpdateEffect(
+    () => setParticipants(Object.values(chatSocketState?.participants ?? {})),
+    [chatSocketState?.participants],
   );
 
   return (
@@ -63,12 +47,12 @@ export function ChatEntry(props: ChatEntryProps) {
         <div className={styles.content}>
           <div className={styles.info}>
             <div className={styles.infoName}>
-              <span>{name}</span>
+              <span>{entry.name}</span>
             </div>
 
-            {filteredParticipants[0] ? (
+            {participants[0] ? (
               <div className={styles.infoId}>
-                <span>@{filteredParticipants[0].alias}</span>
+                <span>@{participants[0].alias}</span>
               </div>
             ) : null}
 

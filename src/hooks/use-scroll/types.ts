@@ -12,9 +12,9 @@ const verticalOptionZod = zodLiteralUnion('top', 'bottom');
 export type UseScrollOptions = z.infer<typeof useScrollOptionsZod>;
 export const useScrollOptionsZod = z
   .object({
-    viewHeightPerc: z.number().default(1),
     startAt: verticalOptionZod.default('top'),
     behavior: z.custom<ScrollBehavior>().default('auto'),
+    viewHeightPerc: z.number().default(1),
     endAnchorHeight: z.number().default(30),
   })
   .partial();

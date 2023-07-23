@@ -1,6 +1,16 @@
-import { DotsThree, Heart } from '@phosphor-icons/react';
-import { useMemo } from 'react';
+import {
+  CopySimple,
+  DotsThree,
+  Heart,
+  ShareFat,
+  Trash,
+  type Icon as IconType,
+} from '@phosphor-icons/react';
+import { useCallback, useMemo } from 'react';
 
+import { AlertDialog, Button, Popover, Toast } from '@/components';
+import { useBoolean, useDispatch } from '@/hooks';
+import { chatSocketActions as actions } from '@/stores';
 import { MessageEntity } from '@/types';
 import { classnames, formatTimeReadable } from '@/utils';
 
@@ -8,66 +18,90 @@ import styles from './conversation-message.module.scss';
 
 export type ConversationMessageProps = {
   message: MessageEntity;
+  conversationId: string;
   isFromSessionUser?: boolean;
   hasSharpCorner?: boolean;
   displayMeta?: boolean;
+  displaySeenStatus?: boolean;
   seen?: boolean;
+  ownerShortName?: string;
 };
 
 /*
 todo:
-- animation on init
+in idle:
 - loading and error state
 - add emoji
-- extra options
-  - CRUD
+
+in progress:
 */
 
 export function ConversationMessage(props: ConversationMessageProps) {
-  const { message, isFromSessionUser, hasSharpCorner, displayMeta, seen } = props;
+  const {
+    conversationId,
+    message,
+    isFromSessionUser,
+    hasSharpCorner,
+    displayMeta,
+    ownerShortName,
+    displaySeenStatus,
+    seen,
+  } = props;
 
+  // todo: add loading message state
   const meta = useMemo(() => {
-    const time = formatTimeReadable(message.at, { disableYesterdayAnnotation: true });
-    const state = seen ? 'Seen' : 'Sent';
-    return `${time} · ${state}`;
-  }, [message.at]);
+    const time = formatTimeReadable(message.at);
+    const status = isFromSessionUser && displaySeenStatus ? ' · ' + (seen ? 'Seen' : 'Sent') : '';
+    return `${time}${status}`;
+  }, [seen, message.at]);
 
   return (
     <div className={styles.container}>
-      <div
-        className={classnames(
-          'flex items-center justify-end gap-3',
-          isFromSessionUser ? 'ml-4' : 'mr-4 flex-row-reverse',
-        )}
-      >
-        {/* --- Actions --- */}
-        <div className={styles.options}>
-          <div
-            className={classnames(
-              'flex gap-4 text-color-accent',
-              isFromSessionUser ? '' : 'flex-row-reverse',
-            )}
-          >
-            {/* ------ emojis ------ */}
-            <button className="">
-              <Heart size={18} weight="bold" />
-            </button>
+      <div className={classnames('flex flex-col', isFromSessionUser ? 'items-end' : '')}>
+        <div
+          className={classnames(
+            'flex items-center justify-end gap-3',
+            isFromSessionUser ? 'ml-4' : 'mr-4 flex-row-reverse',
+          )}
+        >
+          {/* --- Actions --- */}
+          {message.content ? (
+            <div className={styles.option}>
+              <div
+                className={classnames(
+                  'flex gap-4 text-color-accent',
+                  isFromSessionUser ? '' : 'flex-row-reverse',
+                )}
+              >
+                {/* ------ emojis ------ */}
+                <button className={styles.emoji}>
+                  <Heart size={18} weight="bold" />
+                </button>
 
-            {/* ------ actions ------ */}
-            <button className="">
-              <DotsThree size={24} weight="bold" />
-            </button>
-          </div>
-        </div>
+                {/* ------ actions ------ */}
+                <MessageActionPopover
+                  message={message}
+                  conversationId={conversationId}
+                  isFromSessionUser={!!isFromSessionUser}
+                >
+                  <button className={styles.action}>
+                    <DotsThree size={20} weight="bold" />
+                  </button>
+                </MessageActionPopover>
+              </div>
+            </div>
+          ) : null}
 
-        {/* --- Content & Meta --- */}
-        <div className={classnames('flex flex-col', isFromSessionUser ? 'items-end' : '')}>
           {/* --- Content --- */}
           <div
             className={classnames(
               'flex w-fit max-w-[400px] items-center break-all rounded-3xl px-4 py-3',
-              isFromSessionUser ? 'bg-accent' : 'bg-base-hover',
-              hasSharpCorner ? (isFromSessionUser ? 'rounded-br-md' : 'rounded-bl-md') : '',
+              { [isFromSessionUser ? 'rounded-br-md' : 'rounded-bl-md']: hasSharpCorner },
+              message.content
+                ? isFromSessionUser
+                  ? 'bg-accent'
+                  : 'bg-base-hover'
+                : 'border border-color-accent bg-base',
             )}
           >
             <div
@@ -76,20 +110,127 @@ export function ConversationMessage(props: ConversationMessageProps) {
                 isFromSessionUser ? 'text-white' : 'text-color',
               )}
             >
-              <span>{message.content}</span>
+              <span className={classnames(!message.content ? 'text-color-accent' : '')}>
+                {message.content ?? `${ownerShortName ?? 'You'} unsent a message`}
+              </span>
             </div>
           </div>
-
-          {/* --- Meta --- */}
-          {displayMeta ? (
-            <div className="pt-1">
-              <div className="text-xs leading-4 text-color-accent">
-                <span>{meta}</span>
-              </div>
-            </div>
-          ) : null}
         </div>
+
+        {/* --- Meta --- */}
+        {displayMeta ? (
+          <div className="pt-1">
+            <div className="text-xs leading-4 text-color-accent">
+              <span>{meta}</span>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
+  );
+}
+
+type MessageActionPopoverProps = React.PropsWithChildren & {
+  message: MessageEntity;
+  conversationId: string;
+  isFromSessionUser: boolean;
+};
+
+function MessageActionPopover(props: MessageActionPopoverProps) {
+  const { children, message, conversationId, isFromSessionUser } = props;
+
+  const dispatch = useDispatch();
+
+  const opened = useBoolean(false);
+  const deleteConfirmationOpened = useBoolean(false);
+  const notifyOpened = useBoolean(false);
+
+  // todo: implement reply
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const reply = () => {};
+
+  const openDeleteConfirmation = () => deleteConfirmationOpened.setTrue();
+
+  const deleteForEveryone = useCallback(() => {
+    return dispatch(actions.socket.deleteMessage({ conversationId, id: message.id }));
+  }, [message.id]);
+
+  const copyContent = useCallback(() => {
+    if (message.content) navigator.clipboard.writeText(message.content);
+    opened.setFalse();
+  }, [message.content]);
+
+  type MessageAction = [string, IconType, () => void];
+  const messageActions = useMemo<MessageAction[]>(() => {
+    const schema: MessageAction[] = [
+      ['Reply', ShareFat, reply],
+      ['Copy Message', CopySimple, copyContent],
+    ];
+
+    if (isFromSessionUser) schema.push(['Delete Message', Trash, openDeleteConfirmation]);
+
+    return schema;
+  }, [reply, copyContent, openDeleteConfirmation]);
+
+  return (
+    <Toast.Provider swipeThreshold={1}>
+      <div className="">
+        <Popover open={opened.value} onOpenChange={opened.setValue}>
+          <Popover.Trigger asChild>{children}</Popover.Trigger>
+
+          <Popover.Content className="flex flex-col overflow-hidden">
+            {messageActions.map(([name, Icon, action]) => (
+              <Button
+                key={name}
+                disableBaseStyles
+                className="flex h-11 items-center gap-3 px-4 hover:bg-base-hover"
+                onClick={action}
+              >
+                <Icon weight="bold" size={18} />
+                <span className="font-semibold">{name}</span>
+              </Button>
+            ))}
+          </Popover.Content>
+        </Popover>
+
+        <AlertDialog
+          open={deleteConfirmationOpened.value}
+          onOpenChange={deleteConfirmationOpened.setValue}
+        >
+          <AlertDialog.Content className="w-[320px] gap-4">
+            <AlertDialog.Title>Delete Message?</AlertDialog.Title>
+
+            <AlertDialog.Description className="pb-4">
+              This message will be deleted for everyone.
+            </AlertDialog.Description>
+
+            <AlertDialog.Action asChild>
+              <Button
+                disableBaseStyles
+                className="my-[6px] h-11 w-full rounded-full bg-red-600 font-semibold hover:bg-red-600/90"
+                onClick={deleteForEveryone}
+              >
+                Delete
+              </Button>
+            </AlertDialog.Action>
+
+            <AlertDialog.Cancel asChild>
+              <Button
+                disableBaseStyles
+                className="my-[6px] h-11 w-full rounded-full border border-color font-semibold hover:bg-base-hover"
+              >
+                Cancel
+              </Button>
+            </AlertDialog.Cancel>
+          </AlertDialog.Content>
+        </AlertDialog>
+
+        <Toast open={notifyOpened.value} onOpenChange={notifyOpened.setValue}>
+          <span className="text-color">Message copied</span>
+        </Toast>
+      </div>
+
+      <Toast.Viewport offset={42} />
+    </Toast.Provider>
   );
 }

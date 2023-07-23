@@ -36,8 +36,8 @@ const Content = forwardRef<HTMLDivElement, ContentProps>((_props, forwardedRef) 
 });
 
 export const Dialog = Object.assign(DialogPrimitive.Root, {
-  // Description: DialogPrimitive.Description,
   Trigger: DialogPrimitive.Trigger,
+  Description: DialogPrimitive.Description,
   Title: DialogPrimitive.Title,
   Content,
 });

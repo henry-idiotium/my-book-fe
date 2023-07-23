@@ -1,12 +1,17 @@
 import { z } from 'zod';
 
-import { conversationResponseZod } from '@/types';
+import { conversationResponseZod, minimalUserZod } from '@/types';
+import { getZodDefault } from '@/utils';
 
 /** Redux store chat socket entity. */
 export type ChatSocketEntity = z.infer<typeof chatSocketEntityZod>;
 export const chatSocketEntityZod = conversationResponseZod.extend({
   isGroup: z.boolean(),
   activeUserIds: z.array(z.number()),
+
+  messageSeenLog: z.record(z.string()),
+  participants: z.record(minimalUserZod),
+  name: z.string(),
 
   meta: z.object({
     message: z.object({
@@ -27,3 +32,5 @@ export const chatSocketEntityZod = conversationResponseZod.extend({
     }),
   }),
 });
+
+export const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);

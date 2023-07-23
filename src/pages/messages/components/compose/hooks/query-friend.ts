@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useBoolean, useDebounce, useEffectOnce, useUpdateEffect } from 'usehooks-ts';
 import { z } from 'zod';
 
-import { useAxios } from '@/hooks';
+import { useBoolean, useDebounce, useEffectOnce, useUpdateEffect, useAxios } from '@/hooks';
 import { MinimalUserEntity } from '@/types';
 import { getZodDefault } from '@/utils';
 

@@ -102,19 +102,16 @@ export const chatSocketSlice = createSlice({
       const messageToDeleteIndex = entity.messages.findIndex((m) => m.id === idToDelete);
       if (messageToDeleteIndex === -1) return;
 
-      entity.messages.splice(messageToDeleteIndex, 1);
+      entity.messages[messageToDeleteIndex].content = null;
     },
 
     updateMessageSeenLog(state, action: Payloads.Message.UpdateSeenLog) {
-      const { conversationId, messageId, userId } = action.payload;
+      const { conversationId, userId, messageId } = action.payload;
 
       const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const seenLogToUpdateIndex = entity.messageSeenLog.findIndex((log) => log.userId === userId);
-      if (seenLogToUpdateIndex === -1) return;
-
-      entity.messageSeenLog[seenLogToUpdateIndex] = { userId, messageId };
+      entity.messageSeenLog[userId] = messageId;
     },
 
     upsertMessageError(state, action: Payloads.Message.UpsertError) {

@@ -1,15 +1,15 @@
 import { ArrowDown } from '@phosphor-icons/react';
 import { Fragment, useContext, useEffect, useMemo, useRef } from 'react';
-import { useBoolean, useUpdateEffect } from 'usehooks-ts';
 
 import { Button } from '@/components';
 import {
   useDeepCompareMemoize as deepCompareMemo,
+  useBoolean,
   useDispatch,
-  useInitialMemo,
   usePersistScrollView,
-  useScroll,
+  useScrollAlt,
   useSelector,
+  useUpdateEffect,
 } from '@/hooks';
 import { chatSocketActions as actions, selectAuth } from '@/stores';
 import { classnames } from '@/utils';
@@ -33,11 +33,12 @@ export function Content() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { afterPrepend, beforePrepend } = usePersistScrollView(containerRef, { index: 1 });
-  const [{ shouldGoBack, isAtOppositeEnds: isAtTop }, scrollToBottom] = useScroll(containerRef, {
-    viewHeightPerc: 0.8,
-    behavior: 'smooth',
-    startAt: 'bottom',
-  });
+  const [{ shouldGoBack, isAtOppositeEnds: isAtTop, isAtEnds: isAtBottom }, scrollToBottom] =
+    useScrollAlt(containerRef, {
+      viewHeightPerc: 2,
+      behavior: 'smooth',
+      startAt: 'bottom',
+    });
 
   const { user: sessionUser } = useSelector(selectAuth);
   const [{ chatSocketState }, contextDispatch] = useContext(ConversationCascadeStateContext);
@@ -46,46 +47,64 @@ export function Content() {
     id: conversationId,
     participants,
     messages,
+    messageSeenLog,
     meta: {
       message: { prevFetch },
     },
   } = chatSocketState;
 
-  const canLoadMoreMessages = useInitialMemo(() => prevFetch.count >= LATEST_MESSAGES_COUNT, true, [
-    prevFetch.count,
-  ]);
+  const canLoadMoreMessages = useMemo(
+    () => prevFetch.count >= LATEST_MESSAGES_COUNT,
+    [prevFetch.count],
+  );
   const shouldShowProfileBanner = useMemo(
-    () => participants.length === 1 && !canLoadMoreMessages,
+    () => Object.keys(participants).length === 1 && !canLoadMoreMessages,
     [canLoadMoreMessages],
   );
 
   const loadingPreviousMessages = useBoolean(false);
 
-  /** Chaining messages into loosely group of closure messages (ie, messages that sent not far apart). */
+  /**
+   * Chaining messages into loosely group of closure messages
+   * (ie, messages that sent not far apart).
+   */
   const decorativeMessages = useMemo(() => {
     return messages.reduce<DecorativeMessage[]>((acc, message) => {
+      const isFromSessionUser = message.from === sessionUser.id;
+      const ownerShortName = participants[message.from]?.firstName;
+      const seen = messageSeenLog[message.from] === message.id;
+
       // evaluate previous messages
       const previous = acc.at(-1);
       if (previous) {
         const isSameSource = message.from === previous.message.from;
 
         const timeDiff = new Date(message.at).getTime() - new Date(previous.message.at).getTime();
-        const shouldEndOfChain = timeDiff / 1000 / 60 <= 1;
+        const shouldEndOfChain = timeDiff / 1000 / 60 <= 1 && !!message.content;
+
+        const prevIndex = acc.length - 1;
+
+        if (isSameSource) {
+          acc[prevIndex].displaySeenStatus = seen;
+        }
 
         // Remove end of chain indication of prev message
         // if the current one is in same time duration.
         if (isSameSource && shouldEndOfChain) {
-          const prevIndex = acc.length - 1;
           acc[prevIndex].hasSharpCorner = false;
           acc[prevIndex].displayMeta = false;
         }
       }
 
       const decorativeMessage: DecorativeMessage = {
-        isFromSessionUser: message.from === sessionUser.id,
         hasSharpCorner: true,
-        displayMeta: true,
+        displaySeenStatus: true,
+        displayMeta: !!message.content,
+        isFromSessionUser,
+        conversationId,
+        ownerShortName,
         message,
+        seen,
       };
 
       return [...acc, decorativeMessage];
@@ -120,7 +139,7 @@ export function Content() {
     }
 
     // Scroll focus to NEWLY CREATED message, when the view is relatively bottom.
-    if (containerRef.current && !shouldGoBack) scrollToBottom('instant');
+    if (containerRef.current && isAtBottom) scrollToBottom('instant');
   }, [messages.length]);
 
   // Expose scrollback

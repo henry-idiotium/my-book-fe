@@ -1,6 +1,6 @@
 type ColorType = 'dark' | 'light';
 
-const EXIST_DURATION = 250;
+const EXIST_DURATION = 500;
 const ColorConfig = {
   LIGHT: {
     COLOR: 'rgba(250,250,250, 0.3)',

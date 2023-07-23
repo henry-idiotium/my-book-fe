@@ -10,5 +10,5 @@ export type Send = {
 };
 export type Update = ConvoWrap<WithKeys<'content' | 'id'>>;
 export type Delete = ConvoWrap<Emitter.Delete>;
-export type Seen = ConvoWrap<MessageSeenLog>;
+export type Seen = ConvoWrap<Pick<MessageSeenLog, 'userId'>>;
 export type LoadHistory = ConvoWrap<Emitter.LoadHistory[0]>;

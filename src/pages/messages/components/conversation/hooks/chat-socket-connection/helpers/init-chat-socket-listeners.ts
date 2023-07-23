@@ -1,15 +1,28 @@
 import { AppDispatch, chatSocketActions as actions } from '@/stores';
 import { ChatSocket, ChatSocketListener as Listener } from '@/types';
 
+import { computeToChatSocketState } from './compute-to-chat-socket-state';
+
 import UserEvents = Listener.User.Events;
 import MessageEvents = Listener.Message.Events;
 
-type InitListenersArgs = [conversationId: string, socket: ChatSocket, dispatch: AppDispatch];
+type InitListenersArgs = [
+  conversationId: string,
+  socket: ChatSocket,
+  sessionUserId: number,
+  dispatch: AppDispatch,
+];
 
 export function initChatSocketListeners(...args: InitListenersArgs) {
-  const [conversationId, socket, dispatch] = args;
+  const [conversationId, socket, sessionUserId, dispatch] = args;
 
   const withConvo = <T>(p: T) => Object.assign({}, { conversationId, ...p });
+
+  /** Init conversation socket state. */
+  socket.on(UserEvents.CONNECT, ({ conversation, activeUserIds }) => {
+    const chatSocketState = computeToChatSocketState(conversation, activeUserIds, sessionUserId);
+    dispatch(actions.set(chatSocketState));
+  });
 
   if (import.meta.env.DEV) {
     socket.on('connect_error', console.error);

@@ -7,10 +7,9 @@ import {
 } from '@phosphor-icons/react';
 import { useContext, useRef } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useBoolean, useUpdateEffect } from 'usehooks-ts';
 
 import { Button } from '@/components';
-import { useDispatch, useSelector } from '@/hooks';
+import { useBoolean, useUpdateEffect, useDispatch, useSelector } from '@/hooks';
 import { chatSocketActions, selectAuth } from '@/stores';
 
 import { ConversationCascadeStateContext } from '../context-cascade';
@@ -81,17 +80,17 @@ export function DirectMessages() {
       <div className={styles.compose}>
         {/* todo: image upload */}
         <Button disableBaseStyles className={styles.composeImageUpload}>
-          <ImageIcon />
+          <ImageIcon weight="bold" />
         </Button>
 
         {/* todo: gif picker */}
         <Button disableBaseStyles className={styles.composeGifPicker}>
-          <GifIcon />
+          <GifIcon weight="bold" />
         </Button>
 
         {/* todo: emoji picker */}
         <Button disableBaseStyles className={styles.composeEmojiPicker}>
-          <SmileyIcon />
+          <SmileyIcon weight="bold" />
         </Button>
 
         <div className={styles.composeEditor}>

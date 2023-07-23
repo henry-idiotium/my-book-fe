@@ -1,2 +1,2 @@
 export const CONNECT_TIMEOUT_LIMIT = 1000;
-export const LATEST_MESSAGES_COUNT = 20;
+export const LATEST_MESSAGES_COUNT = 40;

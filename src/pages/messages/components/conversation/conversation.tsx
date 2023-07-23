@@ -13,10 +13,12 @@ import {
 import styles from './conversation.module.scss';
 import DirectMessages from './direct-messages/direct-messages';
 import Header from './header/header';
-import { useChatSocketConnection } from './hooks';
+import { useChatSocketConnection, useSeenConversation } from './hooks';
 
 export function Conversation() {
   const conversationId = useParams().id ?? '';
+
+  const seenRegister = useSeenConversation(conversationId);
 
   const socketState = useChatSocketConnection(conversationId);
   const [initialContextState, dispatch] = useReducer(cascadeContextReducer, initialCascadeState);
@@ -24,10 +26,9 @@ export function Conversation() {
   const contextState = useMemo(() => {
     if (socketState.loading || socketState.connectFailed) return;
 
-    const { loading, connectFailed, ...chatSocketState } = socketState;
     const cascadeState: ConversationCascadeState = {
       ...initialContextState,
-      chatSocketState,
+      chatSocketState: socketState.state,
     };
 
     return cascadeState;
@@ -39,7 +40,7 @@ export function Conversation() {
 
   return (
     <ConversationCascadeStateContext.Provider value={[contextState, dispatch]}>
-      <div className={styles.container}>
+      <div autoFocus className={styles.container} {...seenRegister}>
         <Header />
         <Content />
         <DirectMessages />

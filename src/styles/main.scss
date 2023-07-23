@@ -16,6 +16,8 @@
   font-feature-settings: 'kern';
 
   scroll-behavior: smooth;
+
+  color: rgb(var(--c-text));
 }
 
 html {
@@ -73,4 +75,32 @@ button {
     w-full h-auto min-h-screen
     text-base 
     overflow-hidden;
+}
+
+// todo: refactor with styled-cmp
+@keyframes hide {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(calc(100% + var(--viewport-padding)));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes swipeOut {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(100% + var(--viewport-padding)));
+  }
 }

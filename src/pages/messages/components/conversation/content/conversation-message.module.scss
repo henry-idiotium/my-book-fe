@@ -2,15 +2,25 @@
   @apply w-full cursor-pointer;
 
   &:hover {
-    .options {
+    .option :is(.emoji, .action) {
       @apply visible opacity-100;
     }
   }
 }
 
-.options {
-  @apply invisible opacity-0;
-  transition:
-    visibility 0s,
-    opacity 100ms linear;
+.option {
+  @apply flex items-center;
+
+  .action {
+    @apply wh-full;
+  }
+
+  .emoji,
+  .action {
+    @apply invisible opacity-0 flex justify-center items-center;
+
+    transition:
+      visibility 0s,
+      opacity 100ms linear;
+  }
 }

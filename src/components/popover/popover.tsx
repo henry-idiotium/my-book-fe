@@ -5,14 +5,14 @@ import { classnames } from '@/utils';
 
 import styles from './popover.module.scss';
 
-type PopoverContentProps = PopoverPrimitive.PopperContentProps &
-  React.PropsWithChildren & {
-    usePadding?: boolean;
-    disableBaseStyles?: boolean;
-  };
+type PopoverContentProps = (PopoverPrimitive.PopperContentProps & React.PropsWithChildren) & {
+  usePadding?: boolean;
+  disableBaseStyles?: boolean;
+  arrow?: boolean;
+};
 
 const Content = forwardRef<HTMLDivElement, PopoverContentProps>((_props, forwardedRef) => {
-  const { children, className, usePadding, disableBaseStyles, ...props } = _props;
+  const { children, className, usePadding, disableBaseStyles, arrow: useArrow, ...props } = _props;
 
   const contentClassnames = classnames(styles.content, className, {
     [styles.contentPadding]: usePadding,
@@ -29,7 +29,8 @@ const Content = forwardRef<HTMLDivElement, PopoverContentProps>((_props, forward
         className={contentClassnames}
       >
         {children}
-        <PopoverPrimitive.Arrow />
+
+        {useArrow ? <PopoverPrimitive.Arrow /> : null}
       </PopoverPrimitive.Content>
     </PopoverPrimitive.Portal>
   );

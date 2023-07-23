@@ -43,10 +43,14 @@
   }
 
   &-wrapper {
-    @apply h-full min-w-[68px];
+    @apply h-full min-w-[68px]
+      flex justify-end;
 
     @screen xl {
       @apply w-[275px];
+    }
+    @screen lg {
+      @apply px-4;
     }
     @screen sm {
       @screen xl-max {

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Logger } from '@/utils';
 
-import deepCompareMemo from '../deep-compare-memorize';
+import deepCompareMemo from '../use-deep-compare-memorize';
 
 import { useBaseAxios, useStateReducer } from './helpers';
 import {

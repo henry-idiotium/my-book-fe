@@ -8,7 +8,7 @@ import { CascadeReducerAction } from './reducer';
 
 export type ConversationCascadeState = z.infer<typeof convoCascadeStateZod>;
 const convoCascadeStateZod = z.object({
-  chatSocketState: chatSocketEntityZod.required({ name: true }),
+  chatSocketState: chatSocketEntityZod,
   scrollContentToEnd: z.function().returns(z.void()).optional(),
 });
 export const initialCascadeState = getZodDefault(convoCascadeStateZod);

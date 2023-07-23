@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { getZodDefault } from '@/utils';
+
 export type MessageEntity = z.infer<typeof messageZod>;
 export const messageZod = z.object({
   id: z.string(),
@@ -8,3 +10,5 @@ export const messageZod = z.object({
   isEdited: z.boolean(),
   at: z.union([z.string(), z.number()]),
 });
+
+export const initialMessage = getZodDefault(messageZod);

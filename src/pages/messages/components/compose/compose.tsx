@@ -4,9 +4,9 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { FiSearch } from 'react-icons/fi';
 import { VscChromeClose } from 'react-icons/vsc';
 import { useNavigate } from 'react-router-dom';
-import { useBoolean, useMap, useUpdateEffect } from 'usehooks-ts';
 
 import { Button, Dialog, DynamicFragment } from '@/components';
+import { useBoolean, useMap, useUpdateEffect } from '@/hooks';
 import { MinimalUserEntity as MinimalUser } from '@/types';
 
 import { MessageCascadeStateContext } from '../../messages.page';
@@ -75,7 +75,7 @@ export function Compose() {
   }, [chosenFriends]);
 
   return (
-    <Dialog defaultOpen onOpenChange={handleOpenChange}>
+    <Dialog defaultOpen open onOpenChange={handleOpenChange}>
       <Dialog.Content disablePadding classNames={{ content: styles.container }}>
         <div className={styles.topSection}>
           <Button

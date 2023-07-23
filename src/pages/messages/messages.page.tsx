@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { classnames, contextWithZod } from '@/utils';
 
 import { ChatEntry } from './components';
-import { useConversationRouteOutlet, useFetchConversations } from './hooks';
+import { useConversationRouteOutlet, useFetchChatEntries } from './hooks';
 import styles from './messages.page.module.scss';
 
 const EMPTY_ENTRIES_MSG = "It's empty! Let's start a new conversation.";
@@ -24,7 +24,7 @@ export function Messages() {
   const routesOutlets = useConversationRouteOutlet();
   const headerOptions = getHeaderOptionScheme();
 
-  const [{ chatEntries, chatEntriesLoading }, reloadEntries] = useFetchConversations();
+  const [{ chatEntries, chatEntriesLoading }, reloadEntries] = useFetchChatEntries();
 
   // `*` is the current match to this compose POV.
   const activeConvoId = useMemo(() => params['*'] ?? '', [params]);
