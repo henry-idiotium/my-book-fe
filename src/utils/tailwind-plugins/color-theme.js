@@ -43,9 +43,9 @@ function InitTailwindColorSchema() {
       base: 'base',
       'base-focus': 'base-focus',
       'base-hover': 'base-hover',
+      'base-hover-lt': 'base-hover-lt',
       'base-invert': 'base-invert',
 
-      // overlay
       overlay: 'overlay',
     }),
     text: getTailwindSchema({

@@ -1,14 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { LoginForm } from '@/types';
+import { LoginForm } from '@/pages/login/types';
 
 const baseUrl = new URL(import.meta.env.VITE_SERVER_URL + '/api/v1/auth');
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl.href,
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: baseUrl.href }),
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (body: LoginForm) => {
@@ -42,5 +40,4 @@ export const authApi = createApi({
 });
 
 // export react hook
-export const { useLoginMutation, useRefreshMutation, useLogoutMutation } =
-  authApi;
+export const { useLoginMutation, useRefreshMutation, useLogoutMutation } = authApi;

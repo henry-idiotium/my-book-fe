@@ -1,18 +1,29 @@
 {
   "root": true,
+  "env": { "es2021": true, "node": true },
+
+  "plugins": ["@nx", "@typescript-eslint", "react", "import"],
   "extends": [
     "plugin:@nx/react",
     "plugin:import/typescript",
     "plugin:import/recommended",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "eslint:recommended"
   ],
-  "parserOptions": { "project": ["./tsconfig.app.json"] },
-  "ignorePatterns": ["!**/*"],
-  "overrides": [
-    { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
-  ],
-  "plugins": ["@nx", "react", "@typescript-eslint", "import"],
+
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["./tsconfig.app.json"],
+    "sourceType": "module"
+  },
+
   "rules": {
+    "no-undef": "off",
+    "no-unused-vars": "off",
     "react-hooks/exhaustive-deps": "off",
     "react/display-name": "off",
     "react/jsx-no-undef": "off",
@@ -29,22 +40,37 @@
         "noSortAlphabetically": true
       }
     ],
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/unbound-method": "off",
-    "@typescript-eslint/no-misused-promises": [
-      "error",
-      { "checksVoidReturn": false }
-    ],
+    "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
+    "import/no-named-as-default": "off",
     "import/default": "off",
     "import/order": [
       "warn",
-      { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
+      {
+        "alphabetize": { "order": "asc" },
+        "newlines-between": "always",
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "index",
+          "parent",
+          "sibling",
+          "object",
+          "type"
+        ]
+      }
     ],
     "tailwindcss/no-custom-classname": "off"
   },
+
+  "ignorePatterns": ["!**/*", "**/*.stories.ts", "**/*.stories.tsx"],
+
   "settings": {
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
     "import/resolver": { "typescript": {} }

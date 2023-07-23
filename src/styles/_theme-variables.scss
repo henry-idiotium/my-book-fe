@@ -14,24 +14,19 @@
 
 @mixin set-theme-vars($attr-key, $base-var-name, $scheme) {
   @each $theme-name, $scheme-color in $scheme {
-    // scheme keys in each of its key-value map can be a color value,
-    // or another map
+    // scheme keys in each of its key-value map can be a color value, or another map
     @if type-of($scheme-color) == 'map' {
       @each $sub-theme-name, $color in $scheme-color {
         $name: $base-var-name + '-' + $sub-theme-name;
 
-        // prettier-ignore
-        @if ($sub-theme-name == 'default') { $name: $base-var-name; }
+        @if ($sub-theme-name == 'default') {
+          $name: $base-var-name;
+        }
 
         @include set-attr-theme($attr-key, $theme-name, $name, toRGB($color));
       }
     } @else {
-      @include set-attr-theme(
-        $attr-key,
-        $theme-name,
-        $base-var-name,
-        toRGB($scheme-color)
-      );
+      @include set-attr-theme($attr-key, $theme-name, $base-var-name, toRGB($scheme-color));
     }
   }
 }
@@ -58,20 +53,23 @@
     $scheme: (
       'default': (
         'default': white,
-        'focus': darken(white, 9%),
         'hover': #f7f9f9,
+        'hover-lt': #f7f9f9,
+        'focus': darken(white, 9%),
         'invert': #16181c,
       ),
       'dim': (
         'default': #15202b,
-        'focus': lighten(#15202b, 7%),
         'hover': #1e2732,
+        'hover-lt': #26313f,
+        'focus': lighten(#15202b, 7%),
         'invert': #f7f9f9,
       ),
       'dark': (
         'default': black,
-        'focus': lighten(black, 11%),
         'hover': #16181c,
+        'hover-lt': #23262e,
+        'focus': lighten(black, 11%),
         'invert': #f7f9f9,
       ),
     )
@@ -81,11 +79,7 @@
 //--- accent
 :root {
   @function get-default-scheme($color) {
-    @return (
-      'default': $color,
-      'hover': lighten($color, 13%),
-      'focus': darken($color, 15%)
-    );
+    @return ('default': $color, 'hover': lighten($color, 13%), 'focus': darken($color, 15%));
   }
   @include set-theme-vars(
     $attr-key: accent,
@@ -119,7 +113,7 @@
       ),
       'dark': (
         'default': #e7e9ea,
-        'accent': #71767b,
+        'accent': #7e848a,
         'invert': #131416,
       ),
     )

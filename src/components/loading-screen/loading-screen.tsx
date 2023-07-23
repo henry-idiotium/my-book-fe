@@ -1,6 +1,6 @@
-import styles from './loading-screen.module.scss';
-
 import logoSVG from '@/assets/logo.svg';
+
+import styles from './loading-screen.module.scss';
 
 export function LoadingScreen() {
   return (

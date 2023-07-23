@@ -1,11 +1,12 @@
 type ColorType = 'dark' | 'light';
 
-const config = {
-  light: {
-    color: 'rgba(250,250,250, 0.3)',
+const EXIST_DURATION = 500;
+const ColorConfig = {
+  LIGHT: {
+    COLOR: 'rgba(250,250,250, 0.3)',
   },
-  dark: {
-    color: 'rgba(0,0,0, 0.2)',
+  DARK: {
+    COLOR: 'rgba(0,0,0, 0.2)',
   },
 };
 
@@ -20,34 +21,31 @@ export class Ripple {
     offsetX: number,
     clickPointY: number,
     elementHeight: number,
-    offsetY: number
+    offsetY: number,
   ) {
     this.x = clickPointX - offsetX > elementWidth / 2 ? 0 : elementWidth;
     this.y = clickPointY - offsetY > elementHeight / 2 ? 0 : elementHeight;
-    this.z = Math.hypot(
-      this.x - (clickPointX - offsetX),
-      this.y - (clickPointY - offsetY)
-    );
+    this.z = Math.hypot(this.x - (clickPointX - offsetX), this.y - (clickPointY - offsetY));
 
     return this.z;
   }
 
-  appyStyles(
+  applyStyles(
     element: HTMLElement,
     color: ColorType,
     rect: DOMRect,
     radius: number,
-    event: MouseEvent
+    event: MouseEvent,
   ) {
     element.classList.add('ripple');
     element.style.backgroundColor =
-      color === 'dark' ? config.dark.color : config.light.color;
+      color === 'dark' ? ColorConfig.DARK.COLOR : ColorConfig.LIGHT.COLOR;
     element.style.borderRadius = '50%';
     element.style.pointerEvents = 'none';
     element.style.position = 'absolute';
-    element.style.left = event.clientX - rect.left - radius + 'px';
-    element.style.top = event.clientY - rect.top - radius + 'px';
-    element.style.width = element.style.height = radius * 2 + 'px';
+    element.style.left = `${event.clientX - rect.left - radius}px`;
+    element.style.top = `${event.clientY - rect.top - radius}px`;
+    element.style.width = element.style.height = `${radius * 2}px`;
   }
 
   applyAnimation(element: HTMLElement) {
@@ -56,7 +54,7 @@ export class Ripple {
         { transform: 'scale(0)', opacity: 1 },
         { transform: 'scale(1.5)', opacity: 0 },
       ],
-      { duration: 500, easing: 'linear' }
+      { duration: 500, easing: 'linear' },
     );
   }
 
@@ -74,17 +72,17 @@ export class Ripple {
       rect.left,
       event.clientY,
       element.offsetHeight,
-      rect.top
+      rect.top,
     );
 
     const circle = document.createElement('span');
 
-    this.appyStyles(circle, color, rect, radius, event as MouseEvent);
+    this.applyStyles(circle, color, rect, radius, event as MouseEvent);
     this.applyAnimation(circle);
 
     element.appendChild(circle);
 
-    setTimeout(() => circle.remove(), 500);
+    setTimeout(() => circle.remove(), EXIST_DURATION);
   }
 }
 

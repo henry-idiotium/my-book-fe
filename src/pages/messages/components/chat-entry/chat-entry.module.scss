@@ -43,3 +43,8 @@
       leading-4 text-start;
   }
 }
+
+// states
+.is-active {
+  @apply bg-base-hover-lt border-r-2 border-accent;
+}

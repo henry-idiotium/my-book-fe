@@ -1,12 +1,10 @@
-import { MessageEntity } from '@/types';
+import { MessageEntity, MessageSeenLog } from '@/types';
 
-export type ReadReceipt = WithKeys<'id'>;
-export type Receive = MessageEntity;
-export type SendSuccess = MessageEntity;
-export type UpdateSuccess = MessageEntity;
-export type UpdateNotify = MessageEntity;
-export type DeleteSuccess = WithKeys<'id'>;
+export type ReadReceipt = MessageSeenLog;
+export type Receive = Payload;
+export type UpdateNotify = Payload;
 export type DeleteNotify = WithKeys<'id'>;
 
 // helpers
-type WithKeys<T extends keyof MessageEntity> = Pick<MessageEntity, T>;
+type Payload = RequiredNotNullPick<MessageEntity, 'content'>;
+type WithKeys<T extends keyof Payload> = Pick<Payload, T>;

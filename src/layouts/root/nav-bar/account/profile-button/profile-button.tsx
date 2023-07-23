@@ -1,11 +1,11 @@
 import { forwardRef } from 'react';
 import { BsThreeDots } from 'react-icons/bs';
 
-import styles from './profile-button.module.scss';
-
 import accountImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
+
+import styles from './profile-button.module.scss';
 
 interface ProfileButtonProps {
   onClick?: () => void;
@@ -20,11 +20,7 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
         <div className={styles.wrapper}>
           <div className={styles.avatar}>
             <div className={styles.avatarWrapper}>
-              <img
-                className={styles.avatarImg}
-                src={accountImage}
-                alt="User avatar"
-              />
+              <img className={styles.avatarImg} src={accountImage} alt="User avatar" />
             </div>
           </div>
 
@@ -48,6 +44,9 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
         </div>
       </button>
     );
-  }
+  },
 );
+
+ProfileButton.displayName = 'ProfileButton';
+
 export default ProfileButton;

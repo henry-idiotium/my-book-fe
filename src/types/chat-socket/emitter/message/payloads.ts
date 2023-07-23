@@ -1,9 +1,12 @@
 import { MessageEntity } from '@/types';
+import { Acknowledgment } from '@/types/socket-helper';
 
-export type Send = WithKeys<'content' | 'at'>;
+export type Send = Acknowledgment<WithKeys<'content' | 'at'>, Payload>;
 export type Update = WithKeys<'content' | 'id'>;
 export type Delete = WithKeys<'id'>;
 export type Seen = WithKeys<'id'>;
 
-type OptionalPayload = RequireNonOptional<MessageEntity>;
-type WithKeys<T extends keyof OptionalPayload> = Pick<OptionalPayload, T>;
+export type LoadHistory = Acknowledgment<{ count: number; nthFromEnd: number }, Payload[]>;
+
+type Payload = RequiredNotNullPick<MessageEntity, 'content'>;
+type WithKeys<T extends keyof Payload> = Pick<Payload, T>;

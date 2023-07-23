@@ -1,218 +1,173 @@
 import { UsersThree as UsersThreeIcon } from '@phosphor-icons/react';
+import { useCallback, useContext } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { FiSearch } from 'react-icons/fi';
 import { VscChromeClose } from 'react-icons/vsc';
 import { useNavigate } from 'react-router-dom';
-import { useBoolean, useMap } from 'usehooks-ts';
 
-import { useComposeConversation, useQueryFriend } from '../../hooks';
+import { Button, Dialog, DynamicFragment } from '@/components';
+import { useBoolean, useMap, useUpdateEffect } from '@/hooks';
+import { MinimalUserEntity as MinimalUser } from '@/types';
+
+import { MessageCascadeStateContext } from '../../messages.page';
 
 import styles from './compose.module.scss';
-import FriendChosen from './friend-chosen';
-import FriendOption from './friend-option';
+import * as Constants from './constants';
+import { FriendChosen } from './friend-chosen';
+import { FriendOption } from './friend-option';
+import { useComposeConversation, useQueryFriend } from './hooks';
 
-import { Button, Dialog, DynamicFragment, PageMeta } from '@/components';
-import { MinimalUserEntity } from '@/types';
-import { User } from '@/utils';
-
-const contents = {
-  INIT_GROUP: 'Create a group',
-  SEARCH_INPUT: 'Search people',
-  LOAD: 'Load more',
-  title: {
-    base: 'New message',
-    group: {
-      primary: 'Create a group',
-      secondary: 'Add friend',
-    },
-  },
-};
-
-/**Conversation/chat composer */
+/** Conversation/chat composer */
 export function Compose() {
   const navigate = useNavigate();
 
-  const groupCreationEnabled = useBoolean(false);
-  const [chosenFriends, chosenFriendsActions] = useMap(
-    new Map<number, MinimalUserEntity>()
-  );
+  const propagatedProps = useContext(MessageCascadeStateContext);
 
-  const composeConversation = useComposeConversation();
+  const groupCreationEnabled = useBoolean(false);
+  const [chosenFriends, chosenFriendsActions] = useMap(new Map<number, MinimalUser>());
+
+  const [createdConvoId, composeConversation] = useComposeConversation();
   const [
     { currentFriends, loadingCurrentFriends, moreFriendsLoadable },
-    { setQuery: setSearchQuery, nextRange: nextCurrentFriendsRange },
+    { setQuery: setSearchQuery, nextRange: loadMoreFriends },
   ] = useQueryFriend();
 
-  function loadMoreFriends() {
-    nextCurrentFriendsRange();
-  }
+  useUpdateEffect(() => {
+    if (!createdConvoId) return;
 
-  function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const query = event.target.value;
-    setSearchQuery(query);
-  }
+    propagatedProps.reloadEntries();
+    navigate(`/messages/${createdConvoId}`);
+  }, [createdConvoId]);
 
-  function toggleChosenFriend(id: number, friendToAdd?: MinimalUserEntity) {
-    const isFriendSelected = chosenFriends.get(id);
-    const { set: addFriend, remove: removeFriend } = chosenFriendsActions;
-    return () => {
-      if (!isFriendSelected) {
-        // If the friend is not selected, add it to the chosen friends list
-        friendToAdd && addFriend(id, friendToAdd);
-      } else {
-        // If the friend is selected, remove it from the chosen friends list
-        removeFriend(id);
-      }
-    };
-  }
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
 
-  function handleOpenChange(open: boolean) {
-    if (open) return;
-    navigate('..');
-  }
+  const toggleFriendSelection = useCallback(
+    (id: number, friend?: MinimalUser) => () => {
+      const { set: addFriend, remove: removeFriend } = chosenFriendsActions;
+      const isFriendSelected = chosenFriends.get(id);
 
-  function goBack() {
-    if (groupCreationEnabled.value) {
-      groupCreationEnabled.setFalse();
-      chosenFriendsActions.reset();
-    } else {
-      navigate('..');
-    }
-  }
+      // If the friend is not selected, add it to the chosen friends list
+      if (isFriendSelected) removeFriend(id);
+      // If the friend is selected, remove it from the chosen friends list
+      else friend && addFriend(id, friend);
+    },
+    [chosenFriends],
+  );
 
-  /** Create conversation */
-  async function goNext() {
-    if (groupCreationEnabled.value || chosenFriends.size > 1) {
-      const members = Array.from(chosenFriends.values());
-      const memberIds = Array.from(chosenFriends.keys());
-      const name = User.getDefaultGroupName(members);
+  const handleOpenChange = (open: boolean) => !open && navigate('..');
 
-      await composeConversation({
-        type: 'group',
-        payload: { name, memberIds },
-      });
-    } else {
-      const interlocutorId = Array.from(chosenFriends.keys())[0];
-      if (!interlocutorId) return;
+  const closeDialog = useCallback(() => {
+    groupCreationEnabled.toggle();
+    groupCreationEnabled.value ? chosenFriendsActions.reset() : navigate('..');
+  }, [groupCreationEnabled.value]);
 
-      await composeConversation({
-        type: 'pair',
-        payload: { interlocutorId },
-      });
-    }
-  }
+  const goToOrCreateConversation = useCallback(() => {
+    const participants = Array.from(chosenFriends.keys());
+    if (!participants.length) return;
+
+    return composeConversation(
+      groupCreationEnabled.value || chosenFriends.size > 1
+        ? { type: 'group', payload: { participants } }
+        : { type: 'pair', payload: { interlocutorId: participants[0] } },
+    );
+  }, [chosenFriends]);
 
   return (
-    <PageMeta title="Compose" auth={{ type: 'private' }}>
-      <Dialog defaultOpen onOpenChange={handleOpenChange}>
-        <Dialog.Content
-          disablePadding
-          classNames={{ content: styles.container }}
-        >
-          <div className={styles.topSection}>
-            <Button
-              disableBaseStyles
-              className={styles.topSectionBack}
-              title="back"
-              onClick={goBack}
-            >
-              <DynamicFragment
-                as={!groupCreationEnabled.value ? VscChromeClose : FaArrowLeft}
-              />
-            </Button>
+    <Dialog defaultOpen open onOpenChange={handleOpenChange}>
+      <Dialog.Content disablePadding classNames={{ content: styles.container }}>
+        <div className={styles.topSection}>
+          <Button
+            disableBaseStyles
+            className={styles.topSectionBack}
+            title="back"
+            onClick={closeDialog}
+          >
+            <DynamicFragment as={!groupCreationEnabled.value ? VscChromeClose : FaArrowLeft} />
+          </Button>
 
-            <div className={styles.topSectionTitle}>
-              <span className={styles.topSectionTitlePrimary}>
-                {groupCreationEnabled.value
-                  ? contents.title.base
-                  : contents.title.group.primary}
+          <div className={styles.topSectionTitle}>
+            <span className={styles.topSectionTitlePrimary}>
+              {groupCreationEnabled.value ? Constants.TITLE_BASE : Constants.TITLE_GROUP_PRIMARY}
+            </span>
+
+            {groupCreationEnabled.value ? (
+              <span className={styles.topSectionTitleSecondary}>
+                {Constants.TITLE_GROUP_SECONDARY}
               </span>
-
-              {groupCreationEnabled.value ? (
-                <span className={styles.topSectionTitleSeconday}>
-                  {contents.title.group.secondary}
-                </span>
-              ) : null}
-            </div>
-
-            <Button
-              disableBaseStyles
-              disabled={!chosenFriends.size}
-              className={styles.topSectionNext}
-              onClick={goNext}
-            >
-              Next
-            </Button>
+            ) : null}
           </div>
 
-          <div className={styles.bottomSection}>
-            <div className={styles.bottomSectionSearch}>
-              <FiSearch className={styles.bottomSectionSearchIcon} />
-              <input
-                autoFocus
-                type="text"
-                placeholder={contents.SEARCH_INPUT}
-                className={styles.bottomSectionSearchInput}
-                onChange={handleSearchChange}
-              />
-            </div>
+          <Button
+            disableBaseStyles
+            disabled={!chosenFriends.size}
+            className={styles.topSectionNext}
+            onClick={goToOrCreateConversation}
+          >
+            Next
+          </Button>
+        </div>
 
-            {!chosenFriends.size && !groupCreationEnabled.value ? (
-              <Button
-                disableRipple
-                disableBaseStyles
-                className={styles.bottomSectionGroup}
-                onClick={groupCreationEnabled.toggle}
-              >
-                <div className={styles.bottomSectionGroupIcon}>
-                  <UsersThreeIcon />
-                </div>
-                <div className={styles.bottomSectionGroupContent}>
-                  <span>{contents.INIT_GROUP}</span>
-                </div>
-              </Button>
-            ) : (
-              <div className={styles.bottomSectionChosenFriends}>
-                {Array.from(chosenFriends.entries()).map(
-                  ([id, friend], index) => (
-                    <FriendChosen
-                      key={index}
-                      friendInfo={friend}
-                      onClick={toggleChosenFriend(id)}
-                    />
-                  )
-                )}
+        <div className={styles.bottomSection}>
+          <div className={styles.bottomSectionSearch}>
+            <FiSearch className={styles.bottomSectionSearchIcon} />
+            <input
+              autoFocus
+              type="text"
+              placeholder={Constants.SEARCH_INPUT}
+              className={styles.bottomSectionSearchInput}
+              onChange={handleSearchChange}
+            />
+          </div>
+
+          {!chosenFriends.size && !groupCreationEnabled.value ? (
+            <Button
+              disableRipple
+              disableBaseStyles
+              className={styles.bottomSectionGroup}
+              onClick={groupCreationEnabled.toggle}
+            >
+              <div className={styles.bottomSectionGroupIcon}>
+                <UsersThreeIcon />
               </div>
-            )}
+              <div className={styles.bottomSectionGroupContent}>
+                <span>{Constants.INIT_GROUP}</span>
+              </div>
+            </Button>
+          ) : (
+            <div className={styles.bottomSectionChosenFriends}>
+              {Array.from(chosenFriends.entries()).map(([id, friend], index) => (
+                <FriendChosen key={index} friend={friend} onClick={toggleFriendSelection(id)} />
+              ))}
+            </div>
+          )}
 
-            <div className={styles.bottomSectionCurrentFriends}>
-              {!loadingCurrentFriends && currentFriends ? (
-                currentFriends.map((friend, index) => (
+          <div className={styles.bottomSectionCurrentFriends}>
+            {!loadingCurrentFriends && currentFriends
+              ? currentFriends.map((friend, index) => (
                   <FriendOption
                     key={index}
-                    friendInfo={friend}
+                    friend={friend}
                     chosen={chosenFriends.has(friend.id)}
-                    onClick={toggleChosenFriend(friend.id, friend)}
+                    onClick={toggleFriendSelection(friend.id, friend)}
                   />
                 ))
-              ) : (
-                <>loading...</>
-              )}
+              : 'loading...'}
 
-              {moreFriendsLoadable ? (
-                <Button
-                  disableBaseStyles
-                  className={styles.bottomSectionCurrentFriendsLoadMore}
-                  onClick={loadMoreFriends}
-                >
-                  {contents.LOAD}
-                </Button>
-              ) : null}
-            </div>
+            {moreFriendsLoadable ? (
+              <Button
+                disableBaseStyles
+                className={styles.bottomSectionCurrentFriendsLoadMore}
+                onClick={loadMoreFriends}
+              >
+                {Constants.LOAD}
+              </Button>
+            ) : null}
           </div>
-        </Dialog.Content>
-      </Dialog>
-    </PageMeta>
+        </div>
+      </Dialog.Content>
+    </Dialog>
   );
 }
 

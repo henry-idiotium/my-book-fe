@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export type RegiterForm = z.infer<typeof registerFormZod>;
+export type RegisterForm = z.infer<typeof registerFormZod>;
 export const registerFormZod = z
   .object({
     email: z.string().email('Invalid email').min(1, 'Email is required'),

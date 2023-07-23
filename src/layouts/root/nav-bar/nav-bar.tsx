@@ -3,14 +3,14 @@ import { FiFeather } from 'react-icons/fi';
 import { HiOutlineDotsCircleHorizontal } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 
-import Account from './account/account';
-import styles from './nav-bar.module.scss';
-import NavItem, { NavItemProps } from './nav-item/nav-item';
-
 import LogoSVG from '@/assets/logo.svg';
 import { Avatar, Button } from '@/components';
 import { useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
+
+import Account from './account/account';
+import styles from './nav-bar.module.scss';
+import NavItem, { NavItemProps } from './nav-item/nav-item';
 
 export interface NavBarProps {
   scheme: NavItemProps[];
@@ -34,14 +34,8 @@ export function NavBar(props: NavBarProps) {
           </div>
 
           <div className={styles.navMain}>
-            {scheme.map(({ to, name, icon, activeIcon }, index) => (
-              <NavItem
-                key={index + 1}
-                icon={icon}
-                activeIcon={activeIcon}
-                name={name}
-                to={to}
-              />
+            {scheme.map((props, index) => (
+              <NavItem key={index + 1} {...props} />
             ))}
           </div>
 

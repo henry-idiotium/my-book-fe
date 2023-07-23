@@ -6,9 +6,8 @@ export type DynamicFragmentProps<TProps> = TProps &
     as: keyof React.ReactHTML | ((props: GenericObject) => JSX.Element);
   };
 
-export function DynamicFragment<TProps = GenericObject>(
-  _props: DynamicFragmentProps<TProps>
-) {
+// todo: remove
+export function DynamicFragment<TProps = GenericObject>(_props: DynamicFragmentProps<TProps>) {
   const { as: Element, ...props } = _props;
 
   if (typeof Element === 'string') {

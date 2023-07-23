@@ -1,9 +1,9 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { z } from 'zod';
 
-import { RootState } from '..';
+import { getZodDefault, zodLiteralUnion } from '@/utils';
 
-import { getZodDefault, zodUnion } from '@/utils';
+import { RootState } from '..';
 
 export const THEME_FEATURE_KEY = 'theme';
 
@@ -13,8 +13,8 @@ export const themeConfig = {
 } as const;
 
 const themeStateZod = z.object({
-  base: zodUnion(themeConfig.base).default(themeConfig.base[0]),
-  accent: zodUnion(themeConfig.accent).default(themeConfig.accent[0]),
+  base: zodLiteralUnion(...themeConfig.base).default(themeConfig.base[0]),
+  accent: zodLiteralUnion(...themeConfig.accent).default(themeConfig.accent[0]),
 });
 
 export const themeSlice = createSlice({
@@ -32,20 +32,19 @@ export const themeSlice = createSlice({
 export const themeReducer = themeSlice.reducer;
 export const themeActions = themeSlice.actions;
 
-export const selectTheme = (rootState: RootState) =>
-  rootState[THEME_FEATURE_KEY];
+export const selectTheme = (rootState: RootState) => rootState[THEME_FEATURE_KEY];
 
 export const selectThemeIsDark = (rootState: RootState) => {
   const { base } = selectTheme(rootState);
   const darkModes: ThemeBaseTypes[] = ['dark', 'dim'];
-  return darkModes.includes(base as ThemeBaseTypes);
+  return darkModes.includes(base);
 };
 
 // types
 export type ThemeBaseTypes = (typeof themeConfig.base)[number];
 export type ThemeAccentTypes = (typeof themeConfig.accent)[number];
 export type ThemeState = z.infer<typeof themeStateZod>;
-type ThemeConfig = {
+export type ThemeConfig = {
   [Key in keyof ThemeState]: {
     type: Key;
     value: (typeof themeConfig)[Key][number];

@@ -22,10 +22,7 @@ import storage from 'redux-persist/lib/storage';
 
 import { authApi } from './auth/auth.api';
 import { AUTH_FEATURE_KEY, authReducer } from './auth/auth.slice';
-import {
-  CHAT_SOCKET_FEATURE_KEY,
-  chatSocketReducer,
-} from './chat-socket/chat-socket.slice';
+import { CHAT_SOCKET_FEATURE_KEY, chatSocketReducer } from './chat-socket/chat-socket.slice';
 import { THEME_FEATURE_KEY, themeReducer } from './theme/theme.slice';
 
 // Configurations
@@ -44,16 +41,17 @@ const persistConfig: PersistConfig<RootState> = {
   whitelist: [THEME_FEATURE_KEY],
   storage,
 };
+const persistedReducer = persistReducer(persistConfig, reducer);
 
 // store factory, for testing
 export function setupStore(preloadedState?: PreloadedState<RootState>) {
   return configureStore({
     devTools: import.meta.env.DEV,
-    reducer: persistReducer(persistConfig, reducer),
+    reducer: persistedReducer,
     enhancers,
     preloadedState,
-    middleware: (defaultMiddlewares) => {
-      return defaultMiddlewares({
+    middleware: (defaultMiddleware) => {
+      return defaultMiddleware({
         serializableCheck: {
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
@@ -71,9 +69,4 @@ export type AppStore = ReturnType<typeof setupStore>;
 export type RootState = ReturnType<typeof reducer>;
 export type AppDispatch = AppStore['dispatch'];
 
-export type AppThunk<ReturnType = void> = ThunkAction<
-  ReturnType,
-  RootState,
-  unknown,
-  AnyAction
->;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, AnyAction>;

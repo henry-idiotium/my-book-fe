@@ -1,5 +1,5 @@
 .content {
-  box-shadow: rgb(var(--c-text-accent) / 0.8) 0 0 6px 1px;
+  filter: drop-shadow(rgb(var(--c-text-accent) / 0.8) 0 0 5px);
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
@@ -12,6 +12,7 @@
     @apply w-full rounded-base bg-base;
   }
 
+  // todo: test the animation
   //#region setup popup animation
   // prettier-ignore
   $sides: (

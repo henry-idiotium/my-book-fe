@@ -1,126 +1,195 @@
-import {
-  createEntityAdapter,
-  createSelector,
-  createSlice,
-} from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+
+import { messageZod } from '@/types';
+import { Logger, getZodDefault } from '@/utils';
 
 import { RootState } from '../app-store';
 
-import { ChatSocketEntity, chatSocketEntityZod, Payload } from './types';
+import * as ChatSocketMap from './chat-socket.map';
+import * as thunkActions from './thunks';
+import { ChatSocketEntity, ChatSocketSlicePayloads } from './types';
 
-import { messageZod } from '@/types';
-import { Convo, getZodDefault } from '@/utils';
+import Payloads = ChatSocketSlicePayloads.Reducer;
 
-export * from './chat-socket.map';
+const adapter = createEntityAdapter<ChatSocketEntity>({
+  selectId: ({ id }) => id,
+});
+
+const initialState = adapter.getInitialState();
+const initialMessage = getZodDefault(messageZod);
 
 export const CHAT_SOCKET_FEATURE_KEY = 'chat-socket';
 
-const adapter = createEntityAdapter<ChatSocketEntity>();
-const initialState = adapter.getInitialState();
-const initialChatSocketEntity = getZodDefault(chatSocketEntityZod);
-const initialMessage = getZodDefault(messageZod);
-
-const chatSocketSlice = createSlice({
+export const chatSocketSlice = createSlice({
   name: CHAT_SOCKET_FEATURE_KEY,
   initialState,
   reducers: {
-    addConversation: (state, action: Payload.Connect) => {
-      const { activeUserIds, conversation: convo } = action.payload;
+    set: adapter.setOne,
 
-      const isGroup = Convo.isGroup(convo);
-      const participants = Object.fromEntries(
-        convo.participants.map((user) => [user.id, user])
+    addActiveUser(state, action: Payloads.User.UpdateActiveUser) {
+      const { conversationId, id } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const activeUserIndex = entity.activeUserIds.findIndex((activeId) => activeId === id);
+      if (activeUserIndex !== -1) return;
+
+      entity.activeUserIds.push(id);
+    },
+
+    removeActiveUser(state, action: Payloads.User.UpdateActiveUser) {
+      const { conversationId, id } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const activeUserIndex = entity.activeUserIds.findIndex((activeId) => activeId === id);
+      if (activeUserIndex === -1) return;
+
+      entity.activeUserIds.splice(activeUserIndex, 1);
+    },
+
+    addMessage(state, action: Payloads.Message.Add) {
+      const { conversationId, ...message } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const messageIsExists = entity.messages.some((m) => m.id === message.id);
+      if (messageIsExists) {
+        return Logger.info(
+          '💬 Message is already exists!! (possibly due to Strict Mode)\n',
+          message,
+        );
+      }
+
+      entity.messages.push(message);
+    },
+
+    updateFullMessage(state, action: Payloads.Message.FullUpdate) {
+      const { conversationId, ...messageToUpdate } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const indexToUpdate = entity.messages.findIndex(
+        (message) => message.id === messageToUpdate.id,
       );
+      if (indexToUpdate === -1) return;
 
-      state.entities[convo.id] = {
-        ...convo,
-        ...initialChatSocketEntity,
-        activeUserIds,
-        participants,
-        isGroup,
-      };
+      entity.messages[indexToUpdate] = messageToUpdate;
     },
 
-    addActiveUser: (state, action: Payload.JoinChat) => {
-      const { id: userId, conversationId: convoId } = action.payload;
+    updateMessage(state, action: Payloads.Message.Update) {
+      const { conversationId, content, id: messageId } = action.payload;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      entity.activeUserIds = [...entity.activeUserIds, userId];
+      const indexToUpdate = entity.messages.findIndex((message) => message.id === messageId);
+      if (indexToUpdate === -1) return;
+
+      entity.messages[indexToUpdate].content = content;
     },
 
-    removeActiveUser: (state, action: Payload.LeaveChat) => {
-      const { id: userId, conversationId: convoId } = action.payload;
+    deleteMessage(state, action: Payloads.Message.Delete) {
+      const { conversationId, id: idToDelete } = action.payload;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      entity.activeUserIds = entity.activeUserIds.filter((id) => id !== userId);
+      const messageToDeleteIndex = entity.messages.findIndex((m) => m.id === idToDelete);
+      if (messageToDeleteIndex === -1) return;
+
+      entity.messages[messageToDeleteIndex].content = null;
     },
 
-    pendMessage: (state, action: Payload.Message.Pending) => {
-      const { conversationId: convoId, content, at } = action.payload;
+    updateMessageSeenLog(state, action: Payloads.Message.UpdateSeenLog) {
+      const { conversationId, userId, messageId } = action.payload;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      entity.messages = [
-        ...entity.messages,
-        { ...initialMessage, content, at },
-      ];
+      entity.messageSeenLog[userId] = messageId;
     },
 
-    unpendMessage: (state, action: Payload.Message.SendSuccess) => {
-      const { conversationId: convoId, ...updatedMessage } = action.payload;
+    upsertMessageError(state, action: Payloads.Message.UpsertError) {
+      const { conversationId, payload, reason } = action.payload;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      // update pending message
-      entity.messages = entity.messages.filter(
-        (msg) => msg.id !== updatedMessage.id
-      );
+      const identifier = payload.at ?? payload.id;
+      if (!identifier) return;
+
+      entity.meta.message.errors[identifier] = { reason };
     },
 
-    addMessage: (state, action: Payload.Message.Receive) => {
-      const { conversationId: convoId, ...message } = action.payload;
+    prependMessages(state, action: Payloads.Message.PrependMessages) {
+      const { conversationId, messages } = action.payload;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      entity.messages = [...entity.messages, message];
+      entity.messages.unshift(...messages);
     },
 
-    deleteMessage: (state, action: Payload.Message.DeleteNotify) => {
-      const { conversationId: convoId, id: messageId } = action.payload;
+    updateMessagesFetchingLog(state, action: Payloads.Message.UpdateFetchingLog) {
+      const { conversationId, ...payload } = action.payload;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      entity.messages = entity.messages.filter((msg) => msg.id !== messageId);
+      entity.meta.message.prevFetch = payload;
     },
+  },
 
-    updateMessage: (state, action: Payload.Message.UpdateNotify) => {
-      const { conversationId: convoId, ...message } = action.payload;
+  extraReducers(builder) {
+    /** Add message (pending state) */
+    builder.addCase(thunkActions.sendMessage.pending, (state, action) => {
+      const { conversationId, ...partialMessage } = action.meta.arg;
 
-      const entity = state.entities[convoId];
+      const entity = state.entities[conversationId];
       if (!entity) return;
 
-      const messageId = entity.messages.findIndex((m) => m.id === message.id);
-      if (messageId === -1) return;
+      entity.messages.push({
+        ...initialMessage,
+        ...partialMessage,
+      });
+    });
 
-      entity.messages[messageId] = message;
-    },
+    /** Resolve pending message */
+    builder.addCase(thunkActions.sendMessage.fulfilled, (state, action) => {
+      if (!action.payload) return;
+
+      const { conversationId, ...successMessage } = action.payload;
+
+      const entity = state.entities[conversationId];
+      if (!entity) return;
+
+      const pendingIndex = entity.messages.findIndex((message) => {
+        const msgTime = new Date(message.at).getTime();
+        const successMsgTime = new Date(successMessage.at).getTime();
+        return msgTime === successMsgTime;
+      });
+      if (pendingIndex === -1) return;
+
+      // sync with the server version of this message
+      entity.messages[pendingIndex] = successMessage;
+    });
   },
 });
 
+export { ChatSocketMap };
+
 export const chatSocketReducer = chatSocketSlice.reducer;
-export const chatSocketActions = chatSocketSlice.actions;
+export const chatSocketActions = Object.assign(chatSocketSlice.actions, {
+  socket: thunkActions,
+});
 
 // selector
 const stateSelector = (state: RootState) => state[CHAT_SOCKET_FEATURE_KEY];
-
 const entitySelectors = adapter.getSelectors();
 
 export const chatSocketSelectors = {

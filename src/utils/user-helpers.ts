@@ -1,6 +1,6 @@
-import { truthy } from './filter-boolean';
-
 import { MinimalUserEntity, UserEntity } from '@/types';
+
+import { truthy } from './filter-boolean';
 
 const sep = {
   USER: ' ',

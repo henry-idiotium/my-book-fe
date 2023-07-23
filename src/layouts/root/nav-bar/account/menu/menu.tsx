@@ -11,9 +11,7 @@ type MenuScheme = {
 }[];
 
 export function Menu() {
-  const scheme: MenuScheme = [
-    { icon: BiCog, content: 'Display', dialog: ThemeDialog },
-  ];
+  const scheme: MenuScheme = [{ icon: BiCog, content: 'Display', dialog: ThemeDialog }];
 
   return (
     <div className="">

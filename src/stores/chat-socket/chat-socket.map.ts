@@ -1,32 +1,42 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import { io } from 'socket.io-client';
-
-import { handshakeQueryZod } from './types/handshake-query';
 
 import { ChatSocket } from '@/types';
 
-const socketAddress = `${import.meta.env.VITE_SERVER_CHAT_URL}/conversations`;
+import { HandshakeQuery, handshakeQueryZod } from './types/handshake-query';
 
-export namespace ChatSocketMap {
-  export const store = new Map<string, ChatSocket>();
+const URL = `${import.meta.env.VITE_SERVER_CONVERSATION_URL}/conversations`;
+const TIMEOUT = 5000;
 
-  /** Connect socket to the backend then immediately add to the Map. */
-  export function connect(id: string, token: string) {
-    const socket = io(socketAddress, {
-      query: handshakeQueryZod.parse({ conversationId: id }),
-      extraHeaders: { Authorization: token },
-    });
-    store.set(id, socket);
-    return socket;
-  }
+export const store = new Map<string, ChatSocket>();
 
-  /** Get current chat socket. Create new if not found. */
-  export function getOrConnect(id: string, token: string) {
-    const existsSocket = store.get(id);
-    const socket = existsSocket ?? connect(id, token);
-    if (!existsSocket) store.set(id, socket);
-    return socket;
-  }
+/** Connect socket to the backend then immediately add to the Map. */
+export function connect(
+  conversationId: string,
+  token: string,
+  options?: Omit<HandshakeQuery, 'conversationId'>,
+): ChatSocket {
+  const socket = io(URL, {
+    query: handshakeQueryZod.parse({ conversationId, ...options }),
+    extraHeaders: { Authorization: token },
+    timeout: TIMEOUT,
+  });
+
+  store.set(conversationId, socket);
+
+  return socket;
 }
 
-export default ChatSocketMap;
+/** Get current chat socket. Connect new if not found. */
+export function ensureGet(conversationId: string, token: string) {
+  return store.get(conversationId) ?? connect(conversationId, token);
+}
+
+export function disconnect(conversationId: string): void {
+  const socket = store.get(conversationId);
+  if (!socket) return;
+
+  // remove listeners and close.
+  socket.off().close();
+  // delete the socket instance from the store.
+  store.delete(conversationId);
+}

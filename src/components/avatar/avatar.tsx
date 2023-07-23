@@ -1,8 +1,8 @@
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
 
-import styles from './avatar.module.scss';
-
 import { classnames } from '@/utils';
+
+import styles from './avatar.module.scss';
 
 type AvatarProps = Omit<Partial<HTMLImageElement>, 'className'> & {
   src: string;
@@ -17,10 +17,7 @@ type AvatarProps = Omit<Partial<HTMLImageElement>, 'className'> & {
 export function Avatar(props: AvatarProps) {
   const { src, classNames, username, alt } = props;
 
-  const containerClassnames = classnames(
-    classNames?.container,
-    styles.container
-  );
+  const containerClassnames = classnames(classNames?.container, styles.container);
   const imgClassnames = classnames(classNames?.img, styles.img);
   const fallbackClassnames = classnames(classNames?.fallback, styles.fallback);
 

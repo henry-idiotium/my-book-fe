@@ -1,47 +1,81 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 
-import { Button, PageMeta } from '@/components';
-import useScrollToEnds from '@/hooks/scroll-to-ends';
+import { useScroll, useScrollAlt } from '@/hooks';
 
 export function Home() {
-  const divRef = useRef<HTMLDivElement>(null);
-  const [shouldScrollBack, scrollBack] = useScrollToEnds(divRef);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [{ shouldGoBack, isAtEnds, isAtOppositeEnds }, scrollBack] = useScrollAlt(containerRef, {
+    viewHeightPerc: 3,
+    behavior: 'smooth',
+    startAt: 'bottom',
+  });
 
   return (
-    <PageMeta title="Home" auth={{ type: 'private' }}>
-      <div className="min-h-screen">
-        <div className="h-20">
-          {shouldScrollBack ? <Button onClick={scrollBack}>back</Button> : null}
-        </div>
+    <div className="min-h-screen">
+      <div className="flex h-20 w-full justify-end">
+        {JSON.stringify({ shouldGoBack, isAtOppositeEnds, isAtEnds })}
+      </div>
 
-        <div className="w-[600px]">
-          {/* conversation container */}
-          <div
-            ref={divRef}
-            className="max-h-screen min-h-screen overflow-auto bg-cyan-800/50 wh-full"
-          >
-            {/* topbar */}
+      <div className="flex h-20 w-full justify-end">
+        {shouldGoBack ? <button onClick={() => scrollBack()}>back</button> : null}
+      </div>
 
-            <div className="sticky top-0 z-0 flex h-14 w-full justify-between before:absolute before:-z-10 before:bg-lime-700/50 before:content-[''] before:wh-full">
-              <div className="bg-red-800 wh-12" />
-              <div className="bg-red-800 wh-12" />
-              <div className="bg-red-800 wh-12" />
+      <div className="w-full max-w-[620px]">
+        <div ref={containerRef} className="h-[500px] w-full overflow-auto bg-cyan-800/50">
+          {Array.from(Array(100)).map((_, index) => (
+            <div
+              key={index}
+              className="flex h-20 w-full items-center justify-center border-b align-middle text-lg font-semibold text-black"
+            >
+              <span>{index}</span>
             </div>
-
-            {/* content */}
-            <div className="flex w-full flex-wrap gap-1 bg-emerald-800">
-              <div className="h-20">fooooo</div>
-              {Array.from(Array(180)).map((_, index) => (
-                <div key={index} className="h-20">
-                  fooooo
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-    </PageMeta>
+    </div>
   );
 }
 
 export default Home;
+
+/* 
+import { useEffect } from 'react';
+
+import { Button, Toast } from '@/components';
+import { useBoolean } from '@/hooks';
+
+export function Home() {
+  const opened = useBoolean(false);
+
+  useEffect(() => console.log(opened.value), [opened.value]);
+
+  return (
+    <Toast.Provider duration={1000}>
+      <div className="min-h-screen">
+        <div>
+          <div className="mt-64 flex h-40 w-full justify-center">
+            <Button className="h-16 w-32 capitalize" onClick={opened.setTrue}>
+              call for toast
+            </Button>
+
+            <Button className="h-16 w-32 capitalize" onClick={opened.setFalse}>
+              close it
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <Toast open={opened.value} type="background" onOpenChange={opened.setValue}>
+        <span>This is by design</span>
+
+        <Toast.Close>Dismiss</Toast.Close>
+      </Toast>
+
+      <Toast.Viewport offset={32} />
+    </Toast.Provider>
+  );
+}
+
+export default Home;
+*/

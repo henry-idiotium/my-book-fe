@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice, isAnyOf } from '@reduxjs/toolkit';
 import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { z } from 'zod';
+
+import { userZod } from '@/types';
+import { Logger, getZodDefault } from '@/utils';
 
 import { RootState } from '..';
 
 import { authApi } from './auth.api';
 import { AuthValidResponse } from './types';
 
-import { userZod } from '@/types';
-import { getZodDefault } from '@/utils';
-
 export const AUTH_FEATURE_KEY = 'auth';
+
+const endpoints = authApi.endpoints;
 
 export type AuthState = z.infer<typeof authStateZod>;
 const authStateZod = z.object({
@@ -27,26 +29,39 @@ export const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(
-      authApi.endpoints.login.matchFulfilled,
+      endpoints.login.matchFulfilled,
       (state, action: PayloadAction<AuthValidResponse>) => {
         state.token = action.payload.token;
         state.expires = jwt_decode<JwtPayload>(action.payload.token).exp;
         state.user = action.payload.user;
-      }
+      },
     );
 
     builder.addMatcher(
-      authApi.endpoints.refresh.matchFulfilled,
+      endpoints.refresh.matchFulfilled,
       (state, action: PayloadAction<AuthValidResponse>) => {
         state.token = action.payload.token;
         state.expires = jwt_decode<JwtPayload>(action.payload.token).exp;
         state.user = action.payload.user;
-      }
+      },
     );
 
-    builder.addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+    builder.addMatcher(endpoints.logout.matchFulfilled, (state) => {
       state = { ...initialState, expires: state.expires };
     });
+
+    builder.addMatcher(
+      isAnyOf(
+        endpoints.login.matchRejected,
+        endpoints.refresh.matchRejected,
+        endpoints.logout.matchRejected,
+      ),
+      (_, action) => {
+        const meta = action.meta;
+        const msg = `💫⚠️  ${meta.arg.endpointName} ${meta.requestStatus}\n`;
+        Logger.warn(msg.toUpperCase(), action);
+      },
+    );
   },
 });
 
