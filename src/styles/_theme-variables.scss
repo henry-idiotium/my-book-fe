@@ -1,0 +1,159 @@
+//#region --- helpers ---
+@function toRGB($color) {
+  @return red($color) + ' ' + green($color) + ' ' + blue($color);
+}
+
+@mixin set-vars($name, $color) {
+  --c-#{$name}: #{$color};
+}
+@mixin set-attr-theme($attr-key, $value, $var-name, $color) {
+  &[data-theme-#{$attr-key}='#{$value}'] {
+    @include set-vars($var-name, $color);
+  }
+}
+
+@mixin set-theme-vars($attr-key, $base-var-name, $scheme) {
+  @each $theme-name, $scheme-color in $scheme {
+    // scheme keys in each of its key-value map can be a color value, or another map
+    @if type-of($scheme-color) == 'map' {
+      @each $sub-theme-name, $color in $scheme-color {
+        $name: $base-var-name + '-' + $sub-theme-name;
+
+        @if ($sub-theme-name == 'default') {
+          $name: $base-var-name;
+        }
+
+        @include set-attr-theme($attr-key, $theme-name, $name, toRGB($color));
+      }
+    } @else {
+      @include set-attr-theme($attr-key, $theme-name, $base-var-name, toRGB($scheme-color));
+    }
+  }
+}
+
+//#endregion
+
+//--- status, no theme config relate
+:root {
+  // prettier-ignore
+  @each $key, $color in (
+    'neutral': #393c3f,
+    'info': #3abff8,
+    'success': #36d097,
+    'warning': #fbbd23,
+    'error': #f87272,
+  ) { @include set-vars($key, $color); }
+}
+
+//--- base
+:root {
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: base,
+    $scheme: (
+      'default': (
+        'default': white,
+        'hover': #f7f9f9,
+        'hover-lt': #f7f9f9,
+        'focus': darken(white, 9%),
+        'invert': #16181c,
+      ),
+      'dim': (
+        'default': #15202b,
+        'hover': #1e2732,
+        'hover-lt': #26313f,
+        'focus': lighten(#15202b, 7%),
+        'invert': #f7f9f9,
+      ),
+      'dark': (
+        'default': black,
+        'hover': #16181c,
+        'hover-lt': #23262e,
+        'focus': lighten(black, 11%),
+        'invert': #f7f9f9,
+      ),
+    )
+  );
+}
+
+//--- accent
+:root {
+  @function get-default-scheme($color) {
+    @return ('default': $color, 'hover': lighten($color, 13%), 'focus': darken($color, 15%));
+  }
+  @include set-theme-vars(
+    $attr-key: accent,
+    $base-var-name: accent,
+    $scheme: (
+      'blue': get-default-scheme(#1d9bf0),
+      'gold': get-default-scheme(#ffd400),
+      'pink': get-default-scheme(#f91880),
+      'purple': get-default-scheme(#7856ff),
+      'orange': get-default-scheme(#ff7a00),
+      'green': get-default-scheme(#00ba7c),
+    )
+  );
+}
+
+//--- text
+:root {
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: text,
+    $scheme: (
+      'default': (
+        'default': #131416,
+        'accent': lighten(#0f1419, 35%),
+        'invert': #e7e9ea,
+      ),
+      'dim': (
+        'default': #f1f3f3,
+        'accent': #8b98a5,
+        'invert': #131416,
+      ),
+      'dark': (
+        'default': #e7e9ea,
+        'accent': #7e848a,
+        'invert': #131416,
+      ),
+    )
+  );
+}
+
+//--- border
+:root {
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: border,
+    $scheme: (
+      'default': (
+        'default': #fff,
+        'accent': darken(#fff, 10%),
+        'emphasis': #cfd9de,
+      ),
+      'dim': (
+        'default': #38444d,
+        'accent': lighten(#38444d, 5%),
+        'emphasis': #536471,
+      ),
+      'dark': (
+        'default': #36393b,
+        'accent': #2f3336,
+        'emphasis': #536471,
+      ),
+    )
+  );
+}
+
+//--- overlay
+:root {
+  @include set-theme-vars(
+    $attr-key: base,
+    $base-var-name: overlay,
+    $scheme: (
+      'default': #000,
+      'dim': #5b7083,
+      'dark': #5b7083,
+    )
+  );
+}

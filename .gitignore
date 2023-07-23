@@ -40,3 +40,8 @@ Thumbs.db
 
 # vscode
 .vscode
+
+.env.*
+*.todo
+
+pnpm-lock.yaml

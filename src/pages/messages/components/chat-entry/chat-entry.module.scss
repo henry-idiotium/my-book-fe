@@ -1,0 +1,50 @@
+.container {
+  @apply w-full hover:bg-base-hover;
+}
+
+.wrapper {
+  @apply flex p-4 transition-colors wh-full;
+}
+
+.chat-icon {
+  @apply mr-[10px] shrink-0;
+
+  > img {
+    @apply wh-11 hover:z-10 focus:z-10
+      rounded-full;
+  }
+}
+
+.content {
+  @apply flex flex-col whitespace-nowrap gap-1
+    text-color-accent
+    overflow-hidden;
+
+  .info {
+    @apply flex items-center overflow-hidden;
+
+    &_name {
+      @apply w-fit max-w-[75%] font-semibold text-color text-ellipsis overflow-hidden pr-[6px];
+    }
+    &_id {
+      @apply overflow-hidden text-sm text-ellipsis;
+    }
+    &_time-last-message {
+      @apply overflow-hidden text-sm text-ellipsis shrink-0;
+    }
+    &-sep {
+      @apply px-1 font-semibold;
+    }
+  }
+
+  .last-message {
+    @apply overflow-hidden pr-7
+      text-sm text-color-accent text-ellipsis
+      leading-4 text-start;
+  }
+}
+
+// states
+.is-active {
+  @apply bg-base-hover-lt border-r-2 border-accent;
+}

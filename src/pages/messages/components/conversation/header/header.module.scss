@@ -1,0 +1,39 @@
+.container {
+  @apply sticky top-0 z-0 h-0 w-full;
+}
+.wrapper {
+  @apply relative h-14 w-full
+    flex items-center;
+
+  > *:first-child,
+  > *:last-child {
+    @apply mx-5;
+  }
+
+  // background
+  &::before {
+    @apply absolute content-['']
+      wh-full -z-[1]
+      bg-base/60 backdrop-blur;
+  }
+}
+
+.img {
+  @apply wh-8 shrink-0;
+
+  > img {
+    @apply wh-full rounded-full;
+  }
+}
+
+.title {
+  @apply wh-full
+    flex items-center
+    text-lg text-color font-bold;
+}
+
+.more {
+  @apply wh-8 rounded-full
+    flex items-center justify-center shrink-0
+    hover:bg-base-focus/80;
+}

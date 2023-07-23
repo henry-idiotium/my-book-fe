@@ -21,5 +21,5 @@
   - eslint
 - Dev Exp related but optional
   - hotscript (High-Order types utils)
-  - ts-toolkit (general type utils)
+  - utility-types (general type utils)
   - usehook-ts (hook utils)

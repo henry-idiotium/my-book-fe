@@ -1,0 +1,68 @@
+.container {
+  @apply wh-full overflow-hidden;
+}
+
+.wrapper {
+  @apply w-full min-h-screen mx-auto
+    grid overflow-hidden;
+
+  @screen xl {
+    @apply grid grid-cols-[31fr_600px_35fr];
+  }
+  @screen xl-max {
+    @apply grid-cols-[minmax(88px,150px)_600px_minmax(310px,1fr)];
+  }
+  @screen rsh-max {
+    @apply grid-cols-[minmax(88px,200px)_minmax(560px,620px)_minmax(70px,200px)];
+  }
+  @media screen and (max-width: 799px) {
+    @apply grid-cols-[minmax(90px,140px)_minmax(590px,600px)_minmax(20px,100px)];
+  }
+  @media screen and (max-width: 699px) {
+    @apply grid-cols-[88px_minmax(550px,600px)_minmax(0px,60px)];
+  }
+  @screen sm-max {
+    @apply grid-cols-[68px_minmax(300px,600px)];
+  }
+  @screen pmt-max {
+    @apply grid-cols-none;
+  }
+}
+
+.nav {
+  @apply overflow-hidden border-color z-0 wh-full;
+
+  @screen pmt {
+    @apply border-r;
+  }
+  @screen pmt-max {
+    @apply border-t fixed bottom-0 max-h-[52.5px];
+  }
+  @screen md {
+    @apply flex justify-end;
+  }
+
+  &-wrapper {
+    @apply h-full min-w-[68px]
+      flex justify-end;
+
+    @screen xl {
+      @apply w-[275px];
+    }
+    @screen lg {
+      @apply px-4;
+    }
+    @screen sm {
+      @screen xl-max {
+        @apply w-[88px];
+      }
+    }
+  }
+}
+
+.main {
+  @apply max-h-screen w-full h-fit col-span-2;
+
+  overflow-y: auto; // fallback
+  overflow-y: overlay;
+}

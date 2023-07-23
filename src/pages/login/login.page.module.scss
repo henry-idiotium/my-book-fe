@@ -1,0 +1,17 @@
+.form {
+  &-input {
+    @apply h-full min-h-10
+      rounded-lg border-2 border-color
+      bg-base px-4 py-3 text-color
+      transition-all
+      focus:border-accent;
+
+    &-label {
+      @apply text-[15px] font-medium leading-[35px] text-color;
+    }
+
+    &-message {
+      @apply text-[13px] text-color opacity-[0.8];
+    }
+  }
+}

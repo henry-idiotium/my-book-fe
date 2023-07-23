@@ -1,0 +1,47 @@
+.container {
+  @apply w-full px-3 py-[7px]
+    border-t border-color;
+}
+
+.compose {
+  @apply w-full px-2
+    flex items-center gap-1
+    rounded-[17px]
+    bg-base-hover-lt;
+
+  &-editor {
+    @apply w-full mr-1 ml-4;
+
+    form {
+      @apply w-full h-fit;
+    }
+
+    &-input {
+      @apply w-full h-6 min-h-6 max-h-48 my-3
+        bg-base-hover-lt
+        align-middle
+        resize-none overflow-x-hidden outline-none;
+
+      &::placeholder {
+        @apply text-color-accent;
+      }
+    }
+  }
+
+  :is(&-image-upload, &-gif-picker, &-emoji-picker, &-send) {
+    @apply wh-8 shrink-0
+      flex items-center justify-center
+      rounded-full
+      text-accent
+      hover:bg-accent/10;
+
+    &:disabled {
+      @apply pointer-events-none hover:bg-[unset]
+        text-accent/60;
+    }
+
+    > svg {
+      @apply wh-5 stroke-[2];
+    }
+  }
+}

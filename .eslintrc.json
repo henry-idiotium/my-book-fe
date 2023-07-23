@@ -1,48 +1,76 @@
 {
   "root": true,
+  "env": { "es2021": true, "node": true },
+
+  "plugins": ["@nx", "@typescript-eslint", "react", "import"],
   "extends": [
     "plugin:@nx/react",
     "plugin:import/typescript",
     "plugin:import/recommended",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "eslint:recommended"
   ],
-  "ignorePatterns": ["!**/*"],
-  "overrides": [
-    { "extends": ["plugin:@nx/typescript"], "files": ["*.ts", "*.tsx"] }
-  ],
-  "plugins": ["@nx", "react", "import"],
+
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["./tsconfig.app.json"],
+    "sourceType": "module"
+  },
+
   "rules": {
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react/display-name": "off",
     "react/jsx-no-undef": "off",
-    "react/jsx-sort-props": "warn",
     "react/no-children-prop": "off",
     "react/react-in-jsx-scope": "off",
+    "react/jsx-sort-props": [
+      "warn",
+      {
+        "reservedFirst": true,
+        "shorthandFirst": true,
+        "callbacksLast": true,
+        "multiline": "last",
+        "ignoreCase": true,
+        "noSortAlphabetically": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/unbound-method": "off",
-    "import/default": "off",
+    "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
     "import/no-named-as-default": "off",
-    "import/no-unresolved": "off",
-    "import/newline-after-import": "warn",
+    "import/default": "off",
     "import/order": [
       "warn",
-      { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
-    ],
-    "padding-line-between-statements": [
-      "warn",
-      { "blankLine": "always", "next": "*", "prev": ["const", "let", "var"] },
-      { "blankLine": "always", "next": "*", "prev": "if" },
-      { "blankLine": "always", "next": "if", "prev": "*" },
-      { "blankLine": "always", "next": "return", "prev": "*" },
-      { "blankLine": "any", "next": "return", "prev": ["const", "let", "var"] },
       {
-        "blankLine": "any",
-        "next": ["const", "let", "var", "return", "if", "for"],
-        "prev": ["const", "let", "var"]
+        "alphabetize": { "order": "asc" },
+        "newlines-between": "always",
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "index",
+          "parent",
+          "sibling",
+          "object",
+          "type"
+        ]
       }
     ],
     "tailwindcss/no-custom-classname": "off"
   },
+
+  "ignorePatterns": ["!**/*", "**/*.stories.ts", "**/*.stories.tsx"],
+
   "settings": {
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
     "import/resolver": { "typescript": {} }

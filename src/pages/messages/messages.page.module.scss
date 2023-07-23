@@ -1,0 +1,83 @@
+.container {
+  @apply min-h-screen wh-full grid grid-cols-[minmax(200px,630px)_1fr];
+
+  @screen rsh {
+    @apply grid-cols-[minmax(310px,388px)_minmax(580px,630px)];
+  }
+
+  // all panes
+  > * {
+    @apply border-r border-color wh-full max-w-[630px];
+  }
+
+  *::-webkit-scrollbar {
+    @apply wh-1;
+  }
+}
+
+.chat-entry {
+  @apply block;
+
+  &-header {
+    @apply w-full h-14 py-4 px-3
+      flex items-center justify-between;
+
+    > h2 {
+      @apply text-[20px] font-semibold;
+    }
+
+    &-option {
+      @apply flex;
+
+      &-item {
+        @apply p-2;
+
+        &-icon {
+          @apply wh-5;
+        }
+      }
+    }
+  }
+
+  &-search {
+    @apply relative m-3;
+
+    &-input {
+      @apply w-full h-11 pl-[41px] bg-base
+          border border-color rounded-full
+          text-color sm:text-sm
+          shadow-sm;
+
+      &:focus {
+        @apply border-2 border-accent bg-base
+            pl-10;
+      }
+
+      &::placeholder {
+        @apply text-color-accent;
+      }
+    }
+
+    &-icon {
+      @apply absolute top-[calc(50%-8px)] left-4
+          wh-4
+          text-color-accent;
+    }
+  }
+
+  &-content {
+    @apply w-full;
+  }
+}
+
+.conversation {
+  @apply flex;
+}
+
+// event-like styles
+.hide-on-rsh-max {
+  @apply rsh-max:hidden;
+}
+.empty-chat-entries-msg {
+  @apply text-color-accent font-light text-sm px-4;
+}

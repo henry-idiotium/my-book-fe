@@ -1,0 +1,106 @@
+@use 'theme-variables';
+
+@import 'tailwinds.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+  @apply text-base tracking-[1.5] font-normal text-color outline-none;
+
+  tab-size: 4;
+  word-wrap: break-word;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: 'kern';
+
+  scroll-behavior: smooth;
+
+  color: rgb(var(--c-text));
+}
+
+html {
+  @apply wh-full box-border;
+}
+
+body {
+  @apply box-border p-0 m-0 wh-full bg-base z-0 overflow-hidden;
+}
+
+li {
+  @apply list-none;
+}
+a {
+  text-decoration: none;
+}
+input {
+  @apply outline-none;
+
+  &::placeholder {
+    @apply select-none;
+  }
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+// prettier-ignore
+*::-webkit-scrollbar {
+  @apply wh-[10px];
+
+  @screen 2xl-max { @apply wh-[8px]; }
+  @screen xl-max { @apply wh-[7px]; }
+  @screen rsh-max { @apply wh-[5px]; }
+  @screen md-max { @apply wh-[4px]; }
+  @screen pmt-max { @apply wh-[2px]; }
+
+  &-track { @apply border-[4px_solid_transparent]; }
+  &-corner { @apply bg-transparent; }
+  &-thumb {
+    @apply border-[4px_solid_transparent]
+      shadow-[inset_0_0_10px_10px_rgba(106,104,110,0.5)]
+      rounded-full;
+  }
+}
+
+#root {
+  @apply box-border relative
+    w-full h-auto min-h-screen
+    text-base 
+    overflow-hidden;
+}
+
+// todo: refactor with styled-cmp
+@keyframes hide {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(calc(100% + var(--viewport-padding)));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes swipeOut {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(100% + var(--viewport-padding)));
+  }
+}

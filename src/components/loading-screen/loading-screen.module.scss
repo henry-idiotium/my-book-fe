@@ -1,0 +1,11 @@
+.container {
+  @apply absolute inset-0 wh-full;
+}
+
+.wrapper {
+  @apply flex items-center justify-center bg-base text-color wh-full;
+}
+
+.img {
+  @apply wh-20;
+}
