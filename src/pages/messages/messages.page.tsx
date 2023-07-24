@@ -1,7 +1,5 @@
+import * as Icon from '@phosphor-icons/react';
 import { useMemo } from 'react';
-import { FiSearch } from 'react-icons/fi';
-import { HiOutlineCog } from 'react-icons/hi';
-import { LuMailPlus } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 
@@ -62,7 +60,7 @@ export function Messages() {
           </div>
 
           <div className={styles.chatEntrySearch}>
-            <FiSearch className={styles.chatEntrySearchIcon} />
+            <Icon.MagnifyingGlass className={styles.chatEntrySearchIcon} />
             <input placeholder="Search Messages" className={styles.chatEntrySearchInput} />
           </div>
 
@@ -93,5 +91,5 @@ export function Messages() {
 export default Messages;
 
 function getHeaderOptionScheme() {
-  return [{ icon: HiOutlineCog }, { icon: LuMailPlus }];
+  return [{ icon: Icon.GearSix }, { icon: Icon.EnvelopeSimple }];
 }

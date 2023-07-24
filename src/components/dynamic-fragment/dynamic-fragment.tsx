@@ -7,6 +7,7 @@ export type DynamicFragmentProps<TProps> = TProps &
   };
 
 // todo: remove
+/** @deprecated */
 export function DynamicFragment<TProps = GenericObject>(_props: DynamicFragmentProps<TProps>) {
   const { as: Element, ...props } = _props;
 

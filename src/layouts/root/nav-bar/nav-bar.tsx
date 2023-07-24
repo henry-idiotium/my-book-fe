@@ -1,10 +1,8 @@
-import { BiPlus } from 'react-icons/bi';
-import { FiFeather } from 'react-icons/fi';
-import { HiOutlineDotsCircleHorizontal } from 'react-icons/hi';
+import * as Icon from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
 
 import LogoSVG from '@/assets/logo.svg';
-import { Avatar, Button } from '@/components';
+import { Button } from '@/components';
 import { useSelector } from '@/hooks';
 import { selectAuth } from '@/stores';
 
@@ -47,9 +45,8 @@ export function NavBar(props: NavBarProps) {
           >
             <div className="py-2">
               <div className="flex w-fit items-center gap-4 px-3 text-xl">
-                <div className="py-1">
-                  <HiOutlineDotsCircleHorizontal className="wh-[26.25px]" />
-                </div>
+                <Icon.DotsThreeCircle className="my-1 wh-[26.25px]" />
+
                 <span className="pr-4 capitalize xl-max:hidden">More</span>
               </div>
             </div>
@@ -61,8 +58,11 @@ export function NavBar(props: NavBarProps) {
             className="my-5 rounded-full bg-accent text-base capitalize text-white transition wh-[52px] hover:bg-accent-focus/90 xl:w-[235px]"
           >
             <div className="relative flex items-center justify-center py-1 wh-full xl:hidden">
-              <BiPlus className="absolute left-3 top-3 z-[2] stroke-2 wh-3" />
-              <FiFeather className="absolute bottom-[14px] right-3 z-[2] stroke-2 wh-5" />
+              <Icon.Plus className="absolute left-3 top-3 z-[2] wh-3" weight="bold" />
+              <Icon.Feather
+                className="absolute bottom-[14px] right-3 z-[2] stroke-2 wh-5"
+                weight="duotone"
+              />
             </div>
 
             <span className="font-semibold xl-max:hidden">Tweet</span>

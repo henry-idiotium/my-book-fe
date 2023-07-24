@@ -1,4 +1,4 @@
-import { VscChromeClose } from 'react-icons/vsc';
+import * as Icon from '@phosphor-icons/react';
 
 import UserImg from '@/assets/account-image.jpg';
 import { Button } from '@/components';
@@ -33,7 +33,7 @@ export function FriendChosen(_props: FriendChosenProps) {
       </div>
 
       <div className="flex h-full items-center justify-center pl-1 pr-2">
-        <VscChromeClose className="stroke-[.4] text-accent wh-4" />
+        <Icon.X className="text-accent wh-4" />
       </div>
     </Button>
   );

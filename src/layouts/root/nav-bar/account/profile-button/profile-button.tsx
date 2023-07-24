@@ -1,5 +1,5 @@
+import * as Icon from '@phosphor-icons/react';
 import { forwardRef } from 'react';
-import { BsThreeDots } from 'react-icons/bs';
 
 import accountImage from '@/assets/account-image.jpg';
 import { useSelector } from '@/hooks';
@@ -39,7 +39,7 @@ export const ProfileButton = forwardRef<HTMLButtonElement, ProfileButtonProps>(
           </div>
 
           <div className={styles.more}>
-            <BsThreeDots />
+            <Icon.DotsThree />
           </div>
         </div>
       </button>
