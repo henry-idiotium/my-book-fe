@@ -1,3 +1,4 @@
+export * from './loading/loading';
 export * from './loading-screen/loading-screen';
 export * from './dynamic-fragment/dynamic-fragment';
 export * from './popover/popover';

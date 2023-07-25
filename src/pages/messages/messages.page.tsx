@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 
+import { Loading } from '@/components';
 import { classnames, contextWithZod } from '@/utils';
 
 import { ChatEntry } from './components';
@@ -22,7 +23,7 @@ export function Messages() {
   const routesOutlets = useConversationRouteOutlet();
   const headerOptions = getHeaderOptionScheme();
 
-  const [{ chatEntries, chatEntriesLoading }, reloadEntries] = useFetchChatEntries();
+  const [chatEntryState, reloadEntries] = useFetchChatEntries();
 
   // `*` is the current match to this compose POV.
   const activeConvoId = useMemo(() => params['*'] ?? '', [params]);
@@ -32,7 +33,7 @@ export function Messages() {
   };
 
   function toggleOnRshMaxClassNames(className?: string, isEntryPane = true) {
-    const entryShouldHide = !chatEntries.length || activeConvoId;
+    const entryShouldHide = !chatEntryState.entries.length || activeConvoId;
     const shouldAdd = isEntryPane ? entryShouldHide : !entryShouldHide;
     return classnames(className, { [styles.hideOnRshMax]: shouldAdd });
   }
@@ -41,7 +42,15 @@ export function Messages() {
   // todo: on fetch error, render a reload/refetch button
   // todo: create a layout cmp for division of two panel
 
-  if (chatEntriesLoading) return <div>loading ...</div>;
+  if (chatEntryState.loading) {
+    return (
+      <div className="absolute left-16 flex items-center justify-center wh-full">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (chatEntryState.error.paired || chatEntryState.error.group) return <>Error...!!</>;
 
   return (
     <MessageCascadeStateContext.Provider value={{ reloadEntries }}>
@@ -65,8 +74,8 @@ export function Messages() {
           </div>
 
           <div className={styles.chatEntryContent}>
-            {chatEntries.length ? (
-              chatEntries.map((entry, index) => (
+            {chatEntryState.entries.length ? (
+              chatEntryState.entries.map((entry, index) => (
                 <ChatEntry
                   key={index}
                   entry={entry}

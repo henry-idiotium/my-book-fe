@@ -23,7 +23,7 @@ export function Header() {
         </div>
 
         <Button disableBaseStyles className={styles.more}>
-          <Icon.DotsThree />
+          <Icon.DotsThree weight="bold" size={20} />
         </Button>
       </div>
     </div>
