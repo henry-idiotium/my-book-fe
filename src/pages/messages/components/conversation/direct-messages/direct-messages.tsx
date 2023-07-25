@@ -1,10 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Gif as GifIcon,
-  Image as ImageIcon,
-  PaperPlaneRight as PaperPlaneRightIcon,
-  Smiley as SmileyIcon,
-} from '@phosphor-icons/react';
+import * as Icon from '@phosphor-icons/react';
 import { useContext, useRef } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -80,17 +75,17 @@ export function DirectMessages() {
       <div className={styles.compose}>
         {/* todo: image upload */}
         <Button disableBaseStyles className={styles.composeImageUpload}>
-          <ImageIcon weight="bold" />
+          <Icon.Image weight="bold" />
         </Button>
 
         {/* todo: gif picker */}
         <Button disableBaseStyles className={styles.composeGifPicker}>
-          <GifIcon weight="bold" />
+          <Icon.Gif weight="bold" />
         </Button>
 
         {/* todo: emoji picker */}
         <Button disableBaseStyles className={styles.composeEmojiPicker}>
-          <SmileyIcon weight="bold" />
+          <Icon.Smiley weight="bold" />
         </Button>
 
         <div className={styles.composeEditor}>
@@ -115,7 +110,7 @@ export function DirectMessages() {
           form="message-form"
           className={styles.composeSend}
         >
-          <PaperPlaneRightIcon />
+          <Icon.PaperPlaneRight weight="bold" />
         </Button>
       </div>
     </div>

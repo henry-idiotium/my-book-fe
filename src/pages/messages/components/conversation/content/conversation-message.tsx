@@ -11,7 +11,7 @@ import { useCallback, useMemo } from 'react';
 import { AlertDialog, Button, Popover, Toast } from '@/components';
 import { useBoolean, useDispatch } from '@/hooks';
 import { chatSocketActions as actions } from '@/stores';
-import { MessageEntity } from '@/types';
+import { MessageEntity, MinimalUserEntity } from '@/types';
 import { classnames, formatTimeReadable } from '@/utils';
 
 import styles from './conversation-message.module.scss';
@@ -20,40 +20,52 @@ export type ConversationMessageProps = {
   message: MessageEntity;
   conversationId: string;
   isFromSessionUser?: boolean;
-  hasSharpCorner?: boolean;
-  displayMeta?: boolean;
-  displaySeenStatus?: boolean;
-  seen?: boolean;
-  ownerShortName?: string;
+  owner: MinimalUserEntity;
+  isSeen?: boolean;
+  showSeenStatus?: boolean;
+  active?: boolean;
+  isEndOfChain?: boolean;
+  isFinalMessageFromSessionUser?: boolean;
 };
 
-/*
-todo:
-in idle:
-- loading and error state
-- add emoji
-
-in progress:
-*/
+// todo: add loading message state
 
 export function ConversationMessage(props: ConversationMessageProps) {
   const {
     conversationId,
     message,
+    owner,
     isFromSessionUser,
-    hasSharpCorner,
-    displayMeta,
-    ownerShortName,
-    displaySeenStatus,
-    seen,
+    active,
+    isSeen,
+    showSeenStatus,
+    isEndOfChain,
   } = props;
 
-  // todo: add loading message state
+  const displayContent = useMemo(() => {
+    // if content is deleted
+    if (!message.content) {
+      const personRefer = isFromSessionUser ? 'You' : owner.firstName;
+      return `${personRefer} unsent a message`;
+    }
+
+    return message.content;
+  }, [message.content]);
+
+  const showMeta = useMemo(
+    () => !!message.content && (isEndOfChain || active || isSeen),
+    [!message.content, active],
+  );
+
   const meta = useMemo(() => {
-    const time = formatTimeReadable(message.at);
-    const status = isFromSessionUser && displaySeenStatus ? ' · ' + (seen ? 'Seen' : 'Sent') : '';
-    return `${time}${status}`;
-  }, [seen, message.at]);
+    let str = formatTimeReadable(message.at);
+
+    if (showSeenStatus || active) {
+      str += ' · ' + (isSeen ? 'Seen' : 'Sent');
+    }
+
+    return str;
+  }, [isSeen, message.at]);
 
   return (
     <div className={styles.container}>
@@ -96,7 +108,7 @@ export function ConversationMessage(props: ConversationMessageProps) {
           <div
             className={classnames(
               'flex w-fit max-w-[400px] items-center break-all rounded-3xl px-4 py-3',
-              { [isFromSessionUser ? 'rounded-br-md' : 'rounded-bl-md']: hasSharpCorner },
+              { [isFromSessionUser ? 'rounded-br-md' : 'rounded-bl-md']: isEndOfChain },
               message.content
                 ? isFromSessionUser
                   ? 'bg-accent'
@@ -110,15 +122,19 @@ export function ConversationMessage(props: ConversationMessageProps) {
                 isFromSessionUser ? 'text-white' : 'text-color',
               )}
             >
-              <span className={classnames(!message.content ? 'text-color-accent' : '')}>
-                {message.content ?? `${ownerShortName ?? 'You'} unsent a message`}
+              <span
+                className={classnames({
+                  'text-color-accent': !message.content,
+                })}
+              >
+                {displayContent}
               </span>
             </div>
           </div>
         </div>
 
         {/* --- Meta --- */}
-        {displayMeta ? (
+        {showMeta ? (
           <div className="pt-1">
             <div className="text-xs leading-4 text-color-accent">
               <span>{meta}</span>

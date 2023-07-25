@@ -1,11 +1,8 @@
-import { UsersThree as UsersThreeIcon } from '@phosphor-icons/react';
+import * as Icon from '@phosphor-icons/react';
 import { useCallback, useContext } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
-import { FiSearch } from 'react-icons/fi';
-import { VscChromeClose } from 'react-icons/vsc';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Dialog, DynamicFragment } from '@/components';
+import { Button, Dialog } from '@/components';
 import { useBoolean, useMap, useUpdateEffect } from '@/hooks';
 import { MinimalUserEntity as MinimalUser } from '@/types';
 
@@ -80,11 +77,11 @@ export function Compose() {
         <div className={styles.topSection}>
           <Button
             disableBaseStyles
-            className={styles.topSectionBack}
+            className={styles.topSectionGoBack}
             title="back"
             onClick={closeDialog}
           >
-            <DynamicFragment as={!groupCreationEnabled.value ? VscChromeClose : FaArrowLeft} />
+            {groupCreationEnabled.value ? <Icon.ArrowLeft /> : <Icon.X />}
           </Button>
 
           <div className={styles.topSectionTitle}>
@@ -111,7 +108,7 @@ export function Compose() {
 
         <div className={styles.bottomSection}>
           <div className={styles.bottomSectionSearch}>
-            <FiSearch className={styles.bottomSectionSearchIcon} />
+            <Icon.MagnifyingGlass className={styles.bottomSectionSearchIcon} />
             <input
               autoFocus
               type="text"
@@ -129,7 +126,7 @@ export function Compose() {
               onClick={groupCreationEnabled.toggle}
             >
               <div className={styles.bottomSectionGroupIcon}>
-                <UsersThreeIcon />
+                <Icon.UsersThree />
               </div>
               <div className={styles.bottomSectionGroupContent}>
                 <span>{Constants.INIT_GROUP}</span>

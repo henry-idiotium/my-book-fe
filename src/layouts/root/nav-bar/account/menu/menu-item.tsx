@@ -1,5 +1,5 @@
+import { type Icon as IconType } from '@phosphor-icons/react';
 import { forwardRef } from 'react';
-import { IconType } from 'react-icons';
 
 import { Button } from '@/components';
 

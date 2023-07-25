@@ -1,13 +1,13 @@
 import { ArrowDown } from '@phosphor-icons/react';
 import { Fragment, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { Button } from '@/components';
+import { Button, Loading } from '@/components';
 import {
   useDeepCompareMemoize as deepCompareMemo,
   useBoolean,
   useDispatch,
   usePersistScrollView,
-  useScrollAlt,
+  useScroll,
   useSelector,
   useUpdateEffect,
 } from '@/hooks';
@@ -22,23 +22,18 @@ import styles from './content.module.scss';
 import { ConversationMessage, ConversationMessageProps } from './conversation-message';
 import UserProfileBanner from './user-profile-banner';
 
-/*
-todo:
-- seen logic: trigger when content focus
-- new message indication when shouldGoBack=true
-*/
+// note: not implement group case yet
 
 export function Content() {
   const dispatch = useDispatch();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { afterPrepend, beforePrepend } = usePersistScrollView(containerRef, { index: 1 });
-  const [{ shouldGoBack, isAtOppositeEnds: isAtTop, isAtEnds: isAtBottom }, scrollToBottom] =
-    useScrollAlt(containerRef, {
-      viewHeightPerc: 2,
-      behavior: 'smooth',
-      startAt: 'bottom',
-    });
+  const [shouldGoBack, isAtTop, isAtBottom, scrollToBottom] = useScroll(containerRef, {
+    viewHeightPerc: 2,
+    behavior: 'smooth',
+    startAt: 'bottom',
+  });
 
   const { user: sessionUser } = useSelector(selectAuth);
   const [{ chatSocketState }, contextDispatch] = useContext(ConversationCascadeStateContext);
@@ -48,6 +43,7 @@ export function Content() {
     participants,
     messages,
     messageSeenLog,
+    isGroup,
     meta: {
       message: { prevFetch },
     },
@@ -69,11 +65,10 @@ export function Content() {
    * (ie, messages that sent not far apart).
    */
   const decorativeMessages = useMemo(() => {
-    return messages.reduce<DecorativeMessage[]>((acc, message) => {
-      const isFromSessionUser = message.from === sessionUser.id;
-      const ownerShortName = participants[message.from]?.firstName;
-      const seen = messageSeenLog[message.from] === message.id;
+    const sessionUserFinalMessage = messages.filter((m) => m.from === sessionUser.id).at(-1);
+    const seenMessageIds = new Set(Object.values(messageSeenLog));
 
+    return messages.reduce<DecorativeMessage[]>((acc, message) => {
       // evaluate previous messages
       const previous = acc.at(-1);
       if (previous) {
@@ -84,27 +79,26 @@ export function Content() {
 
         const prevIndex = acc.length - 1;
 
-        if (isSameSource) {
-          acc[prevIndex].displaySeenStatus = seen;
-        }
-
         // Remove end of chain indication of prev message
         // if the current one is in same time duration.
         if (isSameSource && shouldEndOfChain) {
-          acc[prevIndex].hasSharpCorner = false;
-          acc[prevIndex].displayMeta = false;
+          acc[prevIndex].isEndOfChain = false;
         }
       }
 
+      const isFromSessionUser = message.from === sessionUser.id;
+      const owner = participants[message.from];
+      const isSeen = seenMessageIds.has(message.id);
+      const showSeenStatus = sessionUserFinalMessage?.id === message.id || isGroup;
+
       const decorativeMessage: DecorativeMessage = {
-        hasSharpCorner: true,
-        displaySeenStatus: true,
-        displayMeta: !!message.content,
-        isFromSessionUser,
         conversationId,
-        ownerShortName,
         message,
-        seen,
+        owner,
+        isEndOfChain: true,
+        showSeenStatus,
+        isFromSessionUser,
+        isSeen,
       };
 
       return [...acc, decorativeMessage];
@@ -155,16 +149,14 @@ export function Content() {
 
         {/* --- Loading --- */}
         {canLoadMoreMessages ? (
-          <div className="flex h-14 w-full shrink-0 items-center justify-center bg-teal-700">
-            {loadingPreviousMessages.value ? (
-              <span className="text-lg font-semibold text-color">loading...</span>
-            ) : null}
+          <div className="flex h-11 w-full shrink-0 items-center justify-center">
+            <Loading />
           </div>
         ) : null}
 
         {/* --- Messages --- */}
-        {decorativeMessages.map((metaMessage, index) => (
-          <ConversationMessage key={index} {...metaMessage} />
+        {decorativeMessages.map((decorators, index) => (
+          <ConversationMessage key={index} {...decorators} />
         ))}
       </div>
 

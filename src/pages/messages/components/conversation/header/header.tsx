@@ -1,5 +1,5 @@
+import * as Icon from '@phosphor-icons/react';
 import { useContext } from 'react';
-import { FiMoreHorizontal } from 'react-icons/fi';
 
 import UserImg from '@/assets/account-image.jpg';
 import { Button } from '@/components';
@@ -23,7 +23,7 @@ export function Header() {
         </div>
 
         <Button disableBaseStyles className={styles.more}>
-          <FiMoreHorizontal />
+          <Icon.DotsThree weight="bold" size={20} />
         </Button>
       </div>
     </div>

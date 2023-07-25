@@ -14,22 +14,26 @@ import {
 export function useFetchChatEntries() {
   const { user: sessionUser } = useSelector(selectAuth);
 
-  const [{ data: pairedEntries = [], loading: pairedLoading }, fetchPairedEnties] =
-    useAxios<PairedChatEntryResponse[]>(`/paired-conversations`);
+  const [
+    { data: pairedEntries = [], loading: pairedLoading, error: pairedError },
+    fetchPairedEnties,
+  ] = useAxios<PairedChatEntryResponse[]>(`/paired-conversations`);
 
-  const [{ data: groupEntries = [], loading: groupLoading }, fetchGroupEntries] =
+  const [{ data: groupEntries = [], loading: groupLoading, error: groupError }, fetchGroupEntries] =
     useAxios<GroupChatEntryResponse[]>(`/group-conversations`);
 
   const refetch = useCallback(async () => {
     await Promise.allSettled([fetchPairedEnties(), fetchGroupEntries()]);
   }, [fetchPairedEnties, fetchGroupEntries]);
 
-  const chatEntriesLoading = useMemo(
-    () => pairedLoading || groupLoading,
-    [pairedLoading, groupLoading],
+  const loading = useMemo(() => pairedLoading || groupLoading, [pairedLoading, groupLoading]);
+
+  const error = useMemo(
+    () => ({ paired: pairedError, group: groupError }),
+    [pairedError, groupError],
   );
 
-  const chatEntries = useMemo<ChatEntryResponse[]>(() => {
+  const entries = useMemo<ChatEntryResponse[]>(() => {
     const entries = [...pairedEntries, ...groupEntries];
 
     const filteredEntries = entries.map<ChatEntryResponse>((entry) => {
@@ -44,7 +48,7 @@ export function useFetchChatEntries() {
     return filteredEntries;
   }, [pairedEntries, groupEntries]);
 
-  return [{ chatEntries, chatEntriesLoading }, refetch] as const;
+  return [{ entries, loading, error }, refetch] as const;
 }
 
 export default useFetchChatEntries;
